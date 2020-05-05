@@ -29,3 +29,5 @@ build/
 .project
 .settings/
 .gradle/
+bin/
+
