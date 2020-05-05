@@ -19,6 +19,9 @@ repositories {
     jcenter()
 }
 
+group 'eu.uftplib'
+version '0.0.1-SNAPSHOT'
+
 bootJar {
   enabled = false
 }
