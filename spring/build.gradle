@@ -38,6 +38,14 @@ dependencies {
     implementation 'com.google.guava:guava:28.2-jre'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation('org.postgresql:postgresql')
+
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
