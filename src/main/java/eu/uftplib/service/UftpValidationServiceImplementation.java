@@ -1,7 +1,4 @@
-package eu.uftplib.web;
-
-import org.springframework.web.bind.annotation.RestController;
-import org.xml.sax.SAXException;
+package eu.uftplib.service;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,25 +11,18 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.xml.sax.SAXException;
 
-@RestController
-public class UftpController {
+public class UftpValidationServiceImplementation implements UftpValidationService {
+    private String role;
 
-	@RequestMapping(value = "/api/messages", method = RequestMethod.POST, consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public String uftp(HttpEntity<String> httpEntity) {
-		String xml = httpEntity.getBody();
-		System.out.println(xml);
-		if (!validateXML(xml)) return "ERROR";
-		return "OK";
-	}
+    public UftpValidationServiceImplementation(String role) {
+        this.role = role;
+    }
 
-	private boolean validateXML(String xml) {
+    public boolean validateXml(String xml) {
 		String xsdFilename = "";
-		switch ("AGR") {
+		switch (this.role) {
 			case "AGR":
 				xsdFilename = "/UFTP-V1.01-agr.xsd"; 
 				break;
@@ -60,6 +50,5 @@ public class UftpController {
   			System.out.println(xmlFile.getSystemId() + " is NOT valid reason:" + e);
 		} catch (IOException e) {}
 		return false;
-	}
-
+    }
 }

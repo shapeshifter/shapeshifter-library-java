@@ -1,6 +1,6 @@
 package eu.uftplib.service;
 
 public interface UftpService {
-    void SendMessage();
-    String QueryMessage(long id);
+    void sendMessage();
+    String queryMessage(long id);
 }

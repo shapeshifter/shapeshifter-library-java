@@ -1,13 +1,13 @@
 package eu.uftplib.service;
 
-public class UftpServiceStub implements UftpService {
-    public void SendMessage() {
+public class UftpServiceImplementation implements UftpService {
+    public void sendMessage() {
         System.out.println("Message Sent");
     }
 
-    public String QueryMessage(long id) {
+    public String queryMessage(long id) {
         System.out.println("Message Queried with id " + id);
         return "MessageWithId" + id;
     }
-    
+
 }
