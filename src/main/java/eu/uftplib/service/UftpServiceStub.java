@@ -11,4 +11,11 @@ public class UftpServiceStub implements UftpService {
         return "MessageWithId" + id;
     }
     
+    public void houseKeeping() {
+    }
+
+    public void notifyNewMessage(String message) {
+    }
+    public void addNewMessageListener(NewMessageListener newMessageListener) {
+    }
 }

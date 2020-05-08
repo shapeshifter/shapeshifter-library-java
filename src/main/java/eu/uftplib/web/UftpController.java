@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.uftplib.service.UftpService;
 import eu.uftplib.service.UftpValidationService;
 import eu.uftplib.service.UftpValidationServiceImplementation;
 
@@ -15,12 +16,19 @@ public class UftpController {
     @Value("${uftplib.role}")
 	private String role;
 
+	private UftpService uftpService;
+
+	public UftpController(UftpService uftpService) {
+		this.uftpService = uftpService;
+	}
+
 	@RequestMapping(value = "/api/messages", method = RequestMethod.POST, consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public String uftp(HttpEntity<String> httpEntity) {
 		String xml = httpEntity.getBody();
 		System.out.println(xml);
-		UftpValidationService uftpValidationService = new UftpValidationServiceImplementation(role);
-		if (!uftpValidationService.validateXml(xml)) return "ERROR";
+		//UftpValidationService uftpValidationService = new UftpValidationServiceImplementation(role);
+		//if (!uftpValidationService.validateXml(xml)) return "ERROR";
+		uftpService.notifyNewMessage(xml);
 		return "OK";
 	}
 }
