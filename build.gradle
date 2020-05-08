@@ -20,10 +20,6 @@ jar {
   enabled = true
 }
 
-ext {
-  jaxbVersion = '2.3.1'
-}
-
 dependencies {
   // This dependency is exported to consumers, that is to say found on their compile classpath.
   api 'org.apache.commons:commons-math3:3.6.1'
@@ -31,15 +27,15 @@ dependencies {
   // This dependency is used internally, and not exposed to consumers on their own compile classpath.
   implementation 'com.google.guava:guava:28.2-jre'
   implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+  runtimeOnly('org.postgresql:postgresql')
+
+  compileOnly 'org.projectlombok:lombok:1.18.12'
 
   implementation "com.goterl.lazycode:lazysodium-java:4.2.6"
   implementation "net.java.dev.jna:jna:5.5.0"
 
   // Use JUnit test framework
   testImplementation 'junit:junit:4.12'
-
-  xjc "javax.xml.bind:jaxb-api:$jaxbVersion"
-  xjc "org.glassfish.jaxb:jaxb-runtime:$jaxbVersion"
-  xjc "org.glassfish.jaxb:jaxb-xjc:$jaxbVersion"
 }
-
