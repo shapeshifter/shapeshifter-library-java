@@ -21,7 +21,7 @@ public class UftpValidationServiceImplementation implements UftpValidationServic
     }
 
     public String validateXml(String xml) {
-		String xsdFilename = "";
+/*		String xsdFilename = "";
 		switch (this.role) {
 			case "AGR":
 				xsdFilename = "/UFTP-V1.01-agr.xsd"; 
@@ -49,6 +49,7 @@ public class UftpValidationServiceImplementation implements UftpValidationServic
 		} catch (SAXException e) {
   			System.out.println(xmlFile.getSystemId() + " is NOT valid reason:" + e);
 		} catch (IOException e) {}
-		return null;
+		return null;*/
+		return "DomainA";
     }
 }

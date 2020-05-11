@@ -54,4 +54,8 @@ public class Message {
         return retryCount;
     }
 
+    public boolean getSuccessfullSend() {
+        return successfullSend;
+    }
+
 }

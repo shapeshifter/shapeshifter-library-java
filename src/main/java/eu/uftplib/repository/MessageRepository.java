@@ -19,10 +19,10 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findRetryMessages(Long retryCount);
 
     @Modifying
-    @Query("UPDATE Message m set m.retryCount = ?2 where m.Id = ?1")
+    @Query("UPDATE Message m set m.retryCount = ?2 where m.id = ?1")
     void setRetryCountById(Long id, Long retryCount);
 
     @Modifying
-    @Query("UPDATE Message m set m.successfullSend = true where m.Id = ?1")
-    void setSuccessfullSendById(Long id);
+    @Query("UPDATE Message m set m.successfullSend = ?2 where m.id = ?1")
+    void setSuccessfullSendById(Long id, boolean successfullSend);
 }

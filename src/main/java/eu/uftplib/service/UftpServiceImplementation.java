@@ -11,18 +11,16 @@ public class UftpServiceImplementation implements UftpService {
     private MessageRepository messageRepository;
     private UftpSendMessageService uftpSendMessageService;
     private UftpValidationService uftpValidationService;
-    private String role;
     private String privateKey;
     private Long retryCount;
 
     private List<NewMessageListener> newMessageListeners = new ArrayList<NewMessageListener>();
     private List<DeliveryStatusListener> deliveryStatusListeners = new ArrayList<DeliveryStatusListener>();
 
-    public UftpServiceImplementation(MessageRepository messageRepository, UftpSendMessageService uftpSendMessageService, UftpValidationService uftpValidationService, String role, String privateKey, Long retryCount) {
+    public UftpServiceImplementation(MessageRepository messageRepository, UftpSendMessageService uftpSendMessageService, UftpValidationService uftpValidationService, String privateKey, Long retryCount) {
         this.messageRepository = messageRepository;
         this.uftpSendMessageService = uftpSendMessageService;
         this.uftpValidationService = uftpValidationService;
-        this.role = role;
         this.privateKey = privateKey;
         this.retryCount = retryCount;
     }
@@ -70,7 +68,7 @@ public class UftpServiceImplementation implements UftpService {
 
     private boolean sendMessageInternal(Message message, String privateKey, Long retryCount) {
         if (uftpSendMessageService.sendMessage(message.getMessage(), message.getDomain(), privateKey)) {
-            messageRepository.setSuccessfullSendById(message.getId());
+            messageRepository.setSuccessfullSendById(message.getId(), true);
             notifyDeliveryStatus(message.getId(), DeliveryStatus.Send);
             return true;
         } else {
