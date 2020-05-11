@@ -9,17 +9,28 @@ import eu.uftplib.repository.MessageRepository;
 public class UftpServiceImplementation implements UftpService {
 
     private MessageRepository messageRepository;
+    private UftpSendMessageService uftpSendMessageService;
+    private UftpValidationService uftpValidationService;
+    private String role;
+    private String privateKey;
+    private Long retryCount;
 
     private List<NewMessageListener> newMessageListeners = new ArrayList<NewMessageListener>();
     private List<DeliveryStatusListener> deliveryStatusListeners = new ArrayList<DeliveryStatusListener>();
 
-    public UftpServiceImplementation(MessageRepository messageRepository) {
+    public UftpServiceImplementation(MessageRepository messageRepository, UftpSendMessageService uftpSendMessageService, UftpValidationService uftpValidationService, String role, String privateKey, Long retryCount) {
         this.messageRepository = messageRepository;
+        this.uftpSendMessageService = uftpSendMessageService;
+        this.uftpValidationService = uftpValidationService;
+        this.role = role;
+        this.privateKey = privateKey;
+        this.retryCount = retryCount;
     }
 
     public Long sendMessage(String message) {
-        var m = messageRepository.save(new Message(message, true, false, 0L, false));
-        System.out.println("Message Sent");
+        var domain = uftpValidationService.validateXml(message);
+        var m = messageRepository.save(new Message(message, domain, false, true, 0L, false));
+        sendMessageInternal(m, privateKey, retryCount);
         return m.getId();
     }
 
@@ -30,9 +41,10 @@ public class UftpServiceImplementation implements UftpService {
 
     public void houseKeeping() {
         System.out.println("Housekeeping..");
-        var l = messageRepository.findRetryMessages(3L);
-        for (var i : l) {
-            System.out.println(i.getId());
+        var messages = messageRepository.findRetryMessages(retryCount);
+        for (var message : messages) {
+            System.out.println(message.getId());
+            sendMessageInternal(message, privateKey, retryCount);
         }
     }
 
@@ -56,4 +68,19 @@ public class UftpServiceImplementation implements UftpService {
         }
     }
 
+    private boolean sendMessageInternal(Message message, String privateKey, Long retryCount) {
+        if (uftpSendMessageService.sendMessage(message.getMessage(), message.getDomain(), privateKey)) {
+            messageRepository.setSuccessfullSendById(message.getId());
+            notifyDeliveryStatus(message.getId(), DeliveryStatus.Send);
+            return true;
+        } else {
+            messageRepository.setRetryCountById(message.getId(), message.getRetryCount()+1);
+            if (message.getRetryCount() < retryCount) {
+                notifyDeliveryStatus(message.getId(), DeliveryStatus.Retrying);
+            } else {
+                notifyDeliveryStatus(message.getId(), DeliveryStatus.Failed);
+            }
+        }
+        return false;
+    }
 }

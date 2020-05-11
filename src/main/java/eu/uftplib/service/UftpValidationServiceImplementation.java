@@ -20,7 +20,7 @@ public class UftpValidationServiceImplementation implements UftpValidationServic
         this.role = role;
     }
 
-    public boolean validateXml(String xml) {
+    public String validateXml(String xml) {
 		String xsdFilename = "";
 		switch (this.role) {
 			case "AGR":
@@ -45,10 +45,10 @@ public class UftpValidationServiceImplementation implements UftpValidationServic
   			Validator validator = schema.newValidator();
   			validator.validate(new StreamSource(reader));
 			System.out.println(xmlFile.getSystemId() + " is valid");
-			return true;
+			return "DomainA";
 		} catch (SAXException e) {
   			System.out.println(xmlFile.getSystemId() + " is NOT valid reason:" + e);
 		} catch (IOException e) {}
-		return false;
+		return null;
     }
 }

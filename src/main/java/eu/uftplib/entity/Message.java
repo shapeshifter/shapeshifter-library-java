@@ -17,6 +17,7 @@ public class Message {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
     private String message;
+    private String domain;
     private boolean incomming;
     private boolean outgoing;
     private Long retryCount;
@@ -27,8 +28,9 @@ public class Message {
 
     protected Message() {}
 
-    public Message(String message, boolean incomming, boolean outgoing, Long retryCount, boolean successfullSend) {
+    public Message(String message, String domain, boolean incomming, boolean outgoing, Long retryCount, boolean successfullSend) {
         this.message = message;
+        this.domain = domain;
         this.incomming = incomming;
         this.outgoing = outgoing;
         this.retryCount = retryCount;
@@ -42,6 +44,14 @@ public class Message {
 
     public String getMessage() {
         return message;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public Long getRetryCount() {
+        return retryCount;
     }
 
 }

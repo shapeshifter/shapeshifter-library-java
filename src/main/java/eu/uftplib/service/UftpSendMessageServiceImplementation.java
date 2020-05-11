@@ -9,10 +9,22 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 
 public class UftpSendMessageServiceImplementation implements UftpSendMessageService {
-    public boolean sendMessage(final String xml, final String endpoint) {
+    private UftpParticipantService uftpParticipantService;
+    private UftpSigningService uftpSigningService;
+
+    public UftpSendMessageServiceImplementation(UftpParticipantService uftpParticipantService, UftpSigningService uftpSigningService) {
+        this.uftpParticipantService = uftpParticipantService;
+        this.uftpSigningService = uftpSigningService;
+    }
+
+    public boolean sendMessage(String xml, String domain, String privateKey) {
+
+        var uftpDomain = uftpParticipantService.getUftpDomainDetails(domain);
+        var signedXml = uftpSigningService.sealMessage(xml, privateKey);
+
         HttpClient client = HttpClient.newBuilder().build();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(endpoint)).POST(BodyPublishers.ofString(xml))
-                .build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(uftpDomain.getEndpoint())).POST(BodyPublishers.ofString(signedXml))
+            .build();
 
         HttpResponse<?> response;
         try {

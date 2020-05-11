@@ -2,7 +2,9 @@ package eu.uftplib.web;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,20 +22,22 @@ public class UftpController {
 
 	private UftpService uftpService;
 	private MessageRepository messageRepository;
+	private UftpValidationService uftpValidationService;
 
-	public UftpController(UftpService uftpService, MessageRepository messageRepository) {
+	public UftpController(UftpService uftpService, MessageRepository messageRepository, UftpValidationService uftpValidationService) {
 		this.uftpService = uftpService;
 		this.messageRepository = messageRepository;
+		this.uftpValidationService = uftpValidationService;
 	}
 
 	@RequestMapping(value = "/api/messages", method = RequestMethod.POST, consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public String uftp(HttpEntity<String> httpEntity) {
+	public ResponseEntity<String> uftp(HttpEntity<String> httpEntity) {
 		String xml = httpEntity.getBody();
 		System.out.println(xml);
-		//UftpValidationService uftpValidationService = new UftpValidationServiceImplementation(role);
-		//if (!uftpValidationService.validateXml(xml)) return "ERROR";
-        var m = messageRepository.save(new Message(xml, true, false, 0L, false));
+		var domain = uftpValidationService.validateXml(xml);
+		if (domain == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        var m = messageRepository.save(new Message(xml, domain, true, false, 0L, false));
 		uftpService.notifyNewMessage(m.getId(), xml);
-		return "OK";
+		return ResponseEntity.ok(null);
 	}
 }
