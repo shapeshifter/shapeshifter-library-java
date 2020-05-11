@@ -1,5 +1,5 @@
 package eu.uftplib.service;
 
 public interface NewMessageListener {
-    void newMessage(String message);
+    void newMessage(Long message, String xml);
 }

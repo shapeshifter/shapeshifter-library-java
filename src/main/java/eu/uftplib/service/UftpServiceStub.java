@@ -14,7 +14,7 @@ public class UftpServiceStub implements UftpService {
     public void houseKeeping() {
     }
 
-    public void notifyNewMessage(String message) {
+    public void notifyNewMessage(Long message, String xml) {
     }
     public void addNewMessageListener(NewMessageListener newMessageListener) {
     }

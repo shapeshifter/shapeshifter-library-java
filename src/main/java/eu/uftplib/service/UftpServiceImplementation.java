@@ -29,16 +29,20 @@ public class UftpServiceImplementation implements UftpService {
     }
 
     public void houseKeeping() {
-
+        System.out.println("Housekeeping..");
+        var l = messageRepository.findRetryMessages(3L);
+        for (var i : l) {
+            System.out.println(i.getId());
+        }
     }
 
     public void addNewMessageListener(NewMessageListener newMessageListener) {
         newMessageListeners.add(newMessageListener);
     }
 
-    public void notifyNewMessage(String message) {
+    public void notifyNewMessage(Long message, String xml) {
         for (NewMessageListener newMessageListener : newMessageListeners){
-            newMessageListener.newMessage(message);
+            newMessageListener.newMessage(message, xml);
         }
     }
 
