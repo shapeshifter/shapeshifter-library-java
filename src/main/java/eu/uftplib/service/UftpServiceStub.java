@@ -18,4 +18,10 @@ public class UftpServiceStub implements UftpService {
     }
     public void addNewMessageListener(NewMessageListener newMessageListener) {
     }
+
+    public void notifyDeliveryStatus(Long message, DeliveryStatus status) {
+    }
+    public void addDeliveryStatusListener(DeliveryStatusListener deliveryStatusListener) {
+    }
+
 }
