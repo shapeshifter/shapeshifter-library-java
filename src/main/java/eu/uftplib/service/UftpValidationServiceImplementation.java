@@ -1,16 +1,18 @@
 package eu.uftplib.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Validator;
 import javax.xml.XMLConstants;
-import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import generated.TestMessageType;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
@@ -33,12 +35,23 @@ public class UftpValidationServiceImplementation implements UftpValidationServic
 
         } catch (SAXException e) {
             System.out.println( "Request is NOT valid reason:" + e);
-            return domain;
         } catch (IOException e) {}
-        return "DomainA";
+        return domain;
     }
 
     private String getDomainFromRequest(String xml) {
-        return null;
+        String senderDomain = null;
+        JAXBContext jaxbContext = null;
+        try {
+            jaxbContext = JAXBContext.newInstance(TestMessageType.class);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            StringReader reader = new StringReader(xml);
+            TestMessageType testMessageType = (TestMessageType) unmarshaller.unmarshal(reader);
+            senderDomain = testMessageType.getSenderDomain();
+        } catch (JAXBException e) {
+            System.out.println( "Request is NOT valid reason:" + e);
+            e.printStackTrace();
+        }
+        return senderDomain;
     }
 }
