@@ -3,14 +3,63 @@
  */
 package eu.uftplib.service;
 
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.stream.Collectors;
+
 import static org.junit.Assert.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class UftpValidationServiceImplementationTest {
-    @Test public void testAsAGR() {
-        //UftpValidationServiceImplementation uftpValidationServiceImplementation = new UftpValidationServiceImplementation("AGR");
 
-        // String xml = "<abc></abc>";
-        assertTrue("validateXml should return 'true'", true);// uftpValidationServiceImplementation.validateXml(xml));
+    @InjectMocks
+    private UftpValidationServiceImplementation uftpValidationServiceImplementation;
+
+    @Test
+    public void testMessageWhenValid() throws FileNotFoundException {
+        BufferedReader br = new BufferedReader(new FileReader("src/test/java/eu/uftplib/input/TestMessageCorrect.XML"));
+        String content = br.lines().collect(Collectors.joining("\n"));
+        String domain = uftpValidationServiceImplementation.validateXml(content);
+        assertNotNull("validateXml should return a domain", domain);
+    }
+
+    @Test
+    public void testAGRPortfolioUpdateWhenValid() throws FileNotFoundException {
+        BufferedReader br = new BufferedReader(new FileReader("src/test/java/eu/uftplib/input/TestAGRPortfolioUpdate_Correct.XML"));
+        String content = br.lines().collect(Collectors.joining("\n"));
+        String domain = uftpValidationServiceImplementation.validateXml(content);
+        assertNotNull("validateXml should return a domain", domain);
+    }
+
+    @Test
+    public void testMessageWhenIncorrectISPDuration() throws FileNotFoundException {
+        BufferedReader br = new BufferedReader(new FileReader("src/test/java/eu/uftplib/input/TestMessageIncorrectISPDuration.XML"));
+        String content = br.lines().collect(Collectors.joining("\n"));
+        String domain = uftpValidationServiceImplementation.validateXml(content);
+        assertNull("validateXml should return a domain", domain);
+    }
+
+    @Test
+    public void testMessageWhenIncorrectTimeZone() throws FileNotFoundException {
+        BufferedReader br = new BufferedReader(new FileReader("src/test/java/eu/uftplib/input/TestMessageIncorrectTimezone.XML"));
+        String content = br.lines().collect(Collectors.joining("\n"));
+        String domain = uftpValidationServiceImplementation.validateXml(content);
+        assertNull("validateXml should return a domain", domain);
+    }
+
+    @Ignore
+    public void testDSOPortfolioUpdateResponse() throws FileNotFoundException {
+        BufferedReader br = new BufferedReader(new FileReader("src/test/java/eu/uftplib/input/TestDSOPortfolioUpdateResponse_AcceptedCorrect.XML"));
+        String content = br.lines().collect(Collectors.joining("\n"));
+        String domain = uftpValidationServiceImplementation.validateXml(content);
+        assertNull("validateXml should return a domain", domain);
     }
 }
