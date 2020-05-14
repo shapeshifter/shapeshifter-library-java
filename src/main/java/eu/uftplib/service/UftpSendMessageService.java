@@ -1,5 +1,5 @@
 package eu.uftplib.service;
 
 public interface UftpSendMessageService {
-    boolean sendMessage(String xml, String endpoint, String privateKey);
+    boolean sendMessage(String xml, String privateKey, DomainPair domainPair);
 }

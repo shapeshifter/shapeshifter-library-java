@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 
 public class UftpSigningServiceImplementationTest {
     @Test public void testKeyGen() {
-        UftpSigningServiceImplementation uftpSigningServiceImplementation = new UftpSigningServiceImplementation();
+        UftpSigningServiceImplementation uftpSigningServiceImplementation = new UftpSigningServiceImplementation("AGR");
         var keyPair = uftpSigningServiceImplementation.generateKeyPair();
         System.out.println(keyPair.getPrivateKey());
         System.out.println(keyPair.getPublicKey());
@@ -16,15 +16,15 @@ public class UftpSigningServiceImplementationTest {
     }
 
     @Test public void testSealMessage() {
-        UftpSigningServiceImplementation uftpSigningServiceImplementation = new UftpSigningServiceImplementation();
-        var sealedMessage = uftpSigningServiceImplementation.sealMessage("My Test Message", "AB7936FE269DE86F496AFD7423B4296B1AEFDF6B02F1CE491DC3600617BFB1FE96690511A1F89632696440C56D8D574DA25F4A3AFBEFD98C011347C9CC11F080");
+        UftpSigningServiceImplementation uftpSigningServiceImplementation = new UftpSigningServiceImplementation("AGR");
+        var sealedMessage = uftpSigningServiceImplementation.sealMessage("My Test Message", "AB7936FE269DE86F496AFD7423B4296B1AEFDF6B02F1CE491DC3600617BFB1FE96690511A1F89632696440C56D8D574DA25F4A3AFBEFD98C011347C9CC11F080", new DomainPair("xxx.com", "yyy.com"));
         System.out.println(sealedMessage);
         assertNotNull(sealedMessage);
     }
 
     @Test public void testUnsealMessage() {
-        UftpSigningServiceImplementation uftpSigningServiceImplementation = new UftpSigningServiceImplementation();
-        var unsealedMessage = uftpSigningServiceImplementation.unsealMessage("73F4F8036C04C6515EBF90002F6731CA80BA9B9C0DEA5B93BFE65058EDF51D923C76E884667E5B612ECFAB9602AD65EA8457BE34DD2C4FE94AF2CEE74B531E004D792054657374204D657373616765", "96690511A1F89632696440C56D8D574DA25F4A3AFBEFD98C011347C9CC11F080");
+        UftpSigningServiceImplementation uftpSigningServiceImplementation = new UftpSigningServiceImplementation("AGR");
+        var unsealedMessage = uftpSigningServiceImplementation.unsealMessage("<SignedMessage Body=\"NzNGNEY4MDM2QzA0QzY1MTVFQkY5MDAwMkY2NzMxQ0E4MEJBOUI5QzBERUE1QjkzQkZFNjUwNThFREY1MUQ5MjNDNzZFODg0NjY3RTVCNjEyRUNGQUI5NjAyQUQ2NUVBODQ1N0JFMzRERDJDNEZFOTRBRjJDRUU3NEI1MzFFMDA0RDc5MjA1NDY1NzM3NDIwNEQ2NTczNzM2MTY3NjU=\" RecipientDomain=\"yyy.com\" SenderDomain=\"xxx.com\"/>", "96690511A1F89632696440C56D8D574DA25F4A3AFBEFD98C011347C9CC11F080");
         System.out.println(unsealedMessage);
         assertNotNull(unsealedMessage);
     }

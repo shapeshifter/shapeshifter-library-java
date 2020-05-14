@@ -2,6 +2,7 @@ package eu.uftplib.entity;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,8 +17,10 @@ public class Message {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
+    @Column(length=10485760)
     private String message;
-    private String domain;
+    private String senderDomain;
+    private String recipientDomain;
     private boolean incomming;
     private boolean outgoing;
     private Long retryCount;
@@ -28,9 +31,10 @@ public class Message {
 
     protected Message() {}
 
-    public Message(String message, String domain, boolean incomming, boolean outgoing, Long retryCount, boolean successfullSend) {
+    public Message(String message, String senderDomain, String recipientDomain, boolean incomming, boolean outgoing, Long retryCount, boolean successfullSend) {
         this.message = message;
-        this.domain = domain;
+        this.senderDomain = senderDomain;
+        this.recipientDomain = recipientDomain;
         this.incomming = incomming;
         this.outgoing = outgoing;
         this.retryCount = retryCount;
@@ -46,8 +50,20 @@ public class Message {
         return message;
     }
 
-    public String getDomain() {
-        return domain;
+    public String getSenderDomain() {
+        return senderDomain;
+    }
+
+    public String getRecipientDomain() {
+        return recipientDomain;
+    }
+
+    public boolean getIncomming() {
+        return incomming;
+    }
+
+    public boolean getOutgoing() {
+        return outgoing;
     }
 
     public Long getRetryCount() {

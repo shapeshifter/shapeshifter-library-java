@@ -17,10 +17,10 @@ public class UftpSendMessageServiceImplementation implements UftpSendMessageServ
         this.uftpSigningService = uftpSigningService;
     }
 
-    public boolean sendMessage(String xml, String domain, String privateKey) {
+    public boolean sendMessage(String xml, String privateKey, DomainPair domainPair) {
 
-        var uftpDomain = uftpParticipantService.getUftpDomainDetails(domain);
-        var signedXml = uftpSigningService.sealMessage(xml, privateKey);
+        var uftpDomain = uftpParticipantService.getUftpDomainDetails(domainPair.getRecipientDomain());
+        var signedXml = uftpSigningService.sealMessage(xml, privateKey, domainPair);
 
         HttpClient client = HttpClient.newBuilder().build();
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(uftpDomain.getEndpoint())).POST(BodyPublishers.ofString(signedXml))

@@ -26,8 +26,8 @@ public class UftpServiceImplementation implements UftpService {
     }
 
     public Long sendMessage(String message) {
-        var domain = uftpValidationService.validateXml(message);
-        var m = messageRepository.save(new Message(message, domain, false, true, 0L, false));
+        var domainPair = uftpValidationService.validateXml(message, MessageDirection.Outgoing);
+        var m = messageRepository.save(new Message(message, domainPair.getSenderDomain(), domainPair.getRecipientDomain(), false, true, 0L, false));
         sendMessageInternal(m, privateKey, retryCount);
         return m.getId();
     }
@@ -67,13 +67,13 @@ public class UftpServiceImplementation implements UftpService {
     }
 
     private boolean sendMessageInternal(Message message, String privateKey, Long retryCount) {
-        if (uftpSendMessageService.sendMessage(message.getMessage(), message.getDomain(), privateKey)) {
+        if (uftpSendMessageService.sendMessage(message.getMessage(), privateKey, new DomainPair(message.getSenderDomain(), message.getRecipientDomain()))) {
             messageRepository.setSuccessfullSendById(message.getId(), true);
             notifyDeliveryStatus(message.getId(), DeliveryStatus.Send);
             return true;
         } else {
             messageRepository.setRetryCountById(message.getId(), message.getRetryCount()+1);
-            if (message.getRetryCount() < retryCount) {
+            if (message.getRetryCount()+1 < retryCount) {
                 notifyDeliveryStatus(message.getId(), DeliveryStatus.Retrying);
             } else {
                 notifyDeliveryStatus(message.getId(), DeliveryStatus.Failed);
