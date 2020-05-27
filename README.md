@@ -1,4 +1,24 @@
 # uftplib
 UFTP library
 
-curl -X POST -H 'content-type: text/xml' -d '<xml></xml>' http://localhost:8024/api/messages
+To use the library the following settings must be set.
+
+```
+######################
+# DATABASE SETTINGS  #
+######################
+
+## PostgreSQL
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
+spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
+spring.datasource.username=postgres
+spring.datasource.password=mysecretpassword
+spring.datasource.continue-on-error=true
+
+#drop n create table again, good for testing, comment this in production
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.generate-ddl=true
+
+uftplib.role=AGR/DSO/CRO
+uftplib.privatekey=<privatekey to sign outgoingmessages>
+```
