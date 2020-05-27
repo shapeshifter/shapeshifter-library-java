@@ -22,3 +22,6 @@ spring.jpa.generate-ddl=true
 uftplib.role=AGR/DSO/CRO
 uftplib.privatekey=<privatekey to sign outgoingmessages>
 ```
+
+
+!! Be sure to check the ParticipantServiceStub. This stub should return the correct endpoints en public keys for the remote uftp services
