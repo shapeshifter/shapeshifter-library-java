@@ -3,10 +3,15 @@ package eu.uftplib.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+
 import eu.uftplib.entity.Message;
 import eu.uftplib.repository.MessageRepository;
 
 public class UftpServiceImplementation implements UftpService {
+
+    private Logger logger = LoggerFactory.getLogger(UftpServiceImplementation.class);
 
     private MessageRepository messageRepository;
     private UftpSendMessageService uftpSendMessageService;
@@ -33,15 +38,15 @@ public class UftpServiceImplementation implements UftpService {
     }
 
     public String queryMessage(Long id) {
-        System.out.println("Message Queried with id " + id);
+        logger.info("Message Queried with id " + id);
         return "MessageWithId" + id;
     }
 
     public void houseKeeping() {
-        System.out.println("Housekeeping..");
+        logger.info("Housekeeping..");
         var messages = messageRepository.findRetryMessages(retryCount);
         for (var message : messages) {
-            System.out.println(message.getId());
+            logger.info("Retry message with id: " + message.getId());
             sendMessageInternal(message, privateKey, retryCount);
         }
     }

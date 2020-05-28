@@ -11,11 +11,15 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class UftpValidationServiceImplementation implements UftpValidationService {
+
+    private Logger logger = LoggerFactory.getLogger(UftpServiceImplementation.class);
 
     private String role;
 
@@ -45,7 +49,7 @@ public class UftpValidationServiceImplementation implements UftpValidationServic
             validator.validate(new StreamSource(reader));
             domainPair = getDomainPairFromRequest(xml);
         } catch (SAXException e) {
-            System.out.println("Request is NOT valid reason:" + e);
+            logger.warn("Request is NOT valid reason:" + e);
         } catch (IOException e) {
         }
         return domainPair;
