@@ -23,5 +23,19 @@ uftplib.role=AGR/DSO/CRO
 uftplib.privatekey=<privatekey to sign outgoingmessages>
 ```
 
-
 !! Be sure to check the ParticipantServiceStub. This stub should return the correct endpoints en public keys for the remote uftp services
+
+# Build the library
+
+To build the library run the command:
+
+on linux:
+./gradlew build
+
+on windows:
+gradlew.bat build
+
+this will produce the library in the location:
+
+uftplib/build/libs/eu.uftplib-0.0.1-SNAPSHOT.jar
+
