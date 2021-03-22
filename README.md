@@ -39,3 +39,8 @@ this will produce the library in the location:
 
 uftplib/build/libs/eu.uftplib-0.0.1-SNAPSHOT.jar
 
+#########################
+# Key encoding
+
+The library uses code signing keys only, because the https is used for encrpytion.
+Keys are encoded with base64 encoding per the uftp standard.
