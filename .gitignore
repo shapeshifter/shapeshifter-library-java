@@ -30,4 +30,8 @@ build/
 .settings/
 .gradle/
 bin/
+
+# Intellij files
 .idea/
+*.iml
+
