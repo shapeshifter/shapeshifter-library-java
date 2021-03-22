@@ -30,4 +30,4 @@ build/
 .settings/
 .gradle/
 bin/
-
+.idea/
