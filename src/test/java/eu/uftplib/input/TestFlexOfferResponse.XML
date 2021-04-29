@@ -1,1 +1,7 @@
+<!--
+SPDX-FileCopyrightText: 2020-2021 Alliander N.V.
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?> <FlexOfferResponse SenderDomain="xxx.com" RecipientDomain="yyy.com" TimeStamp="2020-05-12T15:13:13.546" MessageID="dfd2d56b-dd49-ccfb-cf03-a425cb10de98" ConversationID="0afd701e-44b2-5c66-98db-62cd57976066" FlexOfferMessageID="d77aa5f6-6e31-3574-3bf4-c3ddd3725559" Result="Accepted"/>

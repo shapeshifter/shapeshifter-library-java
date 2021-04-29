@@ -1,1 +1,7 @@
+<!--
+SPDX-FileCopyrightText: 2020-2021 Alliander N.V.
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?> <D-PrognosisResponse SenderDomain="xxx.com" RecipientDomain="yyy.com" TimeStamp="2020-05-12T16:26:54.617" MessageID="59f58dd9-dc41-ad20-414a-3af9e4da2bfa" ConversationID="0afd701e-44b2-5c66-98db-62cd57976066" D-PrognosisMessageID="597ed29c-38b3-acf9-32bc-5c153b753874" Result="Accepted"/>

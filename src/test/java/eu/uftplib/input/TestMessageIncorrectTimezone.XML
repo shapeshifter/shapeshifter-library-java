@@ -1,1 +1,7 @@
+<!--
+SPDX-FileCopyrightText: 2020-2021 Alliander N.V.
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?> <TestMessage SenderDomain="xxx.com" RecipientDomain="yyy.com" TimeStamp="2020-05-11T15:09:30.884" MessageID="5928a602-30cb-f976-67c1-c3298757ff90" ConversationID="53c4d0a0-00bc-c1f8-b417-fd6813e9beab" TimezoneName="Etc/UTC"/>
