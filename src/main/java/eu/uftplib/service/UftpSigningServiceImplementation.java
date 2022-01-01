@@ -18,6 +18,7 @@ import com.goterl.lazycode.lazysodium.LazySodiumJava;
 import com.goterl.lazycode.lazysodium.SodiumJava;
 import com.goterl.lazycode.lazysodium.exceptions.SodiumException;
 import com.goterl.lazycode.lazysodium.utils.Key;
+import com.goterl.lazycode.lazysodium.utils.Base64MessageEncoder;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
