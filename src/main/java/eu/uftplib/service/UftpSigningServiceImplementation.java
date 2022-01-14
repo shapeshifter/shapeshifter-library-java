@@ -37,7 +37,7 @@ public class UftpSigningServiceImplementation implements UftpSigningService {
 
     public String sealMessage(String message, String privateKey, DomainPair domainPair) {
         try {
-            String base64Body = lazySodium.cryptoSign(message, Key.fromHexString(privateKey));
+            String base64Body = lazySodium.cryptoSign(message, privateKey);
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
             Document signedMessage = documentBuilder.newDocument();
@@ -87,8 +87,10 @@ public class UftpSigningServiceImplementation implements UftpSigningService {
     public KeyPair generateKeyPair() {
         LazySodiumJava lazySodium = new LazySodiumJava(new SodiumJava());
         try {
-            var keyPair = lazySodium.cryptoSignKeypair();
-            return new KeyPair(keyPair.getPublicKey().getAsHexString(), keyPair.getSecretKey().getAsHexString());
+            com.goterl.lazycode.lazysodium.utils.KeyPair keyPair = lazySodium.cryptoSignKeypair();
+            String base64Public = Base64.getEncoder().encodeToString(keyPair.getPublicKey().getAsBytes());
+            String base64Secret = Base64.getEncoder().encodeToString(keyPair.getSecretKey().getAsBytes());
+            return new KeyPair(base64Public, base64Secret);
         } catch (SodiumException e) {
             e.printStackTrace();
         }
