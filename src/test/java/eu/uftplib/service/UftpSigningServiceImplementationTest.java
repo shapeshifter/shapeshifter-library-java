@@ -15,16 +15,17 @@ public class UftpSigningServiceImplementationTest {
         assertNotNull(keyPair);
     }
 
+
     @Test public void testSealMessage() {
         UftpSigningServiceImplementation uftpSigningServiceImplementation = new UftpSigningServiceImplementation("AGR");
-        var sealedMessage = uftpSigningServiceImplementation.sealMessage("My Test Message", "AB7936FE269DE86F496AFD7423B4296B1AEFDF6B02F1CE491DC3600617BFB1FE96690511A1F89632696440C56D8D574DA25F4A3AFBEFD98C011347C9CC11F080", new DomainPair("xxx.com", "yyy.com"));
+        var sealedMessage = uftpSigningServiceImplementation.sealMessage("My Test Message", "pyKi39uRd2XU7LWsQiNwKS8ydvdbGyLH4gtj24weeVvtUcA5oqLBXzqRjPDKhQsxGM3Gipx9qDqjtAK8iygwrQ==", new DomainPair("xxx.com", "yyy.com"));
         System.out.println(sealedMessage);
         assertNotNull(sealedMessage);
     }
 
     @Test public void testUnsealMessage() {
         UftpSigningServiceImplementation uftpSigningServiceImplementation = new UftpSigningServiceImplementation("AGR");
-        var unsealedMessage = uftpSigningServiceImplementation.unsealMessage("<SignedMessage Body=\"NzNGNEY4MDM2QzA0QzY1MTVFQkY5MDAwMkY2NzMxQ0E4MEJBOUI5QzBERUE1QjkzQkZFNjUwNThFREY1MUQ5MjNDNzZFODg0NjY3RTVCNjEyRUNGQUI5NjAyQUQ2NUVBODQ1N0JFMzRERDJDNEZFOTRBRjJDRUU3NEI1MzFFMDA0RDc5MjA1NDY1NzM3NDIwNEQ2NTczNzM2MTY3NjU=\" RecipientDomain=\"yyy.com\" SenderDomain=\"xxx.com\"/>", "96690511A1F89632696440C56D8D574DA25F4A3AFBEFD98C011347C9CC11F080");
+        var unsealedMessage = uftpSigningServiceImplementation.unsealMessage("<SignedMessage Body=\"L0k3PN4Dpx2YicjfnQKCHNIbgev/jIXKmvSS61dzZ+pzGJATVCfGr+AVwzBXwFzTB9P+pSfmFvsygJvCYjXWAE15IFRlc3QgTWVzc2FnZQ==\" SenderDomain=\"xxx.com\" SenderRole=\"AGR\"/>", "7VHAOaKiwV86kYzwyoULMRjNxoqcfag6o7QCvIsoMK0=");
         System.out.println(unsealedMessage);
         assertNotNull(unsealedMessage);
     }

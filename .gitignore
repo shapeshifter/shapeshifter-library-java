@@ -31,3 +31,7 @@ build/
 .gradle/
 bin/
 
+# Intellij files
+.idea/
+*.iml
+
