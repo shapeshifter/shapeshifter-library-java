@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="UFTP-common.xsd"/>
+	<!-- -->
+	<!--  AGR Portfolio Update Type -->
+	<!-- -->
+	<xs:complexType name="AGRPortfolioUpdateType">
+		<xs:complexContent>
+			<xs:extension base="PayloadMessageType">
+				<xs:sequence>
+					<xs:element name="Connection" type="AGRPortfolioUpdateConnection" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="TimeZone" type="TimeZoneNameType" use="required">
+					<xs:annotation>
+						<xs:documentation>Time zone ID (as per the IANA time zone database, http://www.iana.org/time-zones, for example: Europe/Amsterdam) indicating the UTC offset that applies to the Period referenced in this message. Although the time zone is a market-wide fixed value, making this assumption explicit in each message is important for validation purposes, allowing implementations to reject messages with an errant UTC offset.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- -->
+	<!--  AGR Portfolio Update Connection -->
+	<!-- -->
+	<xs:complexType name="AGRPortfolioUpdateConnection">
+		<xs:annotation>
+			<xs:documentation>A connection that the AGR want the CRO to update</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="EntityAddress" type="EntityAddressType" use="required">
+			<xs:annotation>
+				<xs:documentation>EntityAddress of the Connection entity being updated. </xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="StartPeriod" type="PeriodType" use="required">
+			<xs:annotation>
+				<xs:documentation>The first Period hat the AGR represents the prosumer at this Connection.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="EndPeriod" type="PeriodType" use="optional">
+			<xs:annotation>
+				<xs:documentation>The last Period that the AGR represents the prosumer at this Connection, if applicable.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<!-- -->
+	<!-- AGR Portfolio Update Response Type -->
+	<!-- -->
+	<xs:complexType name="AGRPortfolioUpdateResponseType">
+		<xs:complexContent>
+			<xs:extension base="PayloadMessageResponseType">
+				<xs:attribute name="AGRPortfolioUpdateMessageID" type="UUIDType" use="required">
+					<xs:annotation>
+						<xs:documentation>MessageID of the AGRPortfolioUpdate that has just been accepted or rejected</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- -->
+	<!-- AGR Portfolio Query Type -->
+	<!-- -->
+	<xs:complexType name="AGRPortfolioQueryType">
+		<xs:complexContent>
+			<xs:extension base="PayloadMessageType">
+				<xs:attribute name="TimeZone" type="TimeZoneNameType" use="required">
+					<xs:annotation>
+						<xs:documentation>Time zone ID (as per the IANA time zone database, http://www.iana.org/time-zones, for example: Europe/Amsterdam) indicating the UTC offset that applies to the Period referenced in this message. Although the time zone is a market-wide fixed value, making this assumption explicit in each message is important for validation purposes, allowing implementations to reject messages with an errant UTC offset.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="Period" type="PeriodType" use="required">
+					<xs:annotation>
+						<xs:documentation>The Period for which the AGR requests the portfolio information.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- -->
+	<!-- AGR Portfolio Query Response Type -->
+	<!-- -->
+	<xs:complexType name="AGRPortfolioQueryResponseType">
+		<xs:complexContent>
+			<xs:extension base="PayloadMessageResponseType">
+				<xs:sequence>
+					<xs:element name="DSO-View" type="AGRPortfolioQueryResponseDSOViewType" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="TimeZone" type="TimeZoneNameType" use="required">
+					<xs:annotation>
+						<xs:documentation>Time zone ID (as per the IANA time zone database, http://www.iana.org/time-zones, for example: Europe/Amsterdam) indicating the UTC offset that applies to the Period referenced in this message. Although the time zone is a market-wide fixed value, making this assumption explicit in each message is important for validation purposes, allowing implementations to reject messages with an errant UTC offset.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="AGRPortfolioQueryMessageID" type="UUIDType" use="required">
+					<xs:annotation>
+						<xs:documentation>MessageID of the AGRPortfolioQuery that has just been accepted or rejected</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="Period" type="PeriodType" use="required">
+					<xs:annotation>
+						<xs:documentation>The Period that the portfolio is valid.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- -->
+	<!--  AGR Portfolio Query Response DSO View Type -->
+	<!-- -->
+	<xs:complexType name="AGRPortfolioQueryResponseDSOViewType">
+		<xs:sequence>
+			<xs:element name="DSO-Portfolio" type="AGRPortfolioQueryResponseDSOPortfolioType" maxOccurs="unbounded"/>
+			<xs:element name="Connection" type="AGRPortfolioQueryResponseConnectionType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<!-- -->
+		<!--  AGR Portfolio Query Response DSO Portfolio Type -->
+		<!-- -->
+	</xs:complexType>
+	<xs:complexType name="AGRPortfolioQueryResponseDSOPortfolioType">
+		<xs:sequence>
+			<xs:element name="CongestionPoint" type="AGRPortfolioQueryResponseCongestionPointType" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="DSO-Domain" type="InternetDomainType" use="required"/>
+	</xs:complexType>
+	<!-- -->
+	<!--  AGR Portfolio Query Response Congestion Point Type -->
+	<!-- -->
+	<xs:complexType name="AGRPortfolioQueryResponseCongestionPointType">
+		<xs:sequence>
+			<xs:element name="Connection" type="AGRPortfolioQueryResponseConnectionType" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="EntityAddress" type="EntityAddressType" use="required">
+			<xs:annotation>
+				<xs:documentation>EntityAddress of the CongestionPoint.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MutexOffersSupported" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>Indicates whether the DSO accepts mutual exclusive FlexOffers on this CongestionPoint.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DayAheadRedispatchBy" type="RedispatchByType" use="required">
+			<xs:annotation>
+				<xs:documentation>Indicates which party is responsible for day-ahead redispatch.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="IntradayRedispatchBy" type="RedispatchByType" use="optional">
+			<xs:annotation>
+				<xs:documentation>Indicates which party is responsible for intraday ahead redispatch, AGR or DSO. If not specified, there will be no intraday trading on this CongestionPoint.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<!-- -->
+	<!--  AGR Portfolio Query Response Connection Type -->
+	<!-- -->
+	<xs:complexType name="AGRPortfolioQueryResponseConnectionType">
+		<xs:attribute name="EntityAddress" type="EntityAddressType" use="required">
+			<xs:annotation>
+				<xs:documentation>EntityAddress of the Connection.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<!-- -->
+	<!-- ELEMENT DEFINITIONS -->
+	<!-- -->
+	<xs:element name="AGRPortfolioUpdate" type="AGRPortfolioUpdateType"/>
+	<xs:element name="AGRPortfolioUpdateResponse" type="AGRPortfolioUpdateResponseType"/>
+	<xs:element name="AGRPortfolioQuery" type="AGRPortfolioQueryType"/>
+	<xs:element name="AGRPortfolioQueryResponse" type="AGRPortfolioQueryResponseType"/>
+</xs:schema>
