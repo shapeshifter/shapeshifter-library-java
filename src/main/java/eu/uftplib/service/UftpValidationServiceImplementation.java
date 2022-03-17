@@ -32,13 +32,13 @@ public class UftpValidationServiceImplementation implements UftpValidationServic
         String xsdFilename = null;
         switch (role) {
             case "AGR":
-                xsdFilename = "UFTP-V1.01-agr.xsd";
+                xsdFilename = "UFTP-agr.xsd";
                 break;
             case "DSO":
-                xsdFilename = "UFTP-V1.01-dso.xsd";
+                xsdFilename = "UFTP-dso.xsd";
                 break;
             case "CRO":
-                xsdFilename = "UFTP-V1.01-cro.xsd";
+                xsdFilename = "UFTP-cro.xsd";
                 break;
         }
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
