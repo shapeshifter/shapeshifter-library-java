@@ -355,7 +355,7 @@ FlexRequest message is sent.</xs:documentation>
         </xs:complexContent>
     </xs:complexType>
     <!--
-   Flex Order Type  
+   Flex Order Type
    -->
     <xs:complexType name="FlexOrderType">
         <xs:complexContent>
@@ -460,11 +460,6 @@ FlexRequest message is sent.</xs:documentation>
                 <xs:attribute name="PeriodEnd" type="PeriodType" use="required">
                     <xs:annotation>
                         <xs:documentation>Last Period of the settlement period this message applies to.</xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                <xs:attribute name="Reference" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>Settlement reference, assigned by the DSO originating the FlexSettlement.</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="Currency" type="ISO4217CurrencyType" use="required">
@@ -572,12 +567,7 @@ FlexRequest message is sent.</xs:documentation>
                 </xs:sequence>
                 <xs:attribute name="FlexSettlementMessageID" type="UUIDType" use="required">
                     <xs:annotation>
-                        <xs:documentation>MessageID of the FlexSettlemnet message that has just been accepted or rejected</xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                <xs:attribute name="Reference" type="xs:string" use="required">
-                    <xs:annotation>
-                        <xs:documentation>Reference included in the FlexSettlement that has just been received.</xs:documentation>
+                        <xs:documentation>MessageID of the FlexSettlement message that has just been accepted or rejected</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
