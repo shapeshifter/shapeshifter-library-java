@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<TestMessage SenderDomain="xxx.com"
+<TestMessage Version="3.0.0"
+			 SenderDomain="xxx.com"
            	RecipientDomain="yyy.com"
            	TimeStamp="2020-05-11T15:03:36.647"
            	MessageID="11931377-9a29-420e-3551-ba5a90862596"
