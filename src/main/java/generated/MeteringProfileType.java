@@ -15,22 +15,24 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java class for ContractSettlementPeriodType complex type.
+ * A profile carries a sequence of ISPs with a defined type of metering data
+ * 
+ * <p>Java class for MeteringProfileType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ContractSettlementPeriodType">
+ * &lt;complexType name="MeteringProfileType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="ISP" type="{}ContractSettlementISPType" maxOccurs="unbounded"/>
+ *         &lt;element name="ISP" type="{}MeteringISPType" maxOccurs="unbounded"/>
  *       &lt;/sequence>
- *       &lt;attribute name="Period" use="required" type="{}PeriodType" />
+ *       &lt;attribute name="ProfileType" use="required" type="{}MeteringProfileEnum" />
+ *       &lt;attribute name="Unit" use="required" type="{}MeteringUnitType" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -39,15 +41,17 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ContractSettlementPeriodType", propOrder = {
+@XmlType(name = "MeteringProfileType", propOrder = {
     "isp"
 })
-public class ContractSettlementPeriodType {
+public class MeteringProfileType {
 
     @XmlElement(name = "ISP", required = true)
-    protected List<ContractSettlementISPType> isp;
-    @XmlAttribute(name = "Period", required = true)
-    protected XMLGregorianCalendar period;
+    protected List<MeteringISPType> isp;
+    @XmlAttribute(name = "ProfileType", required = true)
+    protected MeteringProfileEnum profileType;
+    @XmlAttribute(name = "Unit", required = true)
+    protected MeteringUnitType unit;
 
     /**
      * Gets the value of the isp property.
@@ -67,39 +71,63 @@ public class ContractSettlementPeriodType {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link ContractSettlementISPType }
+     * {@link MeteringISPType }
      * 
      * 
      */
-    public List<ContractSettlementISPType> getISP() {
+    public List<MeteringISPType> getISP() {
         if (isp == null) {
-            isp = new ArrayList<ContractSettlementISPType>();
+            isp = new ArrayList<MeteringISPType>();
         }
         return this.isp;
     }
 
     /**
-     * Gets the value of the period property.
+     * Gets the value of the profileType property.
      * 
      * @return
      *     possible object is
-     *     {@link XMLGregorianCalendar }
+     *     {@link MeteringProfileEnum }
      *     
      */
-    public XMLGregorianCalendar getPeriod() {
-        return period;
+    public MeteringProfileEnum getProfileType() {
+        return profileType;
     }
 
     /**
-     * Sets the value of the period property.
+     * Sets the value of the profileType property.
      * 
      * @param value
      *     allowed object is
-     *     {@link XMLGregorianCalendar }
+     *     {@link MeteringProfileEnum }
      *     
      */
-    public void setPeriod(XMLGregorianCalendar value) {
-        this.period = value;
+    public void setProfileType(MeteringProfileEnum value) {
+        this.profileType = value;
+    }
+
+    /**
+     * Gets the value of the unit property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link MeteringUnitType }
+     *     
+     */
+    public MeteringUnitType getUnit() {
+        return unit;
+    }
+
+    /**
+     * Sets the value of the unit property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link MeteringUnitType }
+     *     
+     */
+    public void setUnit(MeteringUnitType value) {
+        this.unit = value;
     }
 
 }
