@@ -32,12 +32,22 @@ To build the library run the command:
 on linux:
 ./gradlew build
 
-on windows:
+on Windows:
 gradlew.bat build
 
 this will produce the library in the location:
 
 uftplib/build/libs/eu.uftplib-0.0.1-SNAPSHOT.jar
+
+# Test the library
+
+To test the library run the command:
+
+on linux:
+./gradlew test
+
+on Windows:
+gradlew.bat test
 
 #########################
 # Key encoding
