@@ -8,26 +8,25 @@
 
 package generated;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for FlexOrderISPType complex type.
+ * <p>Java class for MeteringISPType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="FlexOrderISPType">
+ * &lt;complexType name="MeteringISPType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="Power" use="required" type="{http://www.w3.org/2001/XMLSchema}integer" />
- *       &lt;attribute name="Start" use="required" type="{http://www.w3.org/2001/XMLSchema}positiveInteger" />
- *       &lt;attribute name="Duration" type="{http://www.w3.org/2001/XMLSchema}positiveInteger" default="1" />
+ *       &lt;attribute name="Start" use="required" type="{http://www.w3.org/2001/XMLSchema}integer" />
+ *       &lt;attribute name="Value" use="required" type="{http://www.w3.org/2001/XMLSchema}decimal" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -36,41 +35,13 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "FlexOrderISPType")
-public class FlexOrderISPType {
+@XmlType(name = "MeteringISPType")
+public class MeteringISPType {
 
-    @XmlAttribute(name = "Power", required = true)
-    protected BigInteger power;
     @XmlAttribute(name = "Start", required = true)
-    @XmlSchemaType(name = "positiveInteger")
     protected BigInteger start;
-    @XmlAttribute(name = "Duration")
-    @XmlSchemaType(name = "positiveInteger")
-    protected BigInteger duration;
-
-    /**
-     * Gets the value of the power property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getPower() {
-        return power;
-    }
-
-    /**
-     * Sets the value of the power property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setPower(BigInteger value) {
-        this.power = value;
-    }
+    @XmlAttribute(name = "Value", required = true)
+    protected BigDecimal value;
 
     /**
      * Gets the value of the start property.
@@ -97,31 +68,27 @@ public class FlexOrderISPType {
     }
 
     /**
-     * Gets the value of the duration property.
+     * Gets the value of the value property.
      * 
      * @return
      *     possible object is
-     *     {@link BigInteger }
+     *     {@link BigDecimal }
      *     
      */
-    public BigInteger getDuration() {
-        if (duration == null) {
-            return new BigInteger("1");
-        } else {
-            return duration;
-        }
+    public BigDecimal getValue() {
+        return value;
     }
 
     /**
-     * Sets the value of the duration property.
+     * Sets the value of the value property.
      * 
      * @param value
      *     allowed object is
-     *     {@link BigInteger }
+     *     {@link BigDecimal }
      *     
      */
-    public void setDuration(BigInteger value) {
-        this.duration = value;
+    public void setValue(BigDecimal value) {
+        this.value = value;
     }
 
 }

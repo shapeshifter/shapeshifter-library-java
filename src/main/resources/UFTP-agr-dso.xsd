@@ -2,6 +2,7 @@
 <!-- edited with XMLSpy v2020 sp1 (x64) (http://www.altova.com) by Erik Brouwer (ICT netherlands B.V.) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
     <xs:include schemaLocation="UFTP-common.xsd"/>
+    <xs:include schemaLocation="UFTP-metering.xsd"/>
     <!-- -->
     <!--  Flex Message Type -->
     <!-- -->
@@ -46,7 +47,7 @@
                 <xs:attribute name="Revision" type="xs:long" use="required">
                     <xs:annotation>
                         <xs:documentation>Revision of this message. A sequence number that must be incremented each time a new revision of a
-prognosis is sent. The combination of SenderDomain and PrognosisSequence should be unique</xs:documentation>
+                            prognosis is sent. The combination of SenderDomain and PrognosisSequence should be unique</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -147,7 +148,7 @@ prognosis is sent. The combination of SenderDomain and PrognosisSequence should 
     <xs:complexType name="FlexReservationUpdateResponseType">
         <xs:complexContent>
             <xs:extension base="PayloadMessageResponseType">
-                  <xs:attribute name="FlexReservationUpdateMessageID" type="UUIDType" use="required">
+                <xs:attribute name="FlexReservationUpdateMessageID" type="UUIDType" use="required">
                     <xs:annotation>
                         <xs:documentation>MessageID of the FlexReservationUpdate message this request is based on.</xs:documentation>
                     </xs:annotation>
@@ -170,12 +171,22 @@ prognosis is sent. The combination of SenderDomain and PrognosisSequence should 
                 <xs:attribute name="Revision" type="xs:long" use="required">
                     <xs:annotation>
                         <xs:documentation>Revision of this message, a sequence number that must be incremented each time a new revision of a
-FlexRequest message is sent.</xs:documentation>
+                            FlexRequest message is sent.</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="ExpirationDateTime" type="xs:dateTime" use="required">
                     <xs:annotation>
                         <xs:documentation>Date and time, including the time zone (ISO 8601 formatted as per http://www.w3.org/TR/NOTE-datetime) until which the FlexRequest message is valid.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="ContractID" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>Reference to the concerning contract, if applicable. The contract may be either bilateral or commoditized market contract. Each contract may specify multiple service-types.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="ServiceType" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>Service type for this request, the service type determines response characteristics such as latency or asset participation type.</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -240,12 +251,12 @@ FlexRequest message is sent.</xs:documentation>
                 </xs:attribute>
                 <xs:attribute name="FlexRequestMessageID" type="UUIDType" use="optional">
                     <xs:annotation>
-                        <xs:documentation>MessageID of the FlexRequest message this request is based on.</xs:documentation>
+                        <xs:documentation>MessageID of the FlexRequest message this request is based on. Mandatory if and only if solicited.</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="ContractID" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Reference to the concerning bilateral contract, if applicable.</xs:documentation>
+                        <xs:documentation>Reference to the concerning contract, if applicable. The contract may be either bilateral or commoditized market contract.</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="D-PrognosisMessageID" type="UUIDType" use="optional">
@@ -475,6 +486,11 @@ FlexRequest message is sent.</xs:documentation>
         <xs:sequence>
             <xs:element name="ISP" type="FlexOrderSettlementISPType" maxOccurs="unbounded"/>
         </xs:sequence>
+        <xs:attribute name="OrderReference" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Order reference assigned by the DSO when originating the FlexOrder.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="Period" type="PeriodType" use="required">
             <xs:annotation>
                 <xs:documentation/>
@@ -541,7 +557,7 @@ FlexRequest message is sent.</xs:documentation>
         <xs:attribute name="ActualPower" type="xs:integer" use="required">
             <xs:annotation>
                 <xs:documentation>Actual amount of power for this ISP in Watts, as measured/determined by the DSO and allocated to the AGR.
-</xs:documentation>
+                </xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="DeliveredFlexPower" type="xs:integer" use="required">
@@ -636,8 +652,8 @@ FlexRequest message is sent.</xs:documentation>
         <xs:attribute name="RequestedPower" type="xs:integer" use="optional">
             <xs:annotation>
                 <xs:documentation>Amount of flex power that has been both reserved in advance and has been requested using a
-FlexRequest (i.e. the lowest amount of flex power for this ISP). If there was no FlexRequest,
-this field is omitted.</xs:documentation>
+                    FlexRequest (i.e. the lowest amount of flex power for this ISP). If there was no FlexRequest,
+                    this field is omitted.</xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="AvailablePower" type="xs:integer" use="optional">

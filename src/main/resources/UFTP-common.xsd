@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
     <!-- -->
+    <!-- ShapeShifter Specification Version -->
+    <!-- -->
+    <xs:simpleType name="SpecVersion">
+        <xs:restriction base="xs:string">
+            <!-- Basic SemVer pattern match, i.e. 3.1.15 -->
+            <xs:pattern value="(\d+\.\d+\.\d+)"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- -->
     <!-- UUID Type -->
     <!-- -->
     <xs:simpleType name="UUIDType">
@@ -145,6 +154,11 @@
     <!--  Payload Message Type -->
     <!-- -->
     <xs:complexType name="PayloadMessageType" abstract="true">
+        <xs:attribute name="Version" type="SpecVersion" use="required">
+            <xs:annotation>
+                <xs:documentation>Version of the Shapeshifter specification used by the USEF participant sending this message.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="SenderDomain" type="InternetDomainType" use="required">
             <xs:annotation>
                 <xs:documentation>The Internet domain of the USEF participant sending this message. When receiving a message, its value should match the value specified in the SignedMessage wrapper: otherwise, the message must be rejected as invalid. When replying to this message, this attribute is used to look up the USEF endpoint the reply message should be delivered to.</xs:documentation>

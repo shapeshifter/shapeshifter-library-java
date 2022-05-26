@@ -2,7 +2,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 
     <xs:include schemaLocation="UFTP-common.xsd"/>
-    <xs:include schemaLocation="UFTP-agr-dso.xsd"/>
 
     <!-- -->
     <!-- EAN Type -->
@@ -18,12 +17,16 @@
     <!-- -->
     <xs:simpleType name="MeteringUnitType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="Wh"/>
-            <xs:enumeration value="kWh"/>
-            <xs:enumeration value="MWh"/>
-            <xs:enumeration value="CostPerWh"/>
-            <xs:enumeration value="CostPerkWh"/>
-            <xs:enumeration value="CostPerMWh"/>
+            <xs:enumeration value="kW">
+                <xs:annotation>
+                    <xs:documentation>kW must be used with Power profile values.</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="kWh">
+                <xs:annotation>
+                    <xs:documentation>kWh must be used with energy profile values (ImportEnergy,ExportEnergy,ImportMeterReading,ExportMeterReading).</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
         </xs:restriction>
     </xs:simpleType>
     <!-- -->
@@ -31,34 +34,32 @@
     <!-- -->
     <xs:simpleType name="MeteringProfileEnum">
         <xs:restriction base="xs:string">
+            <xs:enumeration value="Power">
+                <xs:annotation>
+                    <xs:documentation>The average active power during ISP, considering both import and export energy. Power=(ImportEnergy-ExportEnergy)*(60/ISP-Length-Minutes).
+                        For example with a 15 minute ISP length we have a denominator of 4, with a 30 minute ISP length we have a denominator of 2.
+                        Including the power profile is recommended. It is expected that in the following major version the power will become a mandatory value.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
             <xs:enumeration value="ImportEnergy">
                 <xs:annotation>
-                    <xs:documentation>Imported energy, consumed during the ISP</xs:documentation>
+                    <xs:documentation>Imported active energy, consumed during the ISP</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
             <xs:enumeration value="ExportEnergy">
                 <xs:annotation>
-                    <xs:documentation>Exported energy, generated during the ISP</xs:documentation>
+                    <xs:documentation>Exported active energy, generated during the ISP</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
             <xs:enumeration value="ImportMeterReading">
-            <xs:annotation>
-                <xs:documentation>Cumulative metered imported energy reading, at the end of the ISP</xs:documentation>
-            </xs:annotation>
+                <xs:annotation>
+                    <xs:documentation>Cumulative metered imported active energy reading, at the end of the ISP</xs:documentation>
+                </xs:annotation>
             </xs:enumeration>
             <xs:enumeration value="ExportMeterReading">
                 <xs:annotation>
-                    <xs:documentation>Cumulative metered exported energy reading, at the end of the ISP</xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="ImportTariff">
-                <xs:annotation>
-                    <xs:documentation>Import tariff rate for a given ISP</xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="ExportTariff">
-                <xs:annotation>
-                    <xs:documentation>Export tariff rate for a given ISP</xs:documentation>
+                    <xs:documentation>Cumulative metered exported active energy reading, at the end of the ISP</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
         </xs:restriction>
@@ -75,6 +76,11 @@
                     </xs:annotation>
                     <xs:element name="Profile" type="MeteringProfileType" maxOccurs="unbounded"/>
                 </xs:sequence>
+                <xs:attribute name="Revision" type="xs:long" use="required">
+                    <xs:annotation>
+                        <xs:documentation>Revision of this message. A sequence number that must be incremented each time a new revision of a metering message is sent.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
                 <xs:attribute name="ISP-Duration" type="xs:duration" use="required">
                     <xs:annotation>
                         <xs:documentation>ISO 8601 time interval (minutes only, for example PT15M) indicating the duration of the ISPs referenced in this message. Although the ISP length is a market-wide fixed value, making this assumption explicit in each message is important for validation purposes, allowing implementations to reject messages with an errant ISP duration.</xs:documentation>
