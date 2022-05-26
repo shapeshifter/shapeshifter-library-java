@@ -49,6 +49,18 @@ on linux:
 on Windows:
 gradlew.bat test
 
+# Regenerate the model classes
+
+Java code can be generated form the xsd using JAXB xjc tool.  This is included with java 8 jre, but not from java 9 onwards.
+
+To regenerate the model classes follow these steps:
+1. Copy the new xsd file into /src/main/resources
+2. Run the generation for the three top level xsds:
+/usr/lib/jvm/java-8-openjdk-amd64/bin/xjc UFTP-agr.xsd
+/usr/lib/jvm/java-8-openjdk-amd64/bin/xjc UFTP-dso.xsd
+/usr/lib/jvm/java-8-openjdk-amd64/bin/xjc UFTP-cro.xsd
+3. Copy the generated files into /src/main/java/generated
+
 #########################
 # Key encoding
 
