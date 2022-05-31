@@ -6,7 +6,7 @@ plugins {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 group 'eu.uftplib'
@@ -25,18 +25,18 @@ dependencies {
   api 'org.apache.commons:commons-math3:3.6.1'
 
   // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-  implementation 'com.google.guava:guava:28.2-jre'
+  implementation 'com.google.guava:guava:31.1-jre'
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
   runtimeOnly('org.postgresql:postgresql')
 
-  compileOnly 'org.projectlombok:lombok:1.18.12'
+  compileOnly 'org.projectlombok:lombok:1.18.24'
 
-  implementation "com.goterl.lazycode:lazysodium-java:4.2.6"
-  implementation "net.java.dev.jna:jna:5.5.0"
+  implementation "com.goterl:lazysodium-java:5.1.1"
+  implementation "net.java.dev.jna:jna:5.11.0"
 
   // Use JUnit test framework
-  testImplementation 'junit:junit:4.12'
-    testImplementation 'org.mockito:mockito-core:2.7.22'
+  testImplementation 'junit:junit:4.13.2'
+  testImplementation 'org.mockito:mockito-core:4.5.1'
 }

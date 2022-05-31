@@ -14,12 +14,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import com.goterl.lazycode.lazysodium.LazySodiumJava;
-import com.goterl.lazycode.lazysodium.SodiumJava;
-import com.goterl.lazycode.lazysodium.exceptions.SodiumException;
-import com.goterl.lazycode.lazysodium.utils.Key;
-import com.goterl.lazycode.lazysodium.utils.Base64MessageEncoder;
-
+import com.goterl.lazysodium.LazySodiumJava;
+import com.goterl.lazysodium.SodiumJava;
+import com.goterl.lazysodium.exceptions.SodiumException;
+import com.goterl.lazysodium.utils.Base64MessageEncoder;
+import com.goterl.lazysodium.utils.Key;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -87,7 +86,7 @@ public class UftpSigningServiceImplementation implements UftpSigningService {
     public KeyPair generateKeyPair() {
         LazySodiumJava lazySodium = new LazySodiumJava(new SodiumJava());
         try {
-            com.goterl.lazycode.lazysodium.utils.KeyPair keyPair = lazySodium.cryptoSignKeypair();
+            com.goterl.lazysodium.utils.KeyPair keyPair = lazySodium.cryptoSignKeypair();
             String base64Public = Base64.getEncoder().encodeToString(keyPair.getPublicKey().getAsBytes());
             String base64Secret = Base64.getEncoder().encodeToString(keyPair.getSecretKey().getAsBytes());
             return new KeyPair(base64Public, base64Secret);
