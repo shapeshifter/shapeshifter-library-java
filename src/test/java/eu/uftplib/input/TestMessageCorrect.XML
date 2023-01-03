@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<TestMessage Version="3.0.0"
-			 SenderDomain="xxx.com"
-           	RecipientDomain="yyy.com"
-           	TimeStamp="2020-05-11T15:03:36.647"
-           	MessageID="11931377-9a29-420e-3551-ba5a90862596"
-           	ConversationID="68a82315-74dc-4d63-2223-74c916ff07d0"/>

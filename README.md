@@ -1,68 +1,102 @@
-# uftplib
-UFTP library
+# Shapeshifter Library
 
-To use the library the following settings must be set.
+Java library for implementing [Shapeshifter](https://www.lfenergy.org/projects/shapeshifter/) using Spring Boot.
 
-```
-######################
-# DATABASE SETTINGS  #
-######################
-
-## PostgreSQL
-spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
-spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
-spring.datasource.username=postgres
-spring.datasource.password=mysecretpassword
-spring.datasource.continue-on-error=true
-
-#drop n create table again, good for testing, comment this in production
-spring.jpa.hibernate.ddl-auto=none
-spring.jpa.generate-ddl=true
-
-uftplib.role=AGR/DSO/CRO
-uftplib.privatekey=<privatekey to sign outgoingmessages>
+## Getting Started
+Add the Shapeshifter Connector dependency to your Spring Boot application:
+```xml
+<dependency>
+  <groupId>org.lfenergy.shapeshifter</groupId>
+  <artifactId>shapeshifter-connector</artifactId>
+  <version>${shapeshifter.version}</version>
+</dependency>
 ```
 
-!! Be sure to check the ParticipantServiceStub. This stub should return the correct endpoints en public keys for the remote uftp services
 
-# Build the library
+### Receiving UFTP messages
 
-To build the library run the command:
+Adding the Connector dependency adds an endpoint to your application, where you can receive UFTP messages.
+Typically this endpoint is at: http://localhost:8080/USEF/2019/SignedMessage.
 
-on linux:
-./gradlew build
+Add a bean to your Spring Boot application to handle incoming UFTP messages:
+```java
+@UftpIncomingHandler
+public class IncomingMessageHandler {
 
-on Windows:
-gradlew.bat build
+  @FlexRequestMapping
+  public void onFlexRequest(UftpParticipant from, FlexRequest flexRequest) {
+    // ...
+  }
+}
+```
+You can add multiple methods for different types of messages. For every Flex message type there is a corresponding `Mapping` annotation.
 
-this will produce the library in the location:
+To process a message (asynchronously) you can use the `UftpReceivedMessageService`:
+```java
+@Autowired 
+UftpReceivedMessageService uftpReceivedMessageService;
 
-uftplib/build/libs/eu.uftplib-0.0.1-SNAPSHOT.jar
+uftpReceivedMessageService.process(sender, message);
+```
 
-# Test the library
+To unseal an incoming message, the connector must know the sender's public key. For this you must provide a `UftpParticipantService` bean in your application:
+```java
+@Service
+public class MyUftpParticipantService implements UftpParticipantService {
+  // ...
+}
+```
 
-To test the library run the command:
+Incoming messages are automatically validated. For this you must provide a `UftpValidatorSupport` bean in your application:
+```java
+@Service
+public class MyUftpValidatorSupport implements UftpValidatorSupport {
+  // ...
+}
+```
 
-on linux:
-./gradlew test
+### Sending UFTP messages
 
-on Windows:
-gradlew.bat test
+Use the `UftpSendMessageService` bean to send UFTP messages to recipients:
+```java
+@Autowired 
+UftpSendMessageService uftpSendMessageService;
 
-# Regenerate the model classes
+var message = new FlexRequest();
 
-Java code can be generated form the xsd using JAXB xjc tool.  This is included with java 8 jre, but not from java 9 onwards.
+var sender = new UftpParticipant("sender.com", USEFRoleType.DSO);
+var recipient = new UftpParticipant("recipient.com", USEFRoleType.AGR);
+var shippingDetails = new ShippingDetails(sender, "myPrivateKey", recipient);
 
-To regenerate the model classes follow these steps:
-1. Copy the new xsd file into /src/main/resources
-2. Run the generation for the three top level xsds:
-/usr/lib/jvm/java-8-openjdk-amd64/bin/xjc UFTP-agr.xsd
-/usr/lib/jvm/java-8-openjdk-amd64/bin/xjc UFTP-dso.xsd
-/usr/lib/jvm/java-8-openjdk-amd64/bin/xjc UFTP-cro.xsd
-3. Copy the generated files into /src/main/java/generated
+uftpSendMessageService.attemptToSendMessage(message, shippingDetails);
+```
 
-#########################
-# Key encoding
+## Build and test
+```
+mvn install
+```
 
-The library uses code signing keys only, because the https is used for encrpytion.
-Keys are encoded with base64 encoding per the uftp standard.
+## Custom validations
+Add one or more beans to your Spring Boot application that implement `UftpUserDefinedValidator`:
+```java
+@Service
+public class MyCustomValidator implements UftpUserDefinedValidator<FlexRequest> {
+
+  @Override
+  public boolean appliesTo(Class<? extends FlexRequest> clazz) {
+    return clazz.equals(FlexRequest.class);
+  }
+
+  @Override
+  public boolean valid(UftpParticipant sender, FlexRequest flexRequest) {
+    // ...
+  }
+
+  @Override
+  public String getReason() {
+    return "My custom validation failed";
+  }
+}
+```
+Any custom validations are picked up and called automatically after the standard validations.
+

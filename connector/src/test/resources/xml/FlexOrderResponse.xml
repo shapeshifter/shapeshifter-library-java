@@ -1,0 +1,4 @@
+<FlexOrderResponse SenderDomain="aggregator.org" RecipientDomain="uftp.dso.nl"
+  TimeStamp="2021-10-29T06:55:45.2118292Z" MessageID="ed400176-86e3-4832-98c9-1e5dbd4e3c9d"
+  ConversationID="48cdc3d2-56c0-436c-8d5a-6f6cc3dc538d" Result="Accepted" RejectionReason=""
+  FlexOrderMessageID="dc0f19c4-3835-4753-8f0c-0319d6642fbb"/>
