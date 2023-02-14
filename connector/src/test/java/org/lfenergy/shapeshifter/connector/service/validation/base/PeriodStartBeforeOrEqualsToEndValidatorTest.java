@@ -20,6 +20,7 @@ import org.lfenergy.shapeshifter.api.DSOPortfolioUpdateConnectionType;
 import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -127,7 +128,7 @@ class PeriodStartBeforeOrEqualsToEndValidatorTest {
   @ParameterizedTest
   @MethodSource("validStartEndPeriodsOnly")
   void valid_true_whenStartAlwaysEqualsToOrBeforeEnd(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> invalidStartEndPeriodsAsWell() {
@@ -252,7 +253,7 @@ class PeriodStartBeforeOrEqualsToEndValidatorTest {
   @ParameterizedTest
   @MethodSource("invalidStartEndPeriodsAsWell")
   void valid_false_whenThereIsAStartLaterThenEnd(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

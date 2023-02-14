@@ -19,6 +19,7 @@ import org.lfenergy.shapeshifter.api.AvailableRequestedType;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexRequest;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -62,8 +63,9 @@ class FlexOptionRequestMatchValidatorTest {
     );
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
-    given(uftpValidatorSupport.getPreviousMessage(flexMessageId, FlexRequest.class)).willReturn(Optional.of(flexRequest));
-    assertThat(testSubject.valid(sender, flexOffer)).isTrue();
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
+    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    assertThat(testSubject.valid(uftpMessage)).isTrue();
   }
 
   @Test
@@ -73,7 +75,7 @@ class FlexOptionRequestMatchValidatorTest {
     flexOffer.setFlexRequestMessageID(null);
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
 
-    assertThat(testSubject.valid(sender, flexOffer)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
 
     verifyNoInteractions(uftpValidatorSupport);
   }
@@ -84,8 +86,9 @@ class FlexOptionRequestMatchValidatorTest {
     var flexOffer = flexOffer(flexMessageId, flexOfferOptions(BigDecimal.valueOf(1.0)));
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
-    given(uftpValidatorSupport.getPreviousMessage(flexMessageId, FlexRequest.class)).willReturn(Optional.empty());
-    assertThat(testSubject.valid(sender, flexOffer)).isTrue();
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
+    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.empty());
+    assertThat(testSubject.valid(uftpMessage)).isTrue();
   }
 
   @Test
@@ -99,8 +102,9 @@ class FlexOptionRequestMatchValidatorTest {
     );
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
-    given(uftpValidatorSupport.getPreviousMessage(flexMessageId, FlexRequest.class)).willReturn(Optional.of(flexRequest));
-    assertThat(testSubject.valid(sender, flexOffer)).isFalse();
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
+    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    assertThat(testSubject.valid(uftpMessage)).isFalse();
   }
 
   @Test
@@ -114,7 +118,8 @@ class FlexOptionRequestMatchValidatorTest {
     );
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
-    given(uftpValidatorSupport.getPreviousMessage(flexMessageId, FlexRequest.class)).willReturn(Optional.of(flexRequest));
-    assertThat(testSubject.valid(sender, flexOffer)).isFalse();
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
+    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    assertThat(testSubject.valid(uftpMessage)).isFalse();
   }
 }

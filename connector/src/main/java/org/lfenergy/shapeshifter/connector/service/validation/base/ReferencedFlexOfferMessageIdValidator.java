@@ -7,7 +7,7 @@ import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexOfferRevocation;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
@@ -32,9 +32,9 @@ public class ReferencedFlexOfferMessageIdValidator implements UftpBaseValidator<
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, PayloadMessageType payloadMessage) {
-    var value = retriever.getOptionalProperty(payloadMessage);
-    return value.isEmpty() || support.getPreviousMessage(value.get(), FlexOffer.class).isPresent();
+  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+    var value = retriever.getOptionalProperty(uftpMessage.payloadMessage());
+    return value.isEmpty() || support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(value.get(), FlexOffer.class)).isPresent();
   }
 
   @Override

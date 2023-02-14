@@ -1,5 +1,5 @@
 <FlexRequest
-  Version="1.01.0"
+  Version="3.0.0"
   SenderDomain="uftp.dso.nl"
   RecipientDomain="aggregator.org"
   TimeStamp="2021-10-29T06:54:26.861Z"

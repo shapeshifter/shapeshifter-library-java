@@ -64,7 +64,7 @@ public class UFTPSealTool {
 
       Files.writeString(Paths.get(outputFileName), signedXml);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      log.error("Could not seal message: " + e.getMessage(), e);
     }
   }
 }

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexOrderSettlementStatusType;
 import org.lfenergy.shapeshifter.api.FlexSettlementResponse;
 import org.lfenergy.shapeshifter.api.TestMessageResponse;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -61,7 +62,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
   void valid_whenNoReferencesInResponse() {
     given(settlementResponse.getFlexOrderSettlementStatuses()).willReturn(List.of());
 
-    assertThat(testSubject.valid(sender, settlementResponse)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isTrue();
   }
 
   @Test
@@ -75,7 +76,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
     given(support.isValidOrderReference(ORDER_REFERENCE1, RECIPIENT_DOMAIN)).willReturn(true);
     given(support.isValidOrderReference(ORDER_REFERENCE2, RECIPIENT_DOMAIN)).willReturn(true);
 
-    assertThat(testSubject.valid(sender, settlementResponse)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isTrue();
   }
 
   @Test
@@ -89,7 +90,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
     given(support.isValidOrderReference(ORDER_REFERENCE1, RECIPIENT_DOMAIN)).willReturn(true);
     given(support.isValidOrderReference(ORDER_REFERENCE2, RECIPIENT_DOMAIN)).willReturn(false);
 
-    assertThat(testSubject.valid(sender, settlementResponse)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isFalse();
   }
 
   @Test

@@ -1,7 +1,5 @@
 package org.lfenergy.shapeshifter.api;
 
-import java.util.Objects;
-
 /**
  * Entity Address such as EAN or EA1.
  *
@@ -16,15 +14,7 @@ import java.util.Objects;
  * </ul>
  * </p>
  */
-public class EntityAddress {
-
-  private final Scheme scheme;
-  private final String address;
-
-  public EntityAddress(Scheme scheme, String address) {
-    this.scheme = scheme;
-    this.address = address;
-  }
+public record EntityAddress(Scheme scheme, String address) {
 
   public static EntityAddress parse(String str) {
     var parts = str.split("\\.", 2);
@@ -35,31 +25,6 @@ public class EntityAddress {
       throw new IllegalArgumentException("Entity Address has an empty address: " + str);
     }
     return new EntityAddress(Scheme.fromPrefix(parts[0]), parts[1]);
-  }
-
-  public Scheme getScheme() {
-    return scheme;
-  }
-
-  public String getAddress() {
-    return address;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    EntityAddress that = (EntityAddress) o;
-    return scheme == that.scheme && Objects.equals(address, that.address);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(scheme, address);
   }
 
   @Override

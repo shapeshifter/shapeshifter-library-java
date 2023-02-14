@@ -83,17 +83,16 @@
         </xs:attribute>
         <xs:attribute name="ISP-Duration" type="xs:duration" use="required">
           <xs:annotation>
-            <xs:documentation>ISO 8601 time interval (minutes only, for example PT15M) indicating the duration of the ISPs referenced in this message. Although the ISP length is a
-              market-wide fixed value, making this assumption explicit in each message is important for validation purposes, allowing implementations to reject messages with an errant
-              ISP duration.
+            <xs:documentation>ISO 8601 time interval (minutes only, for example PT15M) indicating the duration of the ISPs referenced in this message. Although the ISP length is a market-wide fixed
+              value, making this assumption explicit in each message is important for validation purposes, allowing implementations to reject messages with an errant ISP duration.
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="TimeZone" type="TimeZoneNameType" use="required">
           <xs:annotation>
-            <xs:documentation>Time zone ID (as per the IANA time zone database, http://www.iana.org/time-zones, for example: Europe/Amsterdam) indicating the UTC offset that applies to the
-              Period referenced in this message. Although the time zone is a market-wide fixed value, making this assumption explicit in each message is important for validation
-              purposes, allowing implementations to reject messages with an errant UTC offset.
+            <xs:documentation>Time zone ID (as per the IANA time zone database, http://www.iana.org/time-zones, for example: Europe/Amsterdam) indicating the UTC offset that applies to the Period
+              referenced in this message. Although the time zone is a market-wide fixed value, making this assumption explicit in each message is important for validation purposes, allowing
+              implementations to reject messages with an errant UTC offset.
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>

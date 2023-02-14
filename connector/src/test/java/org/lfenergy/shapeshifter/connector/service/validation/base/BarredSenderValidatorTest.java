@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.ArgumentCaptor;
@@ -68,7 +69,7 @@ class BarredSenderValidatorTest {
     mockSender();
     given(support.isBarredSender(any(UftpParticipant.class))).willReturn(false);
 
-    assertThat(testSubject.valid(uftpParticipant, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(uftpParticipant, payloadMessage))).isTrue();
 
     verifySender();
   }
@@ -78,7 +79,7 @@ class BarredSenderValidatorTest {
     mockSender();
     given(support.isBarredSender(any(UftpParticipant.class))).willReturn(true);
 
-    assertThat(testSubject.valid(uftpParticipant, payloadMessage)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(uftpParticipant, payloadMessage))).isFalse();
 
     verifySender();
   }

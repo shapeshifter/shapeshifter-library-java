@@ -1,7 +1,14 @@
 package org.lfenergy.shapeshifter.connector.service.receiving;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
 import org.lfenergy.shapeshifter.connector.service.UftpErrorProcessor;
 import org.lfenergy.shapeshifter.connector.service.crypto.UftpCryptoService;
@@ -10,26 +17,39 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/shapeshifter/api/v3")
+@Tag(name = "UFTP Message")
 public class UftpInternalController {
 
+  private static final String UFTP_MESSAGE_XML_EXAMPLE_STRING =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SignedMessage SenderDomain=\"string\" SenderRole=\"string\" Body=\"string\"></SignedMessage>";
   private final UftpSerializer deserializer;
   private final UftpCryptoService uftpCryptoService;
   private final ReceivedMessageProcessor processor;
   private final UftpErrorProcessor errorProcessor;
 
-  // TODO: Docs 'App 4, paragraph 4, Error Handling': Produce 400 upon invalid MediaType. Now it will be 415.
-  //       Debatable, since 415 is the correct response and not 400. Also, 400 is used for other reasons as well
-  //       obscuring the actual error.
-  @PostMapping(value = "/USEF/2019/SignedMessage",
-      consumes = MediaType.TEXT_XML_VALUE,
-      produces = MediaType.TEXT_XML_VALUE
-  )
-  public ResponseEntity<String> receiveUftpMessage(@RequestBody String transportXml) {
+  @PostMapping(value = "/message", consumes = MediaType.TEXT_XML_VALUE)
+  @Operation(summary = "Send an UFTP message", description = "Send an UFTP message in a signed XML document",
+      responses = {
+          @ApiResponse(responseCode = "200", description = "The UFTP message was succesfully received"),
+          @ApiResponse(responseCode = "400", description = "Error during XML validation or deserialization"),
+          @ApiResponse(responseCode = "401", description = "Failed to unseal message"),
+          @ApiResponse(responseCode = "500", description = "Internal server error: An unexpected error occurred. Details are provided in the response body",
+              content = @Content(schema = @Schema(implementation = String.class)))
+      })
+  public ResponseEntity<String> postUftpMessage(
+      @RequestBody
+      @io.swagger.v3.oas.annotations.parameters.RequestBody(
+          description = "UFTP message in a signed XML document format",
+          content = @Content(schema = @Schema(implementation = SignedMessage.class), examples = @ExampleObject(value = UFTP_MESSAGE_XML_EXAMPLE_STRING)
+          ))
+      String transportXml) {
     try {
       log.debug("Received UFTP message.");
       var signedMessage = deserializer.fromSignedXml(transportXml);

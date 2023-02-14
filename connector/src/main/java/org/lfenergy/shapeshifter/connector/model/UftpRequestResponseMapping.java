@@ -37,6 +37,10 @@ import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessa
 
 public class UftpRequestResponseMapping {
 
+  private UftpRequestResponseMapping() {
+    // Private constructor to hide implicit one
+  }
+
   private static final Set<Class<? extends PayloadMessageType>> SUPPORTED_AUTOMATIC_RESPONSE_TYPES = Set.of(
       FlexRequest.class,
       FlexOffer.class,

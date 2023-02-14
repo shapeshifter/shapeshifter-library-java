@@ -1,16 +1,21 @@
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import org.junit.jupiter.api.AfterEach;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexMessageType;
 import org.lfenergy.shapeshifter.api.FlexOffer;
+import org.lfenergy.shapeshifter.api.FlexOfferOptionType;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageDirection;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageReference;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -22,6 +27,8 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
 
   private static final String FLEX_OFFER_ID = "FLEX_OFFER_ID";
   private static final String OPTION_REFERENCE = "OPTION_REFERENCE";
+  private static final String AGR_DOMAIN = "agr.com";
+  private static final String DSO_DOMAIN = "dso.com";
 
   @Mock
   private UftpValidatorSupport support;
@@ -29,19 +36,9 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
   @InjectMocks
   private ReferencedFlexOrderOptionReferenceValidator testSubject;
 
-  @Mock
-  private UftpParticipant sender;
-  @Mock
-  private FlexOrder flexOrder;
-
-  @AfterEach
-  void noMore() {
-    verifyNoMoreInteractions(
-        support,
-        sender,
-        flexOrder
-    );
-  }
+  private final UftpParticipant sender = new UftpParticipant(AGR_DOMAIN, USEFRoleType.AGR);
+  private final FlexOrder flexOrder = new FlexOrder();
+  private final FlexOffer flexOffer = new FlexOffer();
 
   @Test
   void appliesTo() {
@@ -57,29 +54,55 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
 
   @Test
   void valid_true_whenNoValueIsPresent() {
-    given(flexOrder.getOptionReference()).willReturn(null);
+    flexOrder.setOrderReference(null);
 
-    assertThat(testSubject.valid(sender, flexOrder)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
+  }
+
+  @Test
+  void valid_true_whenFlexOfferNotFound() {
+    flexOrder.setSenderDomain(DSO_DOMAIN);
+    flexOrder.setRecipientDomain(AGR_DOMAIN);
+    flexOrder.setOptionReference(OPTION_REFERENCE);
+    flexOrder.setFlexOfferMessageID(FLEX_OFFER_ID);
+
+    given(support.getPreviousMessage(any(UftpMessageReference.class))).willReturn(Optional.empty());
+
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
   }
 
   @Test
   void valid_true_whenFoundValueIsSupported() {
-    given(flexOrder.getOptionReference()).willReturn(OPTION_REFERENCE);
-    given(flexOrder.getFlexOfferMessageID()).willReturn(FLEX_OFFER_ID);
+    flexOrder.setSenderDomain(DSO_DOMAIN);
+    flexOrder.setRecipientDomain(AGR_DOMAIN);
+    flexOrder.setOptionReference(OPTION_REFERENCE);
+    flexOrder.setFlexOfferMessageID(FLEX_OFFER_ID);
 
-    given(support.isValidOfferOptionReference(FLEX_OFFER_ID, OPTION_REFERENCE)).willReturn(true);
+    var offerOption = new FlexOfferOptionType();
+    offerOption.setOptionReference(OPTION_REFERENCE);
+    flexOffer.getOfferOptions().add(offerOption);
 
-    assertThat(testSubject.valid(sender, flexOrder)).isTrue();
+    given(support.getPreviousMessage(new UftpMessageReference<>(FLEX_OFFER_ID, UftpMessageDirection.OUTGOING, AGR_DOMAIN, DSO_DOMAIN, FlexOffer.class))).willReturn(
+        Optional.of(flexOffer));
+
+    assertThat(testSubject.valid(UftpMessageFixture.createIncoming(sender, flexOrder))).isTrue();
   }
 
   @Test
   void valid_false_whenFoundValueIsNotSupported() {
-    given(flexOrder.getOptionReference()).willReturn(OPTION_REFERENCE);
-    given(flexOrder.getFlexOfferMessageID()).willReturn(FLEX_OFFER_ID);
+    flexOrder.setSenderDomain(DSO_DOMAIN);
+    flexOrder.setRecipientDomain(AGR_DOMAIN);
+    flexOrder.setOptionReference(OPTION_REFERENCE);
+    flexOrder.setFlexOfferMessageID(FLEX_OFFER_ID);
 
-    given(support.isValidOfferOptionReference(FLEX_OFFER_ID, OPTION_REFERENCE)).willReturn(false);
+    var offerOption = new FlexOfferOptionType();
+    offerOption.setOptionReference("AnotherOptionReference");
+    flexOffer.getOfferOptions().add(offerOption);
 
-    assertThat(testSubject.valid(sender, flexOrder)).isFalse();
+    given(support.getPreviousMessage(new UftpMessageReference<>(FLEX_OFFER_ID, UftpMessageDirection.OUTGOING, AGR_DOMAIN, DSO_DOMAIN, FlexOffer.class))).willReturn(
+        Optional.of(flexOffer));
+
+    assertThat(testSubject.valid(UftpMessageFixture.createIncoming(sender, flexOrder))).isFalse();
   }
 
   @Test

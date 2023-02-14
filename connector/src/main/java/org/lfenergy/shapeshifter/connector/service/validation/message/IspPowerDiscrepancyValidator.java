@@ -6,7 +6,7 @@ import org.lfenergy.shapeshifter.api.AvailableRequestedType;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestISPType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,8 @@ public class IspPowerDiscrepancyValidator implements UftpMessageValidator<FlexRe
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, FlexRequest flexRequest) {
+  public boolean valid(UftpMessage<FlexRequest> uftpMessage) {
+    var flexRequest = uftpMessage.payloadMessage();
     return flexRequest.getISPS().stream().filter(this::dispositionEqualsRequested).noneMatch(this::powerHasNoDirection);
   }
 

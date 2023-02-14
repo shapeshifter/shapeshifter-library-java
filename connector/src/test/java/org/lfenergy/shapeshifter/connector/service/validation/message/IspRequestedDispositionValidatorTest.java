@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.AvailableRequestedType;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexRequest;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -48,7 +49,7 @@ class IspRequestedDispositionValidatorTest {
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 3, 1, -5000000, 5000000),
         flexRequestIsp(AvailableRequestedType.REQUESTED, 4, 1, -1000000, 0)
     ));
-    assertThat(testSubject.valid(sender, flexRequest)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
   }
 
   @Test
@@ -60,6 +61,6 @@ class IspRequestedDispositionValidatorTest {
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 3, 1, -5000000, 5000000),
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 4, 1, -5000000, 5000000)
     ));
-    assertThat(testSubject.valid(sender, flexRequest)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isFalse();
   }
 }

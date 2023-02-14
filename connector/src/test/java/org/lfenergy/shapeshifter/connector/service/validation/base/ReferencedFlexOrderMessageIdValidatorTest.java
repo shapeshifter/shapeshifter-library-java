@@ -13,6 +13,8 @@ import org.lfenergy.shapeshifter.api.DPrognosisResponse;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexOrderStatusType;
 import org.lfenergy.shapeshifter.api.TestMessageResponse;
+import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -22,8 +24,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ReferencedFlexOrderMessageIdValidatorTest {
 
-  private static final String FLEX_OREDER_MESSAGE_ID1 = "FLEX_OREDER_MESSAGE_ID1";
-  private static final String FLEX_OREDER_MESSAGE_ID2 = "FLEX_OREDER_MESSAGE_ID2";
+  private static final String FLEX_ORDER_MESSAGE_ID1 = "FLEX_ORDER_MESSAGE_ID1";
+  private static final String FLEX_ORDER_MESSAGE_ID2 = "FLEX_ORDER_MESSAGE_ID2";
 
   @Mock
   private UftpValidatorSupport support;
@@ -31,24 +33,16 @@ class ReferencedFlexOrderMessageIdValidatorTest {
   @InjectMocks
   private ReferencedFlexOrderMessageIdValidator testSubject;
 
-  @Mock
-  private UftpParticipant sender;
-  @Mock
-  private DPrognosisResponse prognosisResponse;
-  @Mock
-  private FlexOrderStatusType status1, status2;
-  @Mock
-  private FlexOrder flexOrder1, flexOrder2;
+  private final UftpParticipant sender = new UftpParticipant("example.com", USEFRoleType.DSO);
+  private final DPrognosisResponse prognosisResponse = new DPrognosisResponse();
+  private final FlexOrderStatusType status1 = new FlexOrderStatusType();
+  private final FlexOrderStatusType status2 = new FlexOrderStatusType();
+  private final FlexOrder flexOrder1 = new FlexOrder();
+  private final FlexOrder flexOrder2 = new FlexOrder();
 
   @AfterEach
   void noMore() {
-    verifyNoMoreInteractions(
-        support,
-        sender,
-        prognosisResponse,
-        status1, status2,
-        flexOrder1, flexOrder2
-    );
+    verifyNoMoreInteractions(support);
   }
 
   @Test
@@ -63,35 +57,35 @@ class ReferencedFlexOrderMessageIdValidatorTest {
 
   @Test
   void valid_whenNoReferencesInResponse() {
-    given(prognosisResponse.getFlexOrderStatuses()).willReturn(List.of());
+    prognosisResponse.getFlexOrderStatuses().clear();
 
-    assertThat(testSubject.valid(sender, prognosisResponse)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, prognosisResponse))).isTrue();
   }
 
   @Test
   void valid_whenAllReferencesInListAreKnow() {
-    given(prognosisResponse.getFlexOrderStatuses()).willReturn(List.of(
-        status1, status2
-    ));
-    given(status1.getFlexOrderMessageID()).willReturn(FLEX_OREDER_MESSAGE_ID1);
-    given(status2.getFlexOrderMessageID()).willReturn(FLEX_OREDER_MESSAGE_ID2);
-    given(support.getPreviousMessage(FLEX_OREDER_MESSAGE_ID1, FlexOrder.class)).willReturn(Optional.of(flexOrder1));
-    given(support.getPreviousMessage(FLEX_OREDER_MESSAGE_ID2, FlexOrder.class)).willReturn(Optional.of(flexOrder2));
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, prognosisResponse);
 
-    assertThat(testSubject.valid(sender, prognosisResponse)).isTrue();
+    prognosisResponse.getFlexOrderStatuses().addAll(List.of(status1, status2));
+    status1.setFlexOrderMessageID(FLEX_ORDER_MESSAGE_ID1);
+    status2.setFlexOrderMessageID(FLEX_ORDER_MESSAGE_ID2);
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_ORDER_MESSAGE_ID1, FlexOrder.class))).willReturn(Optional.of(flexOrder1));
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_ORDER_MESSAGE_ID2, FlexOrder.class))).willReturn(Optional.of(flexOrder2));
+
+    assertThat(testSubject.valid(uftpMessage)).isTrue();
   }
 
   @Test
   void invalid_whenSingleReferenceInListIsUnknown() {
-    given(prognosisResponse.getFlexOrderStatuses()).willReturn(List.of(
-        status1, status2
-    ));
-    given(status1.getFlexOrderMessageID()).willReturn(FLEX_OREDER_MESSAGE_ID1);
-    given(status2.getFlexOrderMessageID()).willReturn(FLEX_OREDER_MESSAGE_ID2);
-    given(support.getPreviousMessage(FLEX_OREDER_MESSAGE_ID1, FlexOrder.class)).willReturn(Optional.of(flexOrder1));
-    given(support.getPreviousMessage(FLEX_OREDER_MESSAGE_ID2, FlexOrder.class)).willReturn(Optional.empty());
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, prognosisResponse);
 
-    assertThat(testSubject.valid(sender, prognosisResponse)).isFalse();
+    prognosisResponse.getFlexOrderStatuses().addAll(List.of(status1, status2));
+    status1.setFlexOrderMessageID(FLEX_ORDER_MESSAGE_ID1);
+    status2.setFlexOrderMessageID(FLEX_ORDER_MESSAGE_ID2);
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_ORDER_MESSAGE_ID1, FlexOrder.class))).willReturn(Optional.of(flexOrder1));
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_ORDER_MESSAGE_ID2, FlexOrder.class))).willReturn(Optional.empty());
+
+    assertThat(testSubject.valid(uftpMessage)).isFalse();
   }
 
   @Test

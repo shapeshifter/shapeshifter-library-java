@@ -9,7 +9,7 @@ import org.lfenergy.shapeshifter.api.DPrognosisResponse;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexOrderStatusType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.springframework.stereotype.Service;
@@ -27,10 +27,10 @@ public class ReferencedFlexOrderMessageIdValidator implements UftpBaseValidator<
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, DPrognosisResponse payloadMessage) {
-    var value = collectFlexOrderMessageIDs(payloadMessage);
+  public boolean valid(UftpMessage<DPrognosisResponse> uftpMessage) {
+    var value = collectFlexOrderMessageIDs(uftpMessage.payloadMessage());
     return value.isEmpty() || value.stream().allMatch(
-        msgId -> support.getPreviousMessage(msgId, FlexOrder.class).isPresent()
+        msgId -> support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(msgId, FlexOrder.class)).isPresent()
     );
   }
 

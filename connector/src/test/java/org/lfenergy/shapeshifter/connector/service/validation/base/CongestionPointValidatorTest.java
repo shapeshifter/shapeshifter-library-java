@@ -23,6 +23,7 @@ import org.lfenergy.shapeshifter.api.FlexReservationUpdate;
 import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -99,7 +100,7 @@ class CongestionPointValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -107,7 +108,7 @@ class CongestionPointValidatorTest {
   void valid_true_whenFoundValueIsSupported(PayloadMessageType payloadMessage, Set<String> congestionPoints) {
     given(support.areKnownCongestionPoints(congestionPoints)).willReturn(true);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -115,7 +116,7 @@ class CongestionPointValidatorTest {
   void valid_false_whenFoundValueIsNotSupported(PayloadMessageType payloadMessage, Set<String> congestionPoints) {
     given(support.areKnownCongestionPoints(congestionPoints)).willReturn(false);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

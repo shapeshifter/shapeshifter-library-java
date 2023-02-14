@@ -26,6 +26,7 @@ import org.lfenergy.shapeshifter.api.FlexReservationUpdate;
 import org.lfenergy.shapeshifter.api.Metering;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -124,7 +125,7 @@ class TimeZoneSupportedValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -132,7 +133,7 @@ class TimeZoneSupportedValidatorTest {
   void valid_true_whenFoundValueIsSupported(PayloadMessageType payloadMessage) {
     given(support.isSupportedTimeZone(TIME_ZONE)).willReturn(true);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -140,7 +141,7 @@ class TimeZoneSupportedValidatorTest {
   void valid_false_whenFoundValueIsNotSupported(PayloadMessageType payloadMessage) {
     given(support.isSupportedTimeZone(TIME_ZONE)).willReturn(false);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

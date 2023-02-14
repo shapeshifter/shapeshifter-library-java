@@ -17,6 +17,7 @@ import org.lfenergy.shapeshifter.api.FlexOfferRevocation;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -84,23 +85,25 @@ class ReferencedFlexOfferMessageIdValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
   void valid_true_whenFoundMessageIdIsOfKnownMessage(PayloadMessageType payloadMessage) {
-    given(support.getPreviousMessage(FLEX_OFFER_MESSAGE_ID, FlexOffer.class)).willReturn(Optional.of(flexOffer));
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, FlexOffer.class))).willReturn(Optional.of(flexOffer));
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
   void valid_false_whenFoundMessageIdIsOfUnknownMessage(PayloadMessageType payloadMessage) {
-    given(support.getPreviousMessage(FLEX_OFFER_MESSAGE_ID, FlexOffer.class)).willReturn(Optional.empty());
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, FlexOffer.class))).willReturn(Optional.empty());
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    assertThat(testSubject.valid(uftpMessage)).isFalse();
   }
 
   @Test

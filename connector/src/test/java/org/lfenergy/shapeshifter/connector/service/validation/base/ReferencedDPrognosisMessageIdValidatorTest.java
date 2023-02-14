@@ -20,6 +20,7 @@ import org.lfenergy.shapeshifter.api.FlexOrderSettlementType;
 import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -107,28 +108,32 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
   void valid_true_whenFoundMessageIdIsOfKnownMessage(PayloadMessageType payloadMessage, List<String> baselineRefs) {
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
+
     if (baselineRefs.size() >= 1) {
-      given(support.getPreviousMessage(DPROGNOSIS_MESSAGE_ID1, DPrognosis.class)).willReturn(Optional.of(dPrognosisType1));
+      given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, DPrognosis.class))).willReturn(Optional.of(dPrognosisType1));
     }
     if (baselineRefs.size() == 2) {
-      given(support.getPreviousMessage(DPROGNOSIS_MESSAGE_ID2, DPrognosis.class)).willReturn(Optional.of(dPrognosisType2));
+      given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID2, DPrognosis.class))).willReturn(Optional.of(dPrognosisType2));
     }
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
   void valid_false_whenFoundMessageIdIsOfUnknownMessage(PayloadMessageType payloadMessage, List<String> baselineRefs) {
-    given(support.getPreviousMessage(DPROGNOSIS_MESSAGE_ID1, DPrognosis.class)).willReturn(Optional.empty());
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, DPrognosis.class))).willReturn(Optional.empty());
+
+    assertThat(testSubject.valid(uftpMessage)).isFalse();
   }
 
   @Test

@@ -58,7 +58,7 @@ public class UFTPUnsealTool {
 
       Files.writeString(Paths.get(outputFileName), payloadXml);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      log.error("Could not unseal message: " + e.getMessage(), e);
     }
   }
 }

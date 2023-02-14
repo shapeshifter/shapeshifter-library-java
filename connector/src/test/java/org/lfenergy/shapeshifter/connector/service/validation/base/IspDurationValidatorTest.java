@@ -19,6 +19,7 @@ import org.lfenergy.shapeshifter.api.FlexMessageType;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.Metering;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -100,7 +101,7 @@ class IspDurationValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoDurationIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -108,7 +109,7 @@ class IspDurationValidatorTest {
   void valid_true_whenFoundDurationIsSupported(PayloadMessageType payloadMessage) {
     given(support.isSupportedIspDuration(DURATION)).willReturn(true);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -116,7 +117,7 @@ class IspDurationValidatorTest {
   void valid_false_whenFoundDurationIsNotSupported(PayloadMessageType payloadMessage) {
     given(support.isSupportedIspDuration(DURATION)).willReturn(false);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

@@ -32,6 +32,10 @@ import org.lfenergy.shapeshifter.api.USEFRoleType;
 
 public class UftpRoleInformation {
 
+  private UftpRoleInformation() {
+    // Private constructor to hide implicit one
+  }
+
   private static final Set<Class<? extends PayloadMessageType>> AGR_MESSAGE_TYPES = Set.of(
       AGRPortfolioQuery.class,
       AGRPortfolioUpdate.class,

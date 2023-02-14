@@ -6,6 +6,14 @@ import static org.lfenergy.shapeshifter.connector.common.xml.TestFileHelper.read
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.lfenergy.shapeshifter.api.FlexOffer;
+import org.lfenergy.shapeshifter.api.FlexOfferResponse;
+import org.lfenergy.shapeshifter.api.FlexOrder;
+import org.lfenergy.shapeshifter.api.FlexOrderResponse;
+import org.lfenergy.shapeshifter.api.FlexRequest;
+import org.lfenergy.shapeshifter.api.FlexRequestResponse;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.connector.application.TestSpringConfigExcludingTestMappings;
@@ -20,6 +28,7 @@ class UftpSerializerIntegrationTest {
 
   private static final String XXE_ATTACK = "xml/xxe/FlexRequestResponse_with_XXE_Attack.xml";
   private static final String XXE_ATTACK_SSRF = "xml/xxe/FlexRequestResponse_with_XXE_Attack_SSRF.xml";
+
   @Autowired
   private UftpSerializer serializer;
 
@@ -33,82 +42,39 @@ class UftpSerializerIntegrationTest {
     TestFile.compareAsXml(getClass(), "SignedMessage", backToXml);
   }
 
-  @Test
-  void flexRequest() throws Exception {
-    String xml = TestFile.readResourceFileAsString(getClass(), "FlexRequest", ".xml");
-    PayloadMessageType msg = serializer.fromPayloadXml(xml);
-    String backToXml = serializer.toXml(msg);
+  @ParameterizedTest
+  @ValueSource(classes = {
+      FlexRequest.class,
+      FlexRequestResponse.class,
+      FlexOffer.class,
+      FlexOfferResponse.class,
+      FlexOrder.class,
+      FlexOrderResponse.class
+  })
+  void payloadMessage(Class<? extends PayloadMessageType> payloadMessageType) throws Exception {
+    var testName = payloadMessageType.getSimpleName();
+
+    var xml = TestFile.readResourceFileAsString(getClass(), testName, ".xml");
+
+    var msg = serializer.fromPayloadXml(xml);
     assertThat(msg).isNotNull();
+
+    var backToXml = serializer.toXml(msg);
     assertThat(backToXml).isNotNull();
-    TestFile.compareAsXml(getClass(), "FlexRequest", backToXml);
+    TestFile.compareAsXml(getClass(), testName, backToXml);
   }
 
-  @Test
-  void flexRequestResponse() throws Exception {
-    String xml = TestFile.readResourceFileAsString(getClass(), "FlexRequestResponse", ".xml");
-    PayloadMessageType msg = serializer.fromPayloadXml(xml);
-    String backToXml = serializer.toXml(msg);
-    assertThat(msg).isNotNull();
-    assertThat(backToXml).isNotNull();
-    TestFile.compareAsXml(getClass(), "FlexRequestResponse", backToXml);
-  }
-
-  @Test
-  void flexOffer() throws Exception {
-    String xml = TestFile.readResourceFileAsString(getClass(), "FlexOffer", ".xml");
-    PayloadMessageType msg = serializer.fromPayloadXml(xml);
-    String backToXml = serializer.toXml(msg);
-    assertThat(msg).isNotNull();
-    assertThat(backToXml).isNotNull();
-    TestFile.compareAsXml(getClass(), "FlexOffer", backToXml);
-  }
-
-  @Test
-  void flexOfferResponse() throws Exception {
-    String xml = TestFile.readResourceFileAsString(getClass(), "FlexOfferResponse", ".xml");
-    PayloadMessageType msg = serializer.fromPayloadXml(xml);
-    String backToXml = serializer.toXml(msg);
-    assertThat(msg).isNotNull();
-    assertThat(backToXml).isNotNull();
-    TestFile.compareAsXml(getClass(), "FlexOfferResponse", backToXml);
-  }
-
-  @Test
-  void flexOrder() throws Exception {
-    String xml = TestFile.readResourceFileAsString(getClass(), "FlexOrder", ".xml");
-    PayloadMessageType msg = serializer.fromPayloadXml(xml);
-    String backToXml = serializer.toXml(msg);
-    assertThat(msg).isNotNull();
-    assertThat(backToXml).isNotNull();
-    TestFile.compareAsXml(getClass(), "FlexOrder", backToXml);
-  }
-
-  @Test
-  void flexOrderResponse() throws Exception {
-    String xml = TestFile.readResourceFileAsString(getClass(), "FlexOrderResponse", ".xml");
-    PayloadMessageType msg = serializer.fromPayloadXml(xml);
-    String backToXml = serializer.toXml(msg);
-    assertThat(msg).isNotNull();
-    assertThat(backToXml).isNotNull();
-    TestFile.compareAsXml(getClass(), "FlexOrderResponse", backToXml);
-  }
-
-  @Test
-  void xxeAttackBlocked() {
-    doTestXXE(XXE_ATTACK, "access is not allowed");
-  }
-
-  @Test
-  void xxeAttackSsrfBlocked() {
-    doTestXXE(XXE_ATTACK_SSRF, "access is not allowed");
-  }
-
-  private void doTestXXE(String fileName, String errorMessage) {
+  @ParameterizedTest
+  @ValueSource(strings = {
+      XXE_ATTACK,
+      XXE_ATTACK_SSRF
+  })
+  void xxe(String fileName) {
     var xml = readXml(fileName);
     assertThatThrownBy(() -> serializer.fromPayloadXml(xml))
         .isInstanceOf(UftpConnectorException.class)
         .hasRootCauseInstanceOf(SAXParseException.class)
-        .getRootCause()
-        .hasMessageContaining(errorMessage);
+        .rootCause()
+        .hasMessageContaining("access is not allowed");
   }
 }

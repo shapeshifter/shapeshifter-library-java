@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,8 @@ public class MinActivationFactorValidator implements UftpMessageValidator<FlexOf
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, FlexOffer flexOffer) {
+  public boolean valid(UftpMessage<FlexOffer> uftpMessage) {
+    var flexOffer = uftpMessage.payloadMessage();
     return flexOffer.getOfferOptions().stream().allMatch(
         it -> minActivationFactorIsNull(it.getMinActivationFactor()) || minActivationFactorInProperRange(it.getMinActivationFactor()));
   }

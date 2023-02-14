@@ -5,7 +5,7 @@ import static org.lfenergy.shapeshifter.connector.model.UftpRoleInformation.getR
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.springframework.stereotype.Service;
@@ -23,8 +23,8 @@ public class RecipientValidator implements UftpBaseValidator<PayloadMessageType>
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, PayloadMessageType payloadMessage) {
-    return support.isHandledRecipient(payloadMessage.getRecipientDomain(), getRecipientRoleBySenderRole(sender.role()));
+  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+    return support.isHandledRecipient(uftpMessage.payloadMessage().getRecipientDomain(), getRecipientRoleBySenderRole(uftpMessage.sender().role()));
   }
 
   @Override

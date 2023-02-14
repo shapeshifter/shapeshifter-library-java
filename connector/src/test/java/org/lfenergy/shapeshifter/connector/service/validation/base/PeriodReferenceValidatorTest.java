@@ -24,6 +24,7 @@ import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -100,7 +101,7 @@ class PeriodReferenceValidatorTest {
     flexOffer.setFlexRequestMessageID(null);
     flexOffer.setPeriod(PERIOD);
 
-    assertThat(testSubject.valid(sender, flexOffer)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }
 
   @ParameterizedTest
@@ -108,11 +109,13 @@ class PeriodReferenceValidatorTest {
   <T extends PayloadMessageType> void valid_true_matchingMessageNotFound(
       PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
   ) {
-    given(support.getPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType)).willReturn(Optional.empty());
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
+
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.empty());
 
     // Matching message may not be found, although it should be there. This returns valid() == true
     // because that is not the purpose of this validation. It is checked in Referenced******MessageIdValidation classes.
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
@@ -120,10 +123,12 @@ class PeriodReferenceValidatorTest {
   <T extends PayloadMessageType> void valid_true_matchingMessageFoundPeriodMatches(
       PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
   ) throws Exception {
-    setPeriod(matchingMessageType, matchingMessage, PERIOD);
-    given(support.getPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType)).willReturn(Optional.of(matchingMessage));
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    setPeriod(matchingMessageType, matchingMessage, PERIOD);
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
+
+    assertThat(testSubject.valid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
@@ -131,10 +136,12 @@ class PeriodReferenceValidatorTest {
   <T extends PayloadMessageType> void valid_false_matchingMessageFoundPeriodDoesNotMatch(
       PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
   ) throws Exception {
-    setPeriod(matchingMessageType, matchingMessage, OTHER);
-    given(support.getPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType)).willReturn(Optional.of(matchingMessage));
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    setPeriod(matchingMessageType, matchingMessage, OTHER);
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
+
+    assertThat(testSubject.valid(uftpMessage)).isFalse();
   }
 
   private <T extends PayloadMessageType> void setPeriod(Class<T> matchingMessageType, T matchingMessage, OffsetDateTime value) throws Exception {

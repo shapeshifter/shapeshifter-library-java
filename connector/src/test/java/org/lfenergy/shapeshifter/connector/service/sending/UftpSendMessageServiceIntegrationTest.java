@@ -6,7 +6,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
-import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
 import org.lfenergy.shapeshifter.connector.model.ShippingDetails;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.crypto.UftpCryptoService;
@@ -29,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest(classes = UftpSendMessageService.class)
@@ -98,12 +98,12 @@ public class UftpSendMessageServiceIntegrationTest {
     wireMock.stubFor(post(urlEqualTo(RECIPIENT_ENDPOINT_PATH)).willReturn(badRequest()));
 
     var shippingDetails = mockShippingDetails();
-    var thrown = assertThrows(UftpConnectorException.class, () -> testSubject.attemptToSendMessage(null, shippingDetails));
+    assertThatThrownBy(() -> testSubject.attemptToSendMessage(null, shippingDetails))
+        .isInstanceOfSatisfying(UftpClientErrorException.class, e ->
+            assertThat(e.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST))
+        .hasMessage("Failed to send message to " + RECIPIENT_DOMAIN + " at " + wireMock.url(RECIPIENT_ENDPOINT_PATH));
 
     wireMock.verify(1, postRequestedFor(urlEqualTo(RECIPIENT_ENDPOINT_PATH)));
-    assertThat(thrown.getMessage()).contains("Failed to send message to UftpParticipant");
-    assertThat(thrown.getMessage()).contains(RECIPIENT_DOMAIN);
-    assertThat(thrown.getMessage()).contains(RECIPIENT_ENDPOINT);
   }
 
   private ShippingDetails mockShippingDetails() {

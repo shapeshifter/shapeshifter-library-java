@@ -10,7 +10,7 @@ import org.lfenergy.shapeshifter.api.FlexOfferOptionISPType;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexOrderISPType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.springframework.stereotype.Service;
@@ -31,11 +31,14 @@ public class FlexOrderFlexibilityMatchValidator implements UftpMessageValidator<
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, FlexOrder flexOrder) {
-    var flexOffer = uftpValidatorSupport.getPreviousMessage(flexOrder.getFlexOfferMessageID(), FlexOffer.class);
+  public boolean valid(UftpMessage<FlexOrder> uftpMessage) {
+    var flexOrder = uftpMessage.payloadMessage();
+
+    var flexOffer = uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(), FlexOffer.class));
     if (flexOffer.isEmpty()) {
       return false;
     }
+
     if (isNotBlank(flexOrder.getOptionReference())) {
       return validForOptionReference(flexOrder, flexOffer.get());
     }

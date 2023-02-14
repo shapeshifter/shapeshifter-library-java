@@ -21,11 +21,12 @@
   </description>
 
   <properties>
-    <lazysodium-java.version>5.1.1</lazysodium-java.version>
     <jna.version>5.12.1</jna.version>
+    <lazysodium-java.version>5.1.1</lazysodium-java.version>
     <resource-loader.version>2.0.1</resource-loader.version>
-    <wiremock.version>2.33.2</wiremock.version>
     <spring-boot.version>2.7.7</spring-boot.version>
+    <swagger-annotations.version>2.2.8</swagger-annotations.version>
+    <wiremock.version>2.33.2</wiremock.version>
   </properties>
 
   <dependencyManagement>
@@ -127,6 +128,13 @@
       <groupId>com.goterl</groupId>
       <artifactId>resource-loader</artifactId>
       <version>${resource-loader.version}</version>
+    </dependency>
+
+    <!-- For exposing OpenAPI documentation -->
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>${swagger-annotations.version}</version>
     </dependency>
 
     <!-- Test dependencies -->

@@ -11,7 +11,7 @@ import org.lfenergy.shapeshifter.api.DSOPortfolioUpdate;
 import org.lfenergy.shapeshifter.api.DSOPortfolioUpdateCongestionPoint;
 import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 import org.springframework.stereotype.Service;
@@ -35,8 +35,8 @@ public class PeriodStartBeforeOrEqualsToEndValidator implements UftpBaseValidato
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, PayloadMessageType payloadMessage) {
-    return retriever.getProperty(payloadMessage);
+  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+    return retriever.getProperty(uftpMessage.payloadMessage());
   }
 
   @Override

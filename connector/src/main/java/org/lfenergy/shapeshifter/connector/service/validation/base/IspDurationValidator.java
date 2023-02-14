@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.FlexMessageType;
 import org.lfenergy.shapeshifter.api.Metering;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
@@ -32,8 +32,8 @@ public class IspDurationValidator implements UftpBaseValidator<PayloadMessageTyp
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, PayloadMessageType payloadMessage) {
-    var value = retriever.getOptionalProperty(payloadMessage);
+  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+    var value = retriever.getOptionalProperty(uftpMessage.payloadMessage());
     return value.isEmpty() || support.isSupportedIspDuration(value.get());
   }
 

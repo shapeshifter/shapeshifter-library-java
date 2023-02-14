@@ -1,5 +1,5 @@
 <FlexOrderResponse
-  Version="1.01.0"
+  Version="3.0.0"
   SenderDomain="aggregator.org"
   RecipientDomain="uftp.dso.nl"
   TimeStamp="2021-10-29T06:55:45.2118292Z"

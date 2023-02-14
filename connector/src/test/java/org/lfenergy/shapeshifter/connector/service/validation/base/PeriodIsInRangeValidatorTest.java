@@ -21,6 +21,7 @@ import org.lfenergy.shapeshifter.api.FlexOrderSettlementType;
 import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -150,7 +151,7 @@ class PeriodIsInRangeValidatorTest {
   @ParameterizedTest
   @MethodSource("inRange")
   void valid_allInRange(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> notInRange() {
@@ -253,7 +254,7 @@ class PeriodIsInRangeValidatorTest {
   @ParameterizedTest
   @MethodSource("notInRange")
   void valid_false_notInRange(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

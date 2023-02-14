@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -45,7 +46,7 @@ class SenderMatchesEnvelopeValidatorTest {
     given(sender.domain()).willReturn(SENDER_DOMAIN);
     given(payloadMessage.getSenderDomain()).willReturn(SENDER_DOMAIN);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @Test
@@ -53,7 +54,7 @@ class SenderMatchesEnvelopeValidatorTest {
     given(sender.domain()).willReturn(SENDER_DOMAIN);
     given(payloadMessage.getSenderDomain()).willReturn(DIFFERENT);
 
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

@@ -16,7 +16,7 @@ import org.lfenergy.shapeshifter.api.FlexReservationUpdate;
 import org.lfenergy.shapeshifter.api.Metering;
 import org.lfenergy.shapeshifter.api.MeteringProfileType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 
 public abstract class IspListValidatorBase extends IspCollectorValidator<PayloadMessageType> {
@@ -41,8 +41,8 @@ public abstract class IspListValidatorBase extends IspCollectorValidator<Payload
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, PayloadMessageType payloadMessage) {
-    return retriever.getProperty(payloadMessage);
+  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+    return retriever.getProperty(uftpMessage.payloadMessage());
   }
 
   private long numberOfIspsOnDay(OffsetDateTime onDay, Duration ispDuration, String ianaTimeZone) {

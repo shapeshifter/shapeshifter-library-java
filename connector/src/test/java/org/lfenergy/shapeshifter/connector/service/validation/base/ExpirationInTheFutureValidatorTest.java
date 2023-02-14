@@ -15,6 +15,7 @@ import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -58,7 +59,7 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_whenNotPresent")
   void valid_whenNotPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> valid_whenInTheFuture() {
@@ -77,7 +78,7 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_whenInTheFuture")
   void valid_whenInTheFuture(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> valid_false_whenNow() {
@@ -96,7 +97,7 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_false_whenNow")
   void valid_false_whenNow(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   public static Stream<Arguments> valid_whenInThePassed() {
@@ -115,7 +116,7 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_whenInThePassed")
   void valid_whenInThePassed(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(sender, payloadMessage)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

@@ -2,15 +2,15 @@ package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.TestMessageResponse;
+import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -28,22 +28,9 @@ class ReferencedFlexRequestMessageIdValidatorTest {
   @InjectMocks
   private ReferencedFlexRequestMessageIdValidator testSubject;
 
-  @Mock
-  private UftpParticipant sender;
-  @Mock
-  private FlexOffer flexOffer;
-  @Mock
-  private FlexRequest flexRequest;
-
-  @AfterEach
-  void noMore() {
-    verifyNoMoreInteractions(
-        support,
-        sender,
-        flexOffer,
-        flexRequest
-    );
-  }
+  private final UftpParticipant sender = new UftpParticipant("example.com", USEFRoleType.DSO);
+  private final FlexOffer flexOffer = new FlexOffer();
+  private final FlexRequest flexRequest = new FlexRequest();
 
   @Test
   void appliesTo() {
@@ -59,23 +46,27 @@ class ReferencedFlexRequestMessageIdValidatorTest {
   void valid_whenNoReferenceInRequest() {
     given(flexOffer.getFlexRequestMessageID()).willReturn(null);
 
-    assertThat(testSubject.valid(sender, flexOffer)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }
 
   @Test
   void valid_whenReferenceInRequestIsKnown() {
-    given(flexOffer.getFlexRequestMessageID()).willReturn(FLEX_REQUEST_MESSAGE_ID);
-    given(support.getPreviousMessage(FLEX_REQUEST_MESSAGE_ID, FlexRequest.class)).willReturn(Optional.of(flexRequest));
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
 
-    assertThat(testSubject.valid(sender, flexOffer)).isTrue();
+    flexOffer.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+
+    assertThat(testSubject.valid(uftpMessage)).isTrue();
   }
 
   @Test
   void invalid_whenReferenceInRequestIsNotKnown() {
-    given(flexOffer.getFlexRequestMessageID()).willReturn(FLEX_REQUEST_MESSAGE_ID);
-    given(support.getPreviousMessage(FLEX_REQUEST_MESSAGE_ID, FlexRequest.class)).willReturn(Optional.empty());
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
 
-    assertThat(testSubject.valid(sender, flexOffer)).isFalse();
+    flexOffer.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
+    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, FlexRequest.class))).willReturn(Optional.empty());
+
+    assertThat(testSubject.valid(uftpMessage)).isFalse();
   }
 
   @Test

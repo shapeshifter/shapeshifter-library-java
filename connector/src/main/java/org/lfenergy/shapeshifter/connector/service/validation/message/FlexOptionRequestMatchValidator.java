@@ -10,7 +10,7 @@ import org.lfenergy.shapeshifter.api.FlexOfferOptionType;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestISPType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.springframework.stereotype.Service;
@@ -31,12 +31,14 @@ public class FlexOptionRequestMatchValidator implements UftpMessageValidator<Fle
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, FlexOffer flexOffer) {
+  public boolean valid(UftpMessage<FlexOffer> uftpMessage) {
+    var flexOffer = uftpMessage.payloadMessage();
+
     if (flexOffer.getFlexRequestMessageID() == null) {
       return true;
     }
 
-    var flexRequest = uftpValidatorSupport.getPreviousMessage(flexOffer.getFlexRequestMessageID(), FlexRequest.class);
+    var flexRequest = uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOffer.getFlexRequestMessageID(), FlexRequest.class));
     // if there is no flex request, then this is an unsolicited flex offer, which is perfectly fine
     if (flexRequest.isEmpty()) {
       return true;

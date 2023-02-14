@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexRequest;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -40,36 +41,36 @@ class MinActivationFactorValidatorTest {
   @Test
   void test_happy_flow_one_missing_min_activation_factor() {
     var flexOffer = flexOffer(null);
-    assertThat(testSubject.valid(sender, flexOffer)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }
 
   @Test
   void test_happy_flow_two_correct_min_activation_factor() {
     var flexOffer = flexOffer(BigDecimal.valueOf(0.5));
-    assertThat(testSubject.valid(sender, flexOffer)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }
 
   @Test
   void test_happy_flow_three_correct_min_activation_factor() {
     var flexOffer = flexOffer(BigDecimal.valueOf(1.0));
-    assertThat(testSubject.valid(sender, flexOffer)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }
 
   @Test
   void test_min_activation_cannot_be_0() {
     var flexOffer = flexOffer(BigDecimal.valueOf(0));
-    assertThat(testSubject.valid(sender, flexOffer)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isFalse();
   }
 
   @Test
   void test_min_activation_cannot_be_smaller_than_0() {
     var flexOffer = flexOffer(BigDecimal.valueOf(-1.0));
-    assertThat(testSubject.valid(sender, flexOffer)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isFalse();
   }
 
   @Test
   void test_min_activation_cannot_be_greater_than_1() {
     var flexOffer = flexOffer(BigDecimal.valueOf(1.1));
-    assertThat(testSubject.valid(sender, flexOffer)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isFalse();
   }
 }

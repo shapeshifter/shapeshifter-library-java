@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.config.UftpConnectorConfig;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.forwarding.UftpPayloadForwarder;
 import org.lfenergy.shapeshifter.connector.service.receiving.response.UftpValidationResponseCreator;
@@ -23,7 +24,7 @@ public class UftpReceivedMessageService {
   private final UftpValidationService validator;
   private final UftpPayloadForwarder forwarder;
 
-  public void process(UftpParticipant from, PayloadMessageType payloadMessage) {
+  public ValidationResult process(UftpParticipant from, PayloadMessageType payloadMessage) {
     var validationResult = validateMessage(from, payloadMessage);
 
     if (payloadMessage instanceof PayloadMessageResponseType response) {
@@ -36,13 +37,14 @@ public class UftpReceivedMessageService {
 
       forwarder.notifyNewOutgoingMessage(originalRecipient, response);
     }
+
+    return validationResult;
   }
 
   private ValidationResult validateMessage(UftpParticipant from, PayloadMessageType payloadMessage) {
     if (shouldPerformValidations()) {
-      return validator.validate(from, payloadMessage);
+      return validator.validate(UftpMessage.createIncoming(from, payloadMessage));
     }
-
     return ValidationResult.ok();
   }
 

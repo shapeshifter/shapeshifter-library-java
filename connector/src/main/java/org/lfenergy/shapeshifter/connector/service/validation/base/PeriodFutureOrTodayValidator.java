@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.FlexMessageType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +26,9 @@ public class PeriodFutureOrTodayValidator implements UftpBaseValidator<FlexMessa
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, FlexMessageType flexMessage) {
-    var period = Optional.ofNullable(flexMessage.getPeriod());
-    var timeZone = Optional.ofNullable(flexMessage.getTimeZone());
+  public boolean valid(UftpMessage<FlexMessageType> uftpMessage) {
+    var period = Optional.ofNullable(uftpMessage.payloadMessage().getPeriod());
+    var timeZone = Optional.ofNullable(uftpMessage.payloadMessage().getTimeZone());
 
     return period.isEmpty() ||
         timeZone.isEmpty() ||

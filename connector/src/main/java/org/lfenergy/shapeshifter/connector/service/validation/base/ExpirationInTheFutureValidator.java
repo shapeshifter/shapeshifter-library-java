@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 import org.springframework.stereotype.Service;
@@ -30,8 +30,8 @@ public class ExpirationInTheFutureValidator implements UftpBaseValidator<Payload
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, PayloadMessageType payloadMessage) {
-    var value = retriever.getOptionalProperty(payloadMessage);
+  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+    var value = retriever.getOptionalProperty(uftpMessage.payloadMessage());
     return value.isEmpty() || isInFuture(value.get());
   }
 

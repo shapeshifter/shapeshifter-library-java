@@ -2,18 +2,22 @@ package org.lfenergy.shapeshifter.connector.service.sending;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
 import org.lfenergy.shapeshifter.connector.model.ShippingDetails;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageDirection;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.connector.service.participant.ParticipantResolutionService;
 import org.lfenergy.shapeshifter.connector.service.serialization.UftpSerializer;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidationService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Slf4j
 @Service
@@ -24,13 +28,41 @@ public class UftpSendMessageService {
   private final UftpCryptoService cryptoService;
   private final ParticipantResolutionService participantService;
   private final UftpSendFactory factory;
+  private final UftpValidationService uftpValidationService;
 
-  public <T extends PayloadMessageType> void attemptToSendMessage(T payloadMessage, ShippingDetails details) {
+  /**
+   * Attempts to sends the message, without validation
+   *
+   * @throws UftpSendException if sending fails
+   */
+  public void attemptToSendMessage(PayloadMessageType payloadMessage, ShippingDetails details) throws UftpSendException {
+    doSend(payloadMessage, details);
+  }
+
+  /**
+   * Attempts to send the message, with validation
+   *
+   * @throws UftpSendException if validation fails, or if sending fails
+   */
+  public void attemptToValidateAndSendMessage(PayloadMessageType payloadMessage, ShippingDetails details) throws UftpSendException {
+    // We will validate outgoing messages, but we will not validate outgoing response messages.
+    if (!(payloadMessage instanceof PayloadMessageResponseType)) {
+      var uftpMessage = new UftpMessage<>(details.sender(), UftpMessageDirection.OUTGOING, payloadMessage);
+      var validationResult = uftpValidationService.validate(uftpMessage);
+      if (!validationResult.valid()) {
+        throw new UftpSendException(
+            "Could not send UFTP message; the outgoing " + payloadMessage.getClass().getSimpleName() + " message was not valid: " + validationResult.rejectionReason());
+      }
+    }
+    doSend(payloadMessage, details);
+  }
+
+  private void doSend(PayloadMessageType payloadMessage, ShippingDetails details) {
     String signedXml = getSignedXml(payloadMessage, details);
     send(signedXml, details.recipient());
   }
 
-  private <T extends PayloadMessageType> String getSignedXml(T payloadMessage, ShippingDetails details) {
+  private String getSignedXml(PayloadMessageType payloadMessage, ShippingDetails details) {
     var payloadXml = serializer.toXml(payloadMessage);
     var signedMessage = cryptoService.sealMessage(payloadXml, details.sender(), details.senderPrivateKey());
     return serializer.toXml(signedMessage);
@@ -40,18 +72,20 @@ public class UftpSendMessageService {
     var url = participantService.getEndPointUrl(recipient);
 
     try {
-      log.debug("Sending message to: {}",  url);
+      log.debug("Sending message to: {}", url);
 
       ResponseEntity<String> response = factory.newRestTemplate().postForEntity(
           url, request(signedXml), String.class
       );
 
       if (!response.getStatusCode().is2xxSuccessful()) {
-        throw new UftpConnectorException("Response status code: " + response.getStatusCode().value() + " - Details: " + response.getBody());
+        throw new UftpSendException("Response status code: " + response.getStatusCode().value() + " - Details: " + response.getBody());
       }
 
+    } catch (HttpClientErrorException e) {
+      throw new UftpClientErrorException(e.getStatusCode(), "Failed to send message to " + recipient.domain() + " at " + url, e);
     } catch (Exception cause) {
-      throw new UftpConnectorException("Failed to send message to " + recipient + " at " + url, cause);
+      throw new UftpSendException("Failed to send message to " + recipient.domain() + " at " + url, cause);
     }
   }
 

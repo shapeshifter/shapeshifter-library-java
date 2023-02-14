@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexRequest;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.lfenergy.shapeshifter.connector.service.validation.base.TestDataHelper;
@@ -55,9 +56,10 @@ class FlexOrderPriceMatchValidatorTest {
     var flexOrder = flexOrder(flexMessageId);
     var flexOffer = flexOffer(flexMessageId,
                               List.of(TestDataHelper.flexOfferOption(flexOfferOptionIsps())));
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-    given(uftpValidatorSupport.getPreviousMessage(flexMessageId, FlexOffer.class)).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.valid(sender, flexOrder)).isTrue();
+    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    assertThat(testSubject.valid(uftpMessage)).isTrue();
   }
 
   @Test
@@ -67,16 +69,18 @@ class FlexOrderPriceMatchValidatorTest {
     var flexOffer = flexOffer(flexMessageId,
                               List.of(flexOfferOption(BigDecimal.valueOf(50.),
                                                       flexOfferOptionIsps())));
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-    given(uftpValidatorSupport.getPreviousMessage(flexMessageId, FlexOffer.class)).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.valid(sender, flexOrder)).isFalse();
+    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    assertThat(testSubject.valid(uftpMessage)).isFalse();
   }
 
   @Test
   void test_flex_order_has_no_offer_referring_to_existing_offer_then_fail() {
     var messageId = messageId();
     var flexOrder = flexOrder(messageId);
-    given(uftpValidatorSupport.getPreviousMessage(messageId, FlexOffer.class)).willReturn(Optional.empty());
-    assertThat(testSubject.valid(sender, flexOrder)).isFalse();
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
+    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(messageId, FlexOffer.class))).willReturn(Optional.empty());
+    assertThat(testSubject.valid(uftpMessage)).isFalse();
   }
 }

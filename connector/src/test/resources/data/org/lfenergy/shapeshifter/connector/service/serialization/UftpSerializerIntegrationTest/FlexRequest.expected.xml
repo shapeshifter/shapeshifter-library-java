@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <FlexRequest Revision="1" ExpirationDateTime="2021-10-29T22:15:00Z" ISP-Duration="PT15M" TimeZone="Europe/Amsterdam" Period="2021-10-30Z"
-  CongestionPoint="ea1.2009-01.nl.enexis.usef:123-TP-bundel-congestiepunt" Version="1.01.0" SenderDomain="uftp.dso.nl" RecipientDomain="aggregator.org" TimeStamp="2021-10-29T06:54:26.861Z"
+  CongestionPoint="ea1.2009-01.nl.enexis.usef:123-TP-bundel-congestiepunt" Version="3.0.0" SenderDomain="uftp.dso.nl" RecipientDomain="aggregator.org" TimeStamp="2021-10-29T06:54:26.861Z"
   MessageID="d3ae4836-55b1-4084-b54e-34107b22648c" ConversationID="48cdc3d2-56c0-436c-8d5a-6f6cc3dc538d">
   <ISP Disposition="Available" MinPower="0" MaxPower="0" Start="1" Duration="1"/>
   <ISP Disposition="Available" MinPower="0" MaxPower="0" Start="2" Duration="1"/>

@@ -11,17 +11,16 @@
       <xs:extension base="PayloadMessageType">
         <xs:attribute name="ISP-Duration" type="xs:duration" use="required">
           <xs:annotation>
-            <xs:documentation>ISO 8601 time interval (minutes only, for example PT15M) indicating the duration of the ISPs referenced in this message. Although the ISP length is a
-              market-wide fixed value, making this assumption explicit in each message is important for validation purposes, allowing implementations to reject messages with an errant
-              ISP duration.
+            <xs:documentation>ISO 8601 time interval (minutes only, for example PT15M) indicating the duration of the ISPs referenced in this message. Although the ISP length is a market-wide fixed
+              value, making this assumption explicit in each message is important for validation purposes, allowing implementations to reject messages with an errant ISP duration.
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="TimeZone" type="TimeZoneNameType" use="required">
           <xs:annotation>
-            <xs:documentation>Time zone ID (as per the IANA time zone database, http://www.iana.org/time-zones, for example: Europe/Amsterdam) indicating the UTC offset that applies to the
-              Period referenced in this message. Although the time zone is a market-wide fixed value, making this assumption explicit in each message is important for validation
-              purposes, allowing implementations to reject messages with an errant UTC offset.
+            <xs:documentation>Time zone ID (as per the IANA time zone database, http://www.iana.org/time-zones, for example: Europe/Amsterdam) indicating the UTC offset that applies to the Period
+              referenced in this message. Although the time zone is a market-wide fixed value, making this assumption explicit in each message is important for validation purposes, allowing
+              implementations to reject messages with an errant UTC offset.
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>
@@ -66,8 +65,7 @@
   <xs:complexType name="D-PrognosisISPType">
     <xs:attribute name="Power" type="xs:integer" use="required">
       <xs:annotation>
-        <xs:documentation>Power specified for this ISP in Watts. Also see the important notes about the sign of this attribute in the main documentation entry for the ISP element.
-        </xs:documentation>
+        <xs:documentation>Power specified for this ISP in Watts. Also see the important notes about the sign of this attribute in the main documentation entry for the ISP element.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="Start" type="xs:integer" use="required">
@@ -185,8 +183,7 @@
         </xs:attribute>
         <xs:attribute name="ExpirationDateTime" type="xs:dateTime" use="required">
           <xs:annotation>
-            <xs:documentation>Date and time, including the time zone (ISO 8601 formatted as per http://www.w3.org/TR/NOTE-datetime) until which the FlexRequest message is valid.
-            </xs:documentation>
+            <xs:documentation>Date and time, including the time zone (ISO 8601 formatted as per http://www.w3.org/TR/NOTE-datetime) until which the FlexRequest message is valid.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="ContractID" type="xs:string" use="optional">
@@ -211,14 +208,12 @@
     <xs:attribute name="Disposition" type="AvailableRequestedType"/>
     <xs:attribute name="MinPower" type="xs:integer" use="required">
       <xs:annotation>
-        <xs:documentation>Power specified for this ISP in Watts. Also see the important notes about the sign of this attribute in the main documentation entry for the ISP element.
-        </xs:documentation>
+        <xs:documentation>Power specified for this ISP in Watts. Also see the important notes about the sign of this attribute in the main documentation entry for the ISP element.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="MaxPower" type="xs:integer" use="required">
       <xs:annotation>
-        <xs:documentation>Power specified for this ISP in Watts. Also see the important notes about the sign of this attribute in the main documentation entry for the ISP element.
-        </xs:documentation>
+        <xs:documentation>Power specified for this ISP in Watts. Also see the important notes about the sign of this attribute in the main documentation entry for the ISP element.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="Start" type="xs:positiveInteger" use="required">
@@ -313,8 +308,8 @@
     </xs:attribute>
     <xs:attribute name="MinActivationFactor" type="ActivationFactorType" default="1.00">
       <xs:annotation>
-        <xs:documentation>The minimal activation factor for this OfferOption. An AGR may choose to include MinActivationFactor in FlexOffers even if the DSO is not interested in partial
-          activation. In that case the DSO will simply use an ActivationFactor of 1.00 in every FlexOrder.
+        <xs:documentation>The minimal activation factor for this OfferOption. An AGR may choose to include MinActivationFactor in FlexOffers even if the DSO is not interested in partial activation. In
+          that case the DSO will simply use an ActivationFactor of 1.00 in every FlexOrder.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
@@ -325,8 +320,7 @@
   <xs:complexType name="FlexOfferOptionISPType">
     <xs:attribute name="Power" type="xs:integer" use="required">
       <xs:annotation>
-        <xs:documentation>Power specified for this ISP in Watts. Also see the important notes about the sign of this attribute in the main documentation entry for the ISP element.
-        </xs:documentation>
+        <xs:documentation>Power specified for this ISP in Watts. Also see the important notes about the sign of this attribute in the main documentation entry for the ISP element.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="Start" type="xs:positiveInteger" use="required">
@@ -436,8 +430,7 @@
         </xs:attribute>
         <xs:attribute name="ActivationFactor" type="ActivationFactorType" default="1.00">
           <xs:annotation>
-            <xs:documentation>The activation factor for this OfferOption. The ActivationFactor must be greater than or equal to the MinActivationFactor in the OfferOption chosen from the
-              FlexOffer.
+            <xs:documentation>The activation factor for this OfferOption. The ActivationFactor must be greater than or equal to the MinActivationFactor in the OfferOption chosen from the FlexOffer.
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>
@@ -448,8 +441,7 @@
   <xs:complexType name="FlexOrderISPType">
     <xs:attribute name="Power" type="xs:integer" use="required">
       <xs:annotation>
-        <xs:documentation>Power specified for this ISP in Watts. Also see the important notes about the sign of this attribute in the main documentation entry for the ISP element.
-        </xs:documentation>
+        <xs:documentation>Power specified for this ISP in Watts. Also see the important notes about the sign of this attribute in the main documentation entry for the ISP element.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="Start" type="xs:positiveInteger" use="required">
@@ -586,7 +578,7 @@
         <xs:documentation>Actual amount of flex power delivered for this ISP in Watts, as determined by the DSO.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="PoweDeficiency" type="xs:integer" use="optional" default="0">
+    <xs:attribute name="PowerDeficiency" type="xs:integer" use="optional" default="0">
       <xs:annotation>
         <xs:documentation>Amount of flex power sold but not delivered for this ISP in Watts, as determined by the DSO.</xs:documentation>
       </xs:annotation>
@@ -680,16 +672,16 @@
     </xs:attribute>
     <xs:attribute name="AvailablePower" type="xs:integer" use="optional">
       <xs:annotation>
-        <xs:documentation>Amount of flex power that is considered available based on the FlexRequest in question. In case RequestedPower=0, AvailablePower is defined so that the offered power
-          is allowed to be between 0 and AvailablePower in terms of compliancy (see Appendix 3 for details). In case RequestedPower ≠0, AvailablePower is defined so that the offered power is
-          allowed to exceed the amount of requested power up to AvailablePower. If this is relevant for settlement, the DSO can include this field.
+        <xs:documentation>Amount of flex power that is considered available based on the FlexRequest in question. In case RequestedPower=0, AvailablePower is defined so that the offered power is
+          allowed to be between 0 and AvailablePower in terms of compliancy (see Appendix 3 for details). In case RequestedPower ≠0, AvailablePower is defined so that the offered power is allowed to
+          exceed the amount of requested power up to AvailablePower. If this is relevant for settlement, the DSO can include this field.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="OfferedPower" type="xs:integer" use="optional">
       <xs:annotation>
-        <xs:documentation>Amount of flex power that has been reserved in advance, requested using a FlexRequest and covered in an offer from the AGR. If there was no offer, this field is
-          omitted. If there were multiple offers, only the one is considered that is most compliant .
+        <xs:documentation>Amount of flex power that has been reserved in advance, requested using a FlexRequest and covered in an offer from the AGR. If there was no offer, this field is omitted. If
+          there were multiple offers, only the one is considered that is most compliant .
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>

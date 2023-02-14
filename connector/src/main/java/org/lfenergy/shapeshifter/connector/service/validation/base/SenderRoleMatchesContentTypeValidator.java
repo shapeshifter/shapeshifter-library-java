@@ -3,6 +3,7 @@ package org.lfenergy.shapeshifter.connector.service.validation.base;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.model.UftpRoleInformation;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
@@ -19,8 +20,8 @@ public class SenderRoleMatchesContentTypeValidator implements UftpBaseValidator<
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, PayloadMessageType payloadMessage) {
-    return contentMatchesRole(sender, payloadMessage);
+  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+    return contentMatchesRole(uftpMessage.sender(), uftpMessage.payloadMessage());
   }
 
   private boolean contentMatchesRole(UftpParticipant sender, PayloadMessageType payloadMessage) {

@@ -36,26 +36,26 @@ class EntityAddressTest {
   void parseEAN() {
     var entityAddress = EntityAddress.parse(EAN_XML_STRING);
 
-    assertThat(entityAddress.getScheme()).isEqualTo(Scheme.EAN);
-    assertThat(entityAddress.getAddress()).isEqualTo(EAN);
+    assertThat(entityAddress.scheme()).isEqualTo(Scheme.EAN);
+    assertThat(entityAddress.address()).isEqualTo(EAN);
   }
 
   @Test
   void parseEA1() {
     var entityAddress = EntityAddress.parse(EA1_XML_STRING);
 
-    assertThat(entityAddress.getScheme()).isEqualTo(Scheme.EA1);
-    assertThat(entityAddress.getAddress()).isEqualTo(EA1);
+    assertThat(entityAddress.scheme()).isEqualTo(Scheme.EA1);
+    assertThat(entityAddress.address()).isEqualTo(EA1);
   }
 
   @Test
   void toStringEAN() {
-    assertThat(new EntityAddress(Scheme.EAN, EAN).toString()).isEqualTo(EAN_XML_STRING);
+    assertThat(new EntityAddress(Scheme.EAN, EAN).toString()).hasToString(EAN_XML_STRING);
   }
 
   @Test
   void toStringEA1() {
-    assertThat(new EntityAddress(Scheme.EA1, EA1).toString()).isEqualTo(EA1_XML_STRING);
+    assertThat(new EntityAddress(Scheme.EA1, EA1).toString()).hasToString(EA1_XML_STRING);
   }
 
   @Test

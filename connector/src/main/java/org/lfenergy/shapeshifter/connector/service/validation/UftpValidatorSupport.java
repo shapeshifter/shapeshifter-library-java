@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Optional;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageReference;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 
 public interface UftpValidatorSupport {
@@ -23,15 +24,13 @@ public interface UftpValidatorSupport {
   Optional<PayloadMessageType> getPreviousMessage(String messageID, String recipientDomain);
 
   /**
-   * Gets a previously sent or received message by messageID (usually for validation).
+   * Gets a previously sent or received message by reference (usually for validation).
    *
-   * @param messageID The message ID.
-   * @param type The type of message.
    * @param <T> The type of message.
+   * @param reference The reference to the previous message.
    * @return The message that was either sent or received previously.
    */
-  <T extends PayloadMessageType> Optional<T> getPreviousMessage(String messageID, Class<T> type);
-
+  <T extends PayloadMessageType> Optional<T> getPreviousMessage(UftpMessageReference<T> reference);
 
   boolean isSupportedIspDuration(Duration duration);
 
@@ -42,8 +41,6 @@ public interface UftpValidatorSupport {
   boolean isSupportedContractID(String contractId);
 
   boolean isValidBaselineReference(String baselineReference);
-
-  boolean isValidOfferOptionReference(String flexOfferMessageId, String optionReference);
 
   boolean isValidOrderReference(String orderReference, String recipientDomain);
 

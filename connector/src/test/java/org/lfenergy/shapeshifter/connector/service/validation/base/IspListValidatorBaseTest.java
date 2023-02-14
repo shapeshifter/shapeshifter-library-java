@@ -31,6 +31,7 @@ import org.lfenergy.shapeshifter.api.MeteringISPType;
 import org.lfenergy.shapeshifter.api.MeteringProfileType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.base.IspCollectorValidator.IspInfo;
 import org.mockito.Mock;
@@ -231,7 +232,7 @@ class IspListValidatorBaseTest {
   <T extends PayloadMessageType> void valid(T msg, List<List<IspInfo>> expectedIspsInCalls) {
     TestImplementation testSubject = new TestImplementation(true);
 
-    assertThat(testSubject.valid(sender, msg)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, msg))).isTrue();
 
     assertThat(testSubject.calls).hasSize(expectedIspsInCalls.size());
     forEach(testSubject.calls, (call, i, n) -> {

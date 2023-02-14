@@ -132,29 +132,29 @@
   <!-- -->
   <xs:complexType name="SignedMessageType">
     <xs:annotation>
-      <xs:documentation>The SignedMessage element represents the secure wrapper used to submit USEF XML messages from the local message queue to the message queue of a remote participant. It
-        contains minimal metadata (which is distinct from the common metadata used for all other messages), allowing the recipient to look up the sender's cryptographic scheme and public keys,
-        and the actual XML message, as transformed (signed/sealed) using that cryptographic scheme.
+      <xs:documentation>The SignedMessage element represents the secure wrapper used to submit USEF XML messages from the local message queue to the message queue of a remote participant. It contains
+        minimal metadata (which is distinct from the common metadata used for all other messages), allowing the recipient to look up the sender's cryptographic scheme and public keys, and the actual
+        XML message, as transformed (signed/sealed) using that cryptographic scheme.
       </xs:documentation>
     </xs:annotation>
     <xs:attribute name="SenderDomain" type="InternetDomainType" use="required">
       <xs:annotation>
-        <xs:documentation>The Internet domain of the USEF participant sending this message. Upon receiving a message, the recipient should validate that its value matches the corresponding
-          attribute value specified in the inner XML message, once un-sealed: if not, the message must be rejected as invalid.
+        <xs:documentation>The Internet domain of the USEF participant sending this message. Upon receiving a message, the recipient should validate that its value matches the corresponding attribute
+          value specified in the inner XML message, once un-sealed: if not, the message must be rejected as invalid.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="SenderRole" type="USEF-RoleType" use="required">
       <xs:annotation>
-        <xs:documentation>The USEF role of the participant sending this message: AGR, BRP, CRO, DSO or MDC. Receive-time validation should take place as described for the SenderDomain
-          attribute above.
+        <xs:documentation>The USEF role of the participant sending this message: AGR, BRP, CRO, DSO or MDC. Receive-time validation should take place as described for the SenderDomain attribute
+          above.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="Body" type="xs:base64Binary" use="required">
       <xs:annotation>
-        <xs:documentation>The Base-64 encoded inner XML message contained in this wrapper, as transformed (signed/sealed) using the sender's cryptographic scheme. The recipient can determine
-          which scheme applies using a DNS or configuration file lookup, based on the combination of SenderDomain and SenderRole.
+        <xs:documentation>The Base-64 encoded inner XML message contained in this wrapper, as transformed (signed/sealed) using the sender's cryptographic scheme. The recipient can determine which
+          scheme applies using a DNS or configuration file lookup, based on the combination of SenderDomain and SenderRole.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
@@ -177,8 +177,8 @@
     </xs:attribute>
     <xs:attribute name="RecipientDomain" type="InternetDomainType" use="required">
       <xs:annotation>
-        <xs:documentation>Internet domain of the participant this message is intended for. When sending a message, this attribute, combined with the RecipientRole, is used to look up the USEF
-          endpoint the message should be delivered to.
+        <xs:documentation>Internet domain of the participant this message is intended for. When sending a message, this attribute, combined with the RecipientRole, is used to look up the USEF endpoint
+          the message should be delivered to.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>

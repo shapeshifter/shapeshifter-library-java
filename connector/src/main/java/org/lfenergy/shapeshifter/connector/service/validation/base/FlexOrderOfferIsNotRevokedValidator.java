@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.springframework.stereotype.Service;
@@ -22,8 +22,8 @@ public class FlexOrderOfferIsNotRevokedValidator implements UftpBaseValidator<Fl
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, FlexOrder payloadMessage) {
-    return !support.existsFlexRevocation(payloadMessage.getFlexOfferMessageID(), payloadMessage.getRecipientDomain());
+  public boolean valid(UftpMessage<FlexOrder> uftpMessage) {
+    return !support.existsFlexRevocation(uftpMessage.payloadMessage().getFlexOfferMessageID(), uftpMessage.payloadMessage().getRecipientDomain());
   }
 
   @Override

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.mockito.InjectMocks;
@@ -58,7 +59,7 @@ class FlexOrderOfferIsNotRevokedValidatorTest {
 
     given(support.existsFlexRevocation(MATCHING_NESSAGE_ID, RECIPIENT_DOMAIN)).willReturn(false);
 
-    assertThat(testSubject.valid(sender, flexOrder)).isTrue();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
   }
 
   @Test
@@ -68,7 +69,7 @@ class FlexOrderOfferIsNotRevokedValidatorTest {
 
     given(support.existsFlexRevocation(MATCHING_NESSAGE_ID, RECIPIENT_DOMAIN)).willReturn(true);
 
-    assertThat(testSubject.valid(sender, flexOrder)).isFalse();
+    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isFalse();
   }
 
   @Test

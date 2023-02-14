@@ -16,7 +16,7 @@ Add the Shapeshifter Connector dependency to your Spring Boot application:
 ### Receiving UFTP messages
 
 Adding the Connector dependency adds an endpoint to your application, where you can receive UFTP messages.
-Typically this endpoint is at: http://localhost:8080/USEF/2019/SignedMessage.
+Typically this endpoint is at: http://localhost:8080/shapeshifter/api/v3/message.
 
 Add a bean to your Spring Boot application to handle incoming UFTP messages:
 ```java

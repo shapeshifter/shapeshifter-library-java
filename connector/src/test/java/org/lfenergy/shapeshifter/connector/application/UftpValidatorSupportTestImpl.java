@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Optional;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.connector.model.UftpMessageReference;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ public class UftpValidatorSupportTestImpl implements UftpValidatorSupport {
   }
 
   @Override
-  public <T extends PayloadMessageType> Optional<T> getPreviousMessage(String messageID, Class<T> type) {
+  public <T extends PayloadMessageType> Optional<T> getPreviousMessage(UftpMessageReference<T> reference) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
@@ -54,11 +55,6 @@ public class UftpValidatorSupportTestImpl implements UftpValidatorSupport {
 
   @Override
   public boolean isValidBaselineReference(String baselineReference) {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
-  public boolean isValidOfferOptionReference(String flexOfferMessageId, String optionReference) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 

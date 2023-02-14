@@ -75,7 +75,7 @@ class UftpInternalControllerTest {
     given(uftpException.getMessage()).willReturn(ERROR_MESSAGE);
     given(uftpException.getHttpStatusCode()).willReturn(456);
 
-    var result = testSubject.receiveUftpMessage(TRANSPORT_XML);
+    var result = testSubject.postUftpMessage(TRANSPORT_XML);
 
     assertThat(result.getStatusCodeValue()).isEqualTo(456);
     assertThat(result.getBody()).isEqualTo("Failed to process received UFTP message. Error: ERROR_MESSAGE");
@@ -87,7 +87,7 @@ class UftpInternalControllerTest {
     given(deserializer.fromSignedXml(TRANSPORT_XML)).willThrow(runtimeException);
     given(runtimeException.getMessage()).willReturn(ERROR_MESSAGE);
 
-    var result = testSubject.receiveUftpMessage(TRANSPORT_XML);
+    var result = testSubject.postUftpMessage(TRANSPORT_XML);
 
     assertThat(result.getStatusCodeValue()).isEqualTo(500);
     assertThat(result.getBody()).isEqualTo("Failed to process received UFTP message. Error: ERROR_MESSAGE");
@@ -104,7 +104,7 @@ class UftpInternalControllerTest {
     given(uftpCryptoService.unsealMessage(signedMessage)).willReturn(PAYLOAD_XML);
     given(deserializer.fromPayloadXml(PAYLOAD_XML)).willReturn(payloadMessage);
 
-    var result = testSubject.receiveUftpMessage(TRANSPORT_XML);
+    var result = testSubject.postUftpMessage(TRANSPORT_XML);
 
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(result.getBody()).isNull();
