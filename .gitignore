@@ -30,6 +30,7 @@ build/
 .settings/
 .gradle/
 bin/
+target/
 
 # Intellij files
 .idea/
