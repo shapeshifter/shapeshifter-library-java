@@ -33,7 +33,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.base.IspCollectorValidator.IspInfo;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -53,6 +53,11 @@ class IspListValidatorBaseTest {
 
     private final boolean configuredResult;
     private final List<CallData> calls = new ArrayList<>();
+
+    @Override
+    public int order() {
+      return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
+    }
 
     @Override
     public String getReason() {

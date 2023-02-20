@@ -8,6 +8,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -20,6 +21,11 @@ public class RecipientValidator implements UftpBaseValidator<PayloadMessageType>
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
     return true;
+  }
+
+  @Override
+  public int order() {
+    return ValidationOrder.SPEC_BASE;
   }
 
   @Override

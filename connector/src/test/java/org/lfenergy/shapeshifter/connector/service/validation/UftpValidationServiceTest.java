@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class UftpValidationServiceTest {
 
-
   @Mock
   private UftpBaseValidator<FlexOffer> baseValidation1;
   @Mock
@@ -44,11 +43,21 @@ class UftpValidationServiceTest {
 
   @BeforeEach
   void createTestSubject() {
-    testSubject = new UftpValidationService(
-        List.of(baseValidation1, baseValidation2),
-        List.of(messageValidation1, messageValidation2),
-        List.of(userDefinedValidation1, userDefinedValidation2)
-    );
+    given(baseValidation1.order()).willReturn(ValidationOrder.SPEC_BASE);
+    given(baseValidation2.order()).willReturn(ValidationOrder.SPEC_BASE);
+    given(messageValidation1.order()).willReturn(ValidationOrder.SPEC_FLEX_MESSAGE);
+    given(messageValidation2.order()).willReturn(ValidationOrder.SPEC_MESSAGE_SPECIFIC);
+    given(userDefinedValidation1.order()).willReturn(ValidationOrder.AFTER_SPEC);
+    given(userDefinedValidation2.order()).willReturn(ValidationOrder.BEFORE_SPEC);
+
+    testSubject = new UftpValidationService(List.of(
+        baseValidation1,
+        baseValidation2,
+        messageValidation1,
+        messageValidation2,
+        userDefinedValidation1,
+        userDefinedValidation2
+    ));
   }
 
   @AfterEach
@@ -125,21 +134,22 @@ class UftpValidationServiceTest {
 
   @Test
   void validate_multiple_apply_first_fails() {
-    given(baseValidation1.appliesTo(FlexOffer.class)).willReturn(true);
+    given(userDefinedValidation2.appliesTo(FlexOfferResponse.class)).willReturn(true);
 
-    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOfferResponse);
 
-    given(baseValidation1.valid(uftpMessage)).willReturn(false);
-    given(baseValidation1.getReason()).willReturn("baseValidation1");
+    given(userDefinedValidation2.valid(uftpMessage)).willReturn(false);
+    given(userDefinedValidation2.getReason()).willReturn("userDefinedValidation2");
 
     var result = testSubject.validate(uftpMessage);
 
     assertThat(result.valid()).isFalse();
-    assertThat(result.rejectionReason()).isEqualTo("baseValidation1");
+    assertThat(result.rejectionReason()).isEqualTo("userDefinedValidation2");
   }
 
   @Test
   void validate_multiple_apply_third_fails() {
+    given(userDefinedValidation2.appliesTo(FlexOffer.class)).willReturn(false);
     given(baseValidation1.appliesTo(FlexOffer.class)).willReturn(true);
     given(baseValidation2.appliesTo(FlexOffer.class)).willReturn(true);
     given(messageValidation1.appliesTo(FlexOffer.class)).willReturn(true);
@@ -164,6 +174,7 @@ class UftpValidationServiceTest {
     given(messageValidation1.appliesTo(FlexOffer.class)).willReturn(true);
     given(messageValidation2.appliesTo(FlexOffer.class)).willReturn(true);
     given(userDefinedValidation1.appliesTo(FlexOffer.class)).willReturn(true);
+    given(userDefinedValidation2.appliesTo(FlexOffer.class)).willReturn(false);
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
 
@@ -182,11 +193,6 @@ class UftpValidationServiceTest {
 
   @Test
   void validate_one_applies_fails() {
-    given(baseValidation1.appliesTo(FlexOfferResponse.class)).willReturn(false);
-    given(baseValidation2.appliesTo(FlexOfferResponse.class)).willReturn(false);
-    given(messageValidation1.appliesTo(FlexOfferResponse.class)).willReturn(false);
-    given(messageValidation2.appliesTo(FlexOfferResponse.class)).willReturn(false);
-    given(userDefinedValidation1.appliesTo(FlexOfferResponse.class)).willReturn(false);
     given(userDefinedValidation2.appliesTo(FlexOfferResponse.class)).willReturn(true);
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOfferResponse);

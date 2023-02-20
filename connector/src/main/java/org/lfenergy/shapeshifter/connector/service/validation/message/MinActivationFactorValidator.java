@@ -7,6 +7,7 @@ import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,6 +21,11 @@ public class MinActivationFactorValidator implements UftpMessageValidator<FlexOf
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
     return clazz.equals(FlexOffer.class);
+  }
+
+  @Override
+  public int order() {
+    return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
   }
 
   @Override

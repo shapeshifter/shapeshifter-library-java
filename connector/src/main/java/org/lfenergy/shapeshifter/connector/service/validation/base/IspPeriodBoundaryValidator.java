@@ -3,6 +3,7 @@ package org.lfenergy.shapeshifter.connector.service.validation.base;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -13,6 +14,11 @@ public class IspPeriodBoundaryValidator extends IspListValidatorBase {
   @Override
   public String getReason() {
     return "ISPs out of bounds";
+  }
+
+  @Override
+  public int order() {
+    return ValidationOrder.SPEC_FLEX_MESSAGE;
   }
 
   @Override

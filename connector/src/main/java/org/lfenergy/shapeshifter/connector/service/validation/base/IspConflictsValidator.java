@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.LongStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -23,6 +24,11 @@ public class IspConflictsValidator extends IspListValidatorBase {
   @Override
   protected boolean validateIsps(long maxNumberIsps, List<IspInfo> isps) {
     return noOverlap(isps);
+  }
+
+  @Override
+  public int order() {
+    return ValidationOrder.SPEC_FLEX_MESSAGE;
   }
 
   private boolean noOverlap(List<IspInfo> isps) {

@@ -11,6 +11,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -26,10 +27,16 @@ public class ReferencedFlexSettlementResponseOrderReferenceValidator implements 
   }
 
   @Override
+  public int order() {
+    return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
+  }
+
+  @Override
   public boolean valid(UftpMessage<FlexSettlementResponse> uftpMessage) {
     var flexSettlementResponse = uftpMessage.payloadMessage();
     var orderReferences = collectOrderReferences(flexSettlementResponse);
-    return orderReferences.isEmpty() || orderReferences.stream().allMatch(orderReference -> support.isValidOrderReference(orderReference, flexSettlementResponse.getRecipientDomain()));
+    return orderReferences.isEmpty() || orderReferences.stream().allMatch(
+        orderReference -> support.isValidOrderReference(orderReference, flexSettlementResponse.getRecipientDomain()));
   }
 
   @Override

@@ -10,7 +10,6 @@ import org.lfenergy.shapeshifter.api.FlexOrderISPType;
 import org.lfenergy.shapeshifter.api.FlexRequestISPType;
 import org.lfenergy.shapeshifter.api.FlexReservationUpdateISPType;
 import org.lfenergy.shapeshifter.api.MeteringISPType;
-import org.lfenergy.shapeshifter.connector.service.validation.base.IspCollectorValidator.IspInfo;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)

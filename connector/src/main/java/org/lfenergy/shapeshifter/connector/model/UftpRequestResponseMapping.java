@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toMap;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import org.lfenergy.shapeshifter.api.AGRPortfolioQuery;
 import org.lfenergy.shapeshifter.api.AGRPortfolioQueryResponse;
@@ -41,12 +40,6 @@ public class UftpRequestResponseMapping {
     // Private constructor to hide implicit one
   }
 
-  private static final Set<Class<? extends PayloadMessageType>> SUPPORTED_AUTOMATIC_RESPONSE_TYPES = Set.of(
-      FlexRequest.class,
-      FlexOffer.class,
-      FlexOrder.class
-  );
-
   private static final Map<Class<? extends PayloadMessageType>, Class<? extends PayloadMessageResponseType>> REQUEST_TO_RESPONSE_TYPES =
       Map.ofEntries(
           Map.entry(AGRPortfolioQuery.class, AGRPortfolioQueryResponse.class),
@@ -72,18 +65,18 @@ public class UftpRequestResponseMapping {
 
   private static final PayloadMessagePropertyRetriever<PayloadMessageType, String> REFERENCED_REQUEST_MESSAGE_ID_RETRIEVER = new PayloadMessagePropertyRetriever<>(
       Map.ofEntries(
-          Map.entry(AGRPortfolioQueryResponse.class, (m) -> ((AGRPortfolioQueryResponse) m).getAGRPortfolioQueryMessageID()),
-          Map.entry(AGRPortfolioUpdateResponse.class, (m) -> ((AGRPortfolioUpdateResponse) m).getAGRPortfolioUpdateMessageID()),
-          Map.entry(DPrognosisResponse.class, (m) -> ((DPrognosisResponse) m).getDPrognosisMessageID()),
-          Map.entry(DSOPortfolioQueryResponse.class, (m) -> ((DSOPortfolioQueryResponse) m).getDSOPortfolioQueryMessageID()),
-          Map.entry(DSOPortfolioUpdateResponse.class, (m) -> ((DSOPortfolioUpdateResponse) m).getDSOPortfolioUpdateResponseMessageID()),
-          Map.entry(FlexOfferResponse.class, (m) -> ((FlexOfferResponse) m).getFlexOfferMessageID()),
-          Map.entry(FlexOfferRevocationResponse.class, (m) -> ((FlexOfferRevocationResponse) m).getFlexOfferRevocationMessageID()),
-          Map.entry(FlexOrderResponse.class, (m) -> ((FlexOrderResponse) m).getFlexOrderMessageID()),
-          Map.entry(FlexRequestResponse.class, (m) -> ((FlexRequestResponse) m).getFlexRequestMessageID()),
-          Map.entry(FlexReservationUpdateResponse.class, (m) -> ((FlexReservationUpdateResponse) m).getFlexReservationUpdateMessageID()),
-          Map.entry(FlexSettlementResponse.class, (m) -> ((FlexSettlementResponse) m).getFlexSettlementMessageID()),
-          Map.entry(MeteringResponse.class, (m) -> ((MeteringResponse) m).getMeteringMessageID())
+          Map.entry(AGRPortfolioQueryResponse.class, m -> ((AGRPortfolioQueryResponse) m).getAGRPortfolioQueryMessageID()),
+          Map.entry(AGRPortfolioUpdateResponse.class, m -> ((AGRPortfolioUpdateResponse) m).getAGRPortfolioUpdateMessageID()),
+          Map.entry(DPrognosisResponse.class, m -> ((DPrognosisResponse) m).getDPrognosisMessageID()),
+          Map.entry(DSOPortfolioQueryResponse.class, m -> ((DSOPortfolioQueryResponse) m).getDSOPortfolioQueryMessageID()),
+          Map.entry(DSOPortfolioUpdateResponse.class, m -> ((DSOPortfolioUpdateResponse) m).getDSOPortfolioUpdateResponseMessageID()),
+          Map.entry(FlexOfferResponse.class, m -> ((FlexOfferResponse) m).getFlexOfferMessageID()),
+          Map.entry(FlexOfferRevocationResponse.class, m -> ((FlexOfferRevocationResponse) m).getFlexOfferRevocationMessageID()),
+          Map.entry(FlexOrderResponse.class, m -> ((FlexOrderResponse) m).getFlexOrderMessageID()),
+          Map.entry(FlexRequestResponse.class, m -> ((FlexRequestResponse) m).getFlexRequestMessageID()),
+          Map.entry(FlexReservationUpdateResponse.class, m -> ((FlexReservationUpdateResponse) m).getFlexReservationUpdateMessageID()),
+          Map.entry(FlexSettlementResponse.class, m -> ((FlexSettlementResponse) m).getFlexSettlementMessageID()),
+          Map.entry(MeteringResponse.class, m -> ((MeteringResponse) m).getMeteringMessageID())
       )
   );
 
@@ -93,12 +86,14 @@ public class UftpRequestResponseMapping {
           Map.entry(AGRPortfolioUpdateResponse.class, (request, response) -> ((AGRPortfolioUpdateResponse) response).setAGRPortfolioUpdateMessageID(request.getMessageID())),
           Map.entry(DPrognosisResponse.class, (request, response) -> ((DPrognosisResponse) response).setDPrognosisMessageID(request.getMessageID())),
           Map.entry(DSOPortfolioQueryResponse.class, (request, response) -> ((DSOPortfolioQueryResponse) response).setDSOPortfolioQueryMessageID(request.getMessageID())),
-          Map.entry(DSOPortfolioUpdateResponse.class, (request, response) -> ((DSOPortfolioUpdateResponse) response).setDSOPortfolioUpdateResponseMessageID(request.getMessageID())),
+          Map.entry(DSOPortfolioUpdateResponse.class,
+                    (request, response) -> ((DSOPortfolioUpdateResponse) response).setDSOPortfolioUpdateResponseMessageID(request.getMessageID())),
           Map.entry(FlexOfferResponse.class, (request, response) -> ((FlexOfferResponse) response).setFlexOfferMessageID(request.getMessageID())),
           Map.entry(FlexOfferRevocationResponse.class, (request, response) -> ((FlexOfferRevocationResponse) response).setFlexOfferRevocationMessageID(request.getMessageID())),
           Map.entry(FlexOrderResponse.class, (request, response) -> ((FlexOrderResponse) response).setFlexOrderMessageID(request.getMessageID())),
           Map.entry(FlexRequestResponse.class, (request, response) -> ((FlexRequestResponse) response).setFlexRequestMessageID(request.getMessageID())),
-          Map.entry(FlexReservationUpdateResponse.class, (request, response) -> ((FlexReservationUpdateResponse) response).setFlexReservationUpdateMessageID(request.getMessageID())),
+          Map.entry(FlexReservationUpdateResponse.class,
+                    (request, response) -> ((FlexReservationUpdateResponse) response).setFlexReservationUpdateMessageID(request.getMessageID())),
           Map.entry(FlexSettlementResponse.class, (request, response) -> ((FlexSettlementResponse) response).setFlexSettlementMessageID(request.getMessageID())),
           Map.entry(MeteringResponse.class, (request, response) -> ((MeteringResponse) response).setMeteringMessageID(request.getMessageID())));
 
@@ -130,7 +125,4 @@ public class UftpRequestResponseMapping {
     return RESPONSE_TO_REQUEST_TYPES.get(responseType);
   }
 
-  public static boolean shouldSendAutomaticAcceptedResponse(PayloadMessageType request) {
-    return SUPPORTED_AUTOMATIC_RESPONSE_TYPES.contains(request.getClass());
-  }
 }

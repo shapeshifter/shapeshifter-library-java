@@ -8,6 +8,7 @@ import org.lfenergy.shapeshifter.api.FlexRequestISPType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,6 +22,11 @@ public class IspRequestedDispositionValidator implements UftpMessageValidator<Fl
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
     return clazz.equals(FlexRequest.class);
+  }
+
+  @Override
+  public int order() {
+    return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
   }
 
   @Override

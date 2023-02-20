@@ -23,6 +23,7 @@ import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.connector.service.participant.ParticipantResolutionService;
 import org.lfenergy.shapeshifter.connector.service.serialization.UftpSerializer;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidationService;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest(classes = UftpSendMessageService.class)
 @ExtendWith(MockitoExtension.class)
-public class UftpSendMessageServiceIntegrationTest {
+class UftpSendMessageServiceIntegrationTest {
 
   private static final int WIRE_MOCK_HTTP_PORT_NUMBER = 18080;
   private static final WireMockConfiguration WIRE_MOCK_CONFIGURATION = WireMockConfiguration.wireMockConfig().port(WIRE_MOCK_HTTP_PORT_NUMBER);
@@ -43,6 +44,9 @@ public class UftpSendMessageServiceIntegrationTest {
   private static final String RECIPIENT_ENDPOINT_PATH = "/uftp-endpoint";
   private static final String RECIPIENT_ENDPOINT = "http://localhost:" + WIRE_MOCK_HTTP_PORT_NUMBER + RECIPIENT_ENDPOINT_PATH;
   public final static WireMockServer wireMock = new WireMockServer(WIRE_MOCK_CONFIGURATION);
+
+  @MockBean
+  UftpValidationService uftpValidationService;
 
   @MockBean
   UftpSerializer uftpSerializer;

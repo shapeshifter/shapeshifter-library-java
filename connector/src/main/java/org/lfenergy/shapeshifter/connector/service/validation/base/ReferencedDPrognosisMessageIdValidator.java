@@ -16,6 +16,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,11 @@ public class ReferencedDPrognosisMessageIdValidator implements UftpBaseValidator
           FlexSettlement.class, m -> collectDPrognosisMessageId((FlexSettlement) m)
       )
   );
+
+  @Override
+  public int order() {
+    return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
+  }
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {

@@ -17,9 +17,10 @@ import org.lfenergy.shapeshifter.api.Metering;
 import org.lfenergy.shapeshifter.api.MeteringProfileType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 
-public abstract class IspListValidatorBase extends IspCollectorValidator<PayloadMessageType> {
+public abstract class IspListValidatorBase implements UftpBaseValidator<PayloadMessageType> {
 
   private final PayloadMessagePropertyRetriever<PayloadMessageType, Boolean> retriever = new PayloadMessagePropertyRetriever<>(
       Map.of(
@@ -98,5 +99,5 @@ public abstract class IspListValidatorBase extends IspCollectorValidator<Payload
     return validateIsps(maxNumberIsps, isps);
   }
 
-  abstract protected boolean validateIsps(long maxNumberIsps, List<IspInfo> isps);
+  protected abstract boolean validateIsps(long maxNumberIsps, List<IspInfo> isps);
 }

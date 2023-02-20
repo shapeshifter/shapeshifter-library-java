@@ -1,31 +1,46 @@
 package org.lfenergy.shapeshifter.connector.service.validation;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
-import lombok.RequiredArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.model.ValidationResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service to validate UFTP messages.
+ */
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class UftpValidationService {
+public final class UftpValidationService {
 
-  private final List<UftpBaseValidator<? extends PayloadMessageType>> baseValidations;
-  private final List<UftpMessageValidator<? extends PayloadMessageType>> messageValidations;
-  private final List<UftpUserDefinedValidator<? extends PayloadMessageType>> userDefinedValidations;
+  private final List<UftpValidator<? extends PayloadMessageType>> validators;
+
+  /**
+   * Initializes the service with a discovered list of {@link UftpValidator} beans.
+   *
+   * @param validators discovered beans that implement {@link UftpValidator}. No discovery order is assumed as the validators will be sorted by their defined
+   * {@link UftpValidator#order}.
+   */
+  @Autowired
+  public UftpValidationService(@NonNull List<UftpValidator<? extends PayloadMessageType>> validators) {
+    this.validators = validators.stream()
+                                .sorted(Comparator.<UftpValidator<?>>comparingInt(UftpValidator::order)
+                                                  // In case two validators have the same order, sort by name to stay deterministic across restarts
+                                                  .thenComparing(validator -> validator.getClass().getSimpleName()))
+                                .toList();
+  }
 
   public ValidationResult validate(UftpMessage<? extends PayloadMessageType> uftpMessage) {
     log.debug("Validating received {} message", uftpMessage.payloadMessage().getClass());
-    return Stream.of(baseValidations, messageValidations, userDefinedValidations)
-                 .flatMap(List::stream)
-                 .map(validator -> validate(validator, uftpMessage))
-                 .filter(r -> !r.valid())
-                 .findFirst()
-                 .orElseGet(ValidationResult::ok);
+    return validators.stream()
+                     .map(validator -> validate(validator, uftpMessage))
+                     .filter(validationResult -> !validationResult.valid())
+                     .findFirst()
+                     .orElseGet(ValidationResult::ok);
   }
 
   @SuppressWarnings("unchecked")

@@ -7,6 +7,7 @@ import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.model.UftpRoleInformation;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -17,6 +18,11 @@ public class SenderRoleMatchesContentTypeValidator implements UftpBaseValidator<
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
     return true;
+  }
+
+  @Override
+  public int order() {
+    return ValidationOrder.SPEC_BASE;
   }
 
   @Override

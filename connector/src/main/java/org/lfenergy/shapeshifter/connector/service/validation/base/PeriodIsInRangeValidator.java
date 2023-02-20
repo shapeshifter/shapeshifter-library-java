@@ -15,6 +15,7 @@ import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,11 @@ public class PeriodIsInRangeValidator implements UftpBaseValidator<PayloadMessag
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
     return retriever.typeInMap(clazz);
+  }
+
+  @Override
+  public int order() {
+    return ValidationOrder.SPEC_FLEX_MESSAGE;
   }
 
   @Override

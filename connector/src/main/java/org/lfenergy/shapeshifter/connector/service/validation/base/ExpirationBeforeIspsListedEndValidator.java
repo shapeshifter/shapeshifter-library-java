@@ -13,13 +13,15 @@ import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ExpirationBeforeIspsListedEndValidator extends IspCollectorValidator<PayloadMessageType> {
+public class ExpirationBeforeIspsListedEndValidator implements UftpBaseValidator<PayloadMessageType> {
 
   private final PayloadMessagePropertyRetriever<PayloadMessageType, Boolean> retriever = new PayloadMessagePropertyRetriever<>(
       Map.of(
@@ -31,6 +33,11 @@ public class ExpirationBeforeIspsListedEndValidator extends IspCollectorValidato
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
     return retriever.typeInMap(clazz);
+  }
+
+  @Override
+  public int order() {
+    return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
   }
 
   @Override
