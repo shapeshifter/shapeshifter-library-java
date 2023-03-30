@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -128,7 +132,7 @@ class PeriodStartBeforeOrEqualsToEndValidatorTest {
   @ParameterizedTest
   @MethodSource("validStartEndPeriodsOnly")
   void valid_true_whenStartAlwaysEqualsToOrBeforeEnd(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> invalidStartEndPeriodsAsWell() {
@@ -253,7 +257,7 @@ class PeriodStartBeforeOrEqualsToEndValidatorTest {
   @ParameterizedTest
   @MethodSource("invalidStartEndPeriodsAsWell")
   void valid_false_whenThereIsAStartLaterThenEnd(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

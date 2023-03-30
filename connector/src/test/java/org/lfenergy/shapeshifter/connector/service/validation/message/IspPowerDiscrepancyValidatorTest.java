@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +52,7 @@ class IspPowerDiscrepancyValidatorTest {
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 2, 1, 0, 5000000),
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 3, 1, -5000000, 5000000)
     ));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
   }
 
   @Test
@@ -59,7 +63,7 @@ class IspPowerDiscrepancyValidatorTest {
         flexRequestIsp(AvailableRequestedType.REQUESTED, 2, 1, 0, 5000000),
         flexRequestIsp(AvailableRequestedType.REQUESTED, 3, 1, -5000000, 0)
     ));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
   }
 
   // IDCONS-6422: should be able to send an ISP with only 0
@@ -71,7 +75,7 @@ class IspPowerDiscrepancyValidatorTest {
         flexRequestIsp(AvailableRequestedType.REQUESTED, 2, 1, 0, 0),
         flexRequestIsp(AvailableRequestedType.REQUESTED, 3, 1, 0, 0)
     ));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
   }
 
   @Test
@@ -83,7 +87,7 @@ class IspPowerDiscrepancyValidatorTest {
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 3, 1, -5000000, 5000000),
         flexRequestIsp(AvailableRequestedType.REQUESTED, 4, 1, -5000000, 5000000)
     ));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isFalse();
   }
 
 }

@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.api.conversion;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,10 +28,10 @@ class DateAdapterTest {
     assertThat(parsed.getYear()).isEqualTo(2020);
     assertThat(parsed.getMonth()).isEqualTo(Month.APRIL);
     assertThat(parsed.getDayOfMonth()).isEqualTo(22);
-    assertThat(parsed.getHour()).isEqualTo(0);
-    assertThat(parsed.getMinute()).isEqualTo(0);
-    assertThat(parsed.getSecond()).isEqualTo(0);
-    assertThat(parsed.getNano()).isEqualTo(0);
+    assertThat(parsed.getHour()).isZero();
+    assertThat(parsed.getMinute()).isZero();
+    assertThat(parsed.getSecond()).isZero();
+    assertThat(parsed.getNano()).isZero();
     assertThat(parsed.getOffset()).isEqualTo(ZoneOffset.UTC);
 
     String printed = DateAdapter.print(parsed);
@@ -40,10 +44,10 @@ class DateAdapterTest {
     assertThat(parsed.getYear()).isEqualTo(2020);
     assertThat(parsed.getMonth()).isEqualTo(Month.APRIL);
     assertThat(parsed.getDayOfMonth()).isEqualTo(22);
-    assertThat(parsed.getHour()).isEqualTo(0);
-    assertThat(parsed.getMinute()).isEqualTo(0);
-    assertThat(parsed.getSecond()).isEqualTo(0);
-    assertThat(parsed.getNano()).isEqualTo(0);
+    assertThat(parsed.getHour()).isZero();
+    assertThat(parsed.getMinute()).isZero();
+    assertThat(parsed.getSecond()).isZero();
+    assertThat(parsed.getNano()).isZero();
     assertThat(parsed.getOffset()).isEqualTo(ZoneOffset.UTC);
 
     String printed = DateAdapter.print(parsed);
@@ -56,10 +60,10 @@ class DateAdapterTest {
     assertThat(parsed.getYear()).isEqualTo(2020);
     assertThat(parsed.getMonth()).isEqualTo(Month.APRIL);
     assertThat(parsed.getDayOfMonth()).isEqualTo(22);
-    assertThat(parsed.getHour()).isEqualTo(0);
-    assertThat(parsed.getMinute()).isEqualTo(0);
-    assertThat(parsed.getSecond()).isEqualTo(0);
-    assertThat(parsed.getNano()).isEqualTo(0);
+    assertThat(parsed.getHour()).isZero();
+    assertThat(parsed.getMinute()).isZero();
+    assertThat(parsed.getSecond()).isZero();
+    assertThat(parsed.getNano()).isZero();
     assertThat(parsed.getOffset()).isEqualTo(ZoneOffset.ofHours(-6));
 
     String printed = DateAdapter.print(parsed);
@@ -72,10 +76,10 @@ class DateAdapterTest {
     assertThat(parsed.getYear()).isEqualTo(2020);
     assertThat(parsed.getMonth()).isEqualTo(Month.APRIL);
     assertThat(parsed.getDayOfMonth()).isEqualTo(22);
-    assertThat(parsed.getHour()).isEqualTo(0);
-    assertThat(parsed.getMinute()).isEqualTo(0);
-    assertThat(parsed.getSecond()).isEqualTo(0);
-    assertThat(parsed.getNano()).isEqualTo(0);
+    assertThat(parsed.getHour()).isZero();
+    assertThat(parsed.getMinute()).isZero();
+    assertThat(parsed.getSecond()).isZero();
+    assertThat(parsed.getNano()).isZero();
     assertThat(parsed.getOffset()).isEqualTo(ZoneOffset.ofHoursMinutes(-9, -30));
 
     String printed = DateAdapter.print(parsed);
@@ -88,10 +92,10 @@ class DateAdapterTest {
     assertThat(parsed.getYear()).isEqualTo(2020);
     assertThat(parsed.getMonth()).isEqualTo(Month.APRIL);
     assertThat(parsed.getDayOfMonth()).isEqualTo(22);
-    assertThat(parsed.getHour()).isEqualTo(0);
-    assertThat(parsed.getMinute()).isEqualTo(0);
-    assertThat(parsed.getSecond()).isEqualTo(0);
-    assertThat(parsed.getNano()).isEqualTo(0);
+    assertThat(parsed.getHour()).isZero();
+    assertThat(parsed.getMinute()).isZero();
+    assertThat(parsed.getSecond()).isZero();
+    assertThat(parsed.getNano()).isZero();
     assertThat(parsed.getOffset()).isEqualTo(ZoneOffset.ofHours(2));
 
     String printed = DateAdapter.print(parsed);
@@ -104,10 +108,10 @@ class DateAdapterTest {
     assertThat(parsed.getYear()).isEqualTo(2020);
     assertThat(parsed.getMonth()).isEqualTo(Month.APRIL);
     assertThat(parsed.getDayOfMonth()).isEqualTo(22);
-    assertThat(parsed.getHour()).isEqualTo(0);
-    assertThat(parsed.getMinute()).isEqualTo(0);
-    assertThat(parsed.getSecond()).isEqualTo(0);
-    assertThat(parsed.getNano()).isEqualTo(0);
+    assertThat(parsed.getHour()).isZero();
+    assertThat(parsed.getMinute()).isZero();
+    assertThat(parsed.getSecond()).isZero();
+    assertThat(parsed.getNano()).isZero();
     assertThat(parsed.getOffset()).isEqualTo(ZoneOffset.ofHoursMinutes(4, 15));
 
     String printed = DateAdapter.print(parsed);

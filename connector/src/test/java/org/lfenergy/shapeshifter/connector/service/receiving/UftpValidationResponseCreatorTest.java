@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.receiving;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -7,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.AcceptedRejectedType;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestResponse;
+import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.connector.service.receiving.response.UftpValidationResponseCreator;
 import org.lfenergy.shapeshifter.connector.service.validation.model.ValidationResult;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -47,6 +52,18 @@ class UftpValidationResponseCreatorTest {
     assertThat(response.getRejectionReason()).isEqualTo(REJECTION_REASON);
   }
 
+  @Test
+  void getResponseForTestMessage() {
+    var request = createTestMessage();
+
+    var response = UftpValidationResponseCreator.getResponseForMessage(request, ValidationResult.ok());
+
+    assertThat(response.getRecipientDomain()).isEqualTo(SENDER_DOMAIN);
+    assertThat(response.getSenderDomain()).isEqualTo(RECIPIENT_DOMAIN);
+    assertThat(response.getConversationID()).isEqualTo(CONVERSATION_ID);
+    assertThat(response.getVersion()).isEqualTo(VERSION);
+  }
+
   private void validateFlexRequestResponse(FlexRequestResponse response) {
     assertThat(response.getFlexRequestMessageID()).isEqualTo(REFERENCE_MESSAGE_ID);
     assertThat(response.getRecipientDomain()).isEqualTo(SENDER_DOMAIN);
@@ -63,6 +80,16 @@ class UftpValidationResponseCreatorTest {
     request.setConversationID(CONVERSATION_ID);
     request.setVersion(VERSION);
     return request;
+  }
+
+  private TestMessage createTestMessage() {
+    var testMessage = new TestMessage();
+    testMessage.setRecipientDomain(RECIPIENT_DOMAIN);
+    testMessage.setSenderDomain(SENDER_DOMAIN);
+    testMessage.setMessageID(REFERENCE_MESSAGE_ID);
+    testMessage.setConversationID(CONVERSATION_ID);
+    testMessage.setVersion(VERSION);
+    return testMessage;
   }
 
 }

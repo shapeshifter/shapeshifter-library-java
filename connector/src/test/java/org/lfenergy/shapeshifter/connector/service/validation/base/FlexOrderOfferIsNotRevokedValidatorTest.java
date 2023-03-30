@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,7 +15,7 @@ import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,7 +27,7 @@ class FlexOrderOfferIsNotRevokedValidatorTest {
   private static final String RECIPIENT_DOMAIN = "RECIPIENT_DOMAIN";
 
   @Mock
-  private UftpValidatorSupport support;
+  private UftpMessageSupport messageSupport;
 
   @InjectMocks
   private FlexOrderOfferIsNotRevokedValidator testSubject;
@@ -36,7 +40,7 @@ class FlexOrderOfferIsNotRevokedValidatorTest {
   @AfterEach
   void noMore() {
     verifyNoMoreInteractions(
-        support,
+        messageSupport,
         sender,
         flexOrder
     );
@@ -57,9 +61,9 @@ class FlexOrderOfferIsNotRevokedValidatorTest {
     given(flexOrder.getFlexOfferMessageID()).willReturn(MATCHING_NESSAGE_ID);
     given(flexOrder.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
 
-    given(support.existsFlexRevocation(MATCHING_NESSAGE_ID, RECIPIENT_DOMAIN)).willReturn(false);
+    given(messageSupport.existsFlexRevocation(MATCHING_NESSAGE_ID, RECIPIENT_DOMAIN)).willReturn(false);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
   }
 
   @Test
@@ -67,9 +71,9 @@ class FlexOrderOfferIsNotRevokedValidatorTest {
     given(flexOrder.getFlexOfferMessageID()).willReturn(MATCHING_NESSAGE_ID);
     given(flexOrder.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
 
-    given(support.existsFlexRevocation(MATCHING_NESSAGE_ID, RECIPIENT_DOMAIN)).willReturn(true);
+    given(messageSupport.existsFlexRevocation(MATCHING_NESSAGE_ID, RECIPIENT_DOMAIN)).willReturn(true);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isFalse();
   }
 
   @Test

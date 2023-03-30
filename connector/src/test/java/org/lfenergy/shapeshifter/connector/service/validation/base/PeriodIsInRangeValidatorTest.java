@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -151,7 +155,7 @@ class PeriodIsInRangeValidatorTest {
   @ParameterizedTest
   @MethodSource("inRange")
   void valid_allInRange(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> notInRange() {
@@ -254,7 +258,7 @@ class PeriodIsInRangeValidatorTest {
   @ParameterizedTest
   @MethodSource("notInRange")
   void valid_false_notInRange(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

@@ -1,48 +1,56 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation;
 
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Optional;
-import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.api.USEFRoleType;
-import org.lfenergy.shapeshifter.connector.model.UftpMessageReference;
-import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import java.util.TimeZone;
 
+/**
+ * A UFTP validator interface with a number of methods that you should implement These methods typically check business logic that is specific for your system.
+ * <br/>
+ * <br/>
+ * Next to implementing
+ * this interface, you also have to implement other interfaces (with other concerns); the full list of the interfaces is :
+ *
+ * <ul>
+ *   <li>CongestionPointSupport</li>
+ *   <li>ContractSupport</li>
+ *   <li>ParticipantSupport</li>
+ *   <li>UftpMessageSupport</li>
+ *   <li>UftpValidatorSupport</li>
+ * </ul>
+ *
+ * @see CongestionPointSupport
+ * @see ContractSupport
+ * @see ParticipantSupport
+ * @see UftpMessageSupport
+ * @see UftpValidatorSupport
+ */
 public interface UftpValidatorSupport {
 
-  boolean isHandledRecipient(String recipientDomain, USEFRoleType role);
-
-  boolean isBarredSender(UftpParticipant sender);
-
   /**
-   * Gets a previously received message by messageID.
+   * Checks whether a given duration is a supported ISP duration
    *
-   * @param messageID The message ID.
-   * @param recipientDomain The recipient domain.
-   * @return The message that was received previously.
+   * @param duration The duration which needs to be checked
+   * @return Whether the duration is a supported ISP duration
    */
-  Optional<PayloadMessageType> getPreviousMessage(String messageID, String recipientDomain);
-
-  /**
-   * Gets a previously sent or received message by reference (usually for validation).
-   *
-   * @param <T> The type of message.
-   * @param reference The reference to the previous message.
-   * @return The message that was either sent or received previously.
-   */
-  <T extends PayloadMessageType> Optional<T> getPreviousMessage(UftpMessageReference<T> reference);
-
   boolean isSupportedIspDuration(Duration duration);
 
-  boolean isSupportedTimeZone(String timeZone);
+  /**
+   * Checks whether a given timezone is a supported timezone
+   *
+   * @param timeZone The timezone which needs to be checked
+   * @return Whether the timezone is a supported timezone
+   */
+  boolean isSupportedTimeZone(TimeZone timeZone);
 
-  boolean areKnownCongestionPoints(Collection<String> connectionPoints);
-
-  boolean isSupportedContractID(String contractId);
-
+  /**
+   * Checks whether a given baseline reference is valid
+   *
+   * @param baselineReference The baseline reference to be checked
+   * @return Whether the given baseline referene is valid
+   */
   boolean isValidBaselineReference(String baselineReference);
-
-  boolean isValidOrderReference(String orderReference, String recipientDomain);
-
-  boolean existsFlexRevocation(String flexOfferMessageId, String recipientDomain);
 }

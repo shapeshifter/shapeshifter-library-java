@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.lfenergy.shapeshifter.connector.service.validation.tools.DateTimeCompareAllowingInfinite.equalOrAfter;
@@ -12,7 +16,7 @@ import org.lfenergy.shapeshifter.api.DSOPortfolioUpdateCongestionPoint;
 import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 import org.springframework.stereotype.Service;
@@ -20,13 +24,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PeriodStartBeforeOrEqualsToEndValidator implements UftpBaseValidator<PayloadMessageType> {
+public class PeriodStartBeforeOrEqualsToEndValidator implements UftpValidator<PayloadMessageType> {
 
   private final PayloadMessagePropertyRetriever<PayloadMessageType, Boolean> retriever = new PayloadMessagePropertyRetriever<>(
       Map.of(
-          FlexSettlement.class, m -> startBeforeOrEqualsToEnd((FlexSettlement) m),
-          AGRPortfolioUpdate.class, m -> startBeforeOrEqualsToEnd((AGRPortfolioUpdate) m),
-          DSOPortfolioUpdate.class, m -> startBeforeOrEqualsToEnd((DSOPortfolioUpdate) m)
+          FlexSettlement.class, m -> isStartBeforeOrEqualsToEnd((FlexSettlement) m),
+          AGRPortfolioUpdate.class, m -> isStartBeforeOrEqualsToEnd((AGRPortfolioUpdate) m),
+          DSOPortfolioUpdate.class, m -> isStartBeforeOrEqualsToEnd((DSOPortfolioUpdate) m)
       )
   );
 
@@ -37,11 +41,11 @@ public class PeriodStartBeforeOrEqualsToEndValidator implements UftpBaseValidato
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
-    return retriever.typeInMap(clazz);
+    return retriever.isTypeInMap(clazz);
   }
 
   @Override
-  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+  public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
     return retriever.getProperty(uftpMessage.payloadMessage());
   }
 
@@ -50,24 +54,24 @@ public class PeriodStartBeforeOrEqualsToEndValidator implements UftpBaseValidato
     return "Period out of bounds";
   }
 
-  private boolean startBeforeOrEqualsToEnd(FlexSettlement msg) {
-    return startBeforeOrEqualsToEnd(msg.getPeriodStart(), msg.getPeriodEnd());
+  private boolean isStartBeforeOrEqualsToEnd(FlexSettlement msg) {
+    return isStartBeforeOrEqualsToEnd(msg.getPeriodStart(), msg.getPeriodEnd());
   }
 
-  private boolean startBeforeOrEqualsToEnd(AGRPortfolioUpdate msg) {
-    return msg.getConnections().stream().allMatch(conn -> startBeforeOrEqualsToEnd(conn.getStartPeriod(), conn.getEndPeriod()));
+  private boolean isStartBeforeOrEqualsToEnd(AGRPortfolioUpdate msg) {
+    return msg.getConnections().stream().allMatch(conn -> isStartBeforeOrEqualsToEnd(conn.getStartPeriod(), conn.getEndPeriod()));
   }
 
-  private boolean startBeforeOrEqualsToEnd(DSOPortfolioUpdate msg) {
-    return msg.getCongestionPoints().stream().allMatch(this::startBeforeOrEqualsToEnd);
+  private boolean isStartBeforeOrEqualsToEnd(DSOPortfolioUpdate msg) {
+    return msg.getCongestionPoints().stream().allMatch(this::isStartBeforeOrEqualsToEnd);
   }
 
-  private boolean startBeforeOrEqualsToEnd(DSOPortfolioUpdateCongestionPoint cp) {
-    return startBeforeOrEqualsToEnd(cp.getStartPeriod(), cp.getEndPeriod()) &&
-        cp.getConnections().stream().allMatch(conn -> startBeforeOrEqualsToEnd(conn.getStartPeriod(), conn.getEndPeriod()));
+  private boolean isStartBeforeOrEqualsToEnd(DSOPortfolioUpdateCongestionPoint cp) {
+    return isStartBeforeOrEqualsToEnd(cp.getStartPeriod(), cp.getEndPeriod()) &&
+        cp.getConnections().stream().allMatch(conn -> isStartBeforeOrEqualsToEnd(conn.getStartPeriod(), conn.getEndPeriod()));
   }
 
-  private boolean startBeforeOrEqualsToEnd(OffsetDateTime periodStart, OffsetDateTime periodEnd) {
+  private boolean isStartBeforeOrEqualsToEnd(OffsetDateTime periodStart, OffsetDateTime periodEnd) {
     if (periodStart == null) {
       return false; // start is mandatory
     }

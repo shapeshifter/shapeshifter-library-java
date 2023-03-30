@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,7 +26,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.ContractSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,7 +39,7 @@ class ReferencedContractIdValidatorTest {
   private static final String CONTRACT_ID3 = "CONTRACT_ID3";
 
   @Mock
-  private UftpValidatorSupport support;
+  private ContractSupport contractSupport;
 
   @InjectMocks
   private ReferencedContractIdValidator testSubject;
@@ -46,7 +50,7 @@ class ReferencedContractIdValidatorTest {
   @AfterEach
   void noMore() {
     verifyNoMoreInteractions(
-        support,
+        contractSupport,
         sender
     );
   }
@@ -125,29 +129,29 @@ class ReferencedContractIdValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
   void valid_true_whenFoundValueIsSupported(PayloadMessageType payloadMessage, List<String> baselineRefs) {
     if (baselineRefs.size() >= 1) {
-      given(support.isSupportedContractID(CONTRACT_ID1)).willReturn(true);
+      given(contractSupport.isSupportedContractID(CONTRACT_ID1)).willReturn(true);
     }
     if (baselineRefs.size() == 3) {
-      given(support.isSupportedContractID(CONTRACT_ID2)).willReturn(true);
-      given(support.isSupportedContractID(CONTRACT_ID3)).willReturn(true);
+      given(contractSupport.isSupportedContractID(CONTRACT_ID2)).willReturn(true);
+      given(contractSupport.isSupportedContractID(CONTRACT_ID3)).willReturn(true);
     }
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
   void valid_false_whenFoundValueIsFirstNotSupported(PayloadMessageType payloadMessage, List<String> baselineRefs) {
-    given(support.isSupportedContractID(CONTRACT_ID1)).willReturn(false);
+    given(contractSupport.isSupportedContractID(CONTRACT_ID1)).willReturn(false);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

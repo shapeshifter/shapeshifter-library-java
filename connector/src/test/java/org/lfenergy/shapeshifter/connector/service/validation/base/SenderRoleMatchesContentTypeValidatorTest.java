@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +93,7 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_agr_matches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.AGR);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> agr_notMatching() {
@@ -116,7 +120,7 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_agr_notMatches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.AGR);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   public static Stream<Arguments> dso_matching() {
@@ -144,7 +148,7 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_dso_matches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.DSO);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> dso_notMatching() {
@@ -172,7 +176,7 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_dso_notMatches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.DSO);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   public static Stream<Arguments> cro_matching() {
@@ -194,7 +198,7 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_cro_matches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.CRO);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> cro_notMatching() {
@@ -228,7 +232,7 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_cro_notMatches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.CRO);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

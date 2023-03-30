@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.receiving;
 
 
@@ -5,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.common.xml.XmlSerializer;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -19,7 +23,7 @@ public class DuplicateMessageDetection {
     DUPLICATE_MESSAGE
   }
 
-  private final UftpValidatorSupport support;
+  private final UftpMessageSupport support;
   private final XmlSerializer serializer;
 
   public DuplicateMessageResult isDuplicate(PayloadMessageType newMessage) {
@@ -44,6 +48,4 @@ public class DuplicateMessageDetection {
   private boolean isSameContent(PayloadMessageType previousMessage, PayloadMessageType newMessage) {
     return serializer.toXml(previousMessage).equals(serializer.toXml(newMessage));
   }
-
-
 }

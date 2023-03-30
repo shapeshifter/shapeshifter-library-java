@@ -1,3 +1,9 @@
+<!--
+Copyright 2023 Contributors to the Shapeshifter project
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <FlexOffer SenderDomain="aggregator.org" RecipientDomain="uftp.dso.nl"
   TimeStamp="2021-10-29T06:54:36.8868538Z" MessageID="338ed243-5517-4400-962e-2b7b812c468c"
   ConversationID="48cdc3d2-56c0-436c-8d5a-6f6cc3dc538d" ISP-Duration="PT15M"

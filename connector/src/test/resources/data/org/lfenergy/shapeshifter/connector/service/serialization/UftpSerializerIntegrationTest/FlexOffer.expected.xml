@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+Copyright 2023 Contributors to the Shapeshifter project
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <FlexOffer ExpirationDateTime="2021-10-29T10:30:00Z" FlexRequestMessageID="d3ae4836-55b1-4084-b54e-34107b22648c" ContractID="20210001" D-PrognosisMessageID="33d2d355-428d-4f42-a17b-4f63506efb3d"
   BaselineReference="" Currency="EUR" ISP-Duration="PT15M" TimeZone="Europe/Amsterdam" Period="2021-10-30Z" CongestionPoint="ea1.2009-01.nl.enexis.usef:123-TP-bundel-congestiepunt" Version="3.0.0"
   SenderDomain="aggregator.org" RecipientDomain="uftp.dso.nl" TimeStamp="2021-10-29T06:54:36.8868538Z" MessageID="338ed243-5517-4400-962e-2b7b812c468c"

@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,7 +17,7 @@ import org.lfenergy.shapeshifter.api.FlexSettlementResponse;
 import org.lfenergy.shapeshifter.api.TestMessageResponse;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,7 +30,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
   private static final String RECIPIENT_DOMAIN = "RECIPIENT_DOMAIN";
 
   @Mock
-  private UftpValidatorSupport support;
+  private UftpMessageSupport messageSupport;
 
   @InjectMocks
   private ReferencedFlexSettlementResponseOrderReferenceValidator testSubject;
@@ -41,7 +45,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
   @AfterEach
   void noMore() {
     verifyNoMoreInteractions(
-        support,
+        messageSupport,
         sender,
         settlementResponse,
         status1, status2
@@ -62,7 +66,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
   void valid_whenNoReferencesInResponse() {
     given(settlementResponse.getFlexOrderSettlementStatuses()).willReturn(List.of());
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isTrue();
   }
 
   @Test
@@ -73,10 +77,10 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
     ));
     given(status1.getOrderReference()).willReturn(ORDER_REFERENCE1);
     given(status2.getOrderReference()).willReturn(ORDER_REFERENCE2);
-    given(support.isValidOrderReference(ORDER_REFERENCE1, RECIPIENT_DOMAIN)).willReturn(true);
-    given(support.isValidOrderReference(ORDER_REFERENCE2, RECIPIENT_DOMAIN)).willReturn(true);
+    given(messageSupport.isValidOrderReference(ORDER_REFERENCE1, RECIPIENT_DOMAIN)).willReturn(true);
+    given(messageSupport.isValidOrderReference(ORDER_REFERENCE2, RECIPIENT_DOMAIN)).willReturn(true);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isTrue();
   }
 
   @Test
@@ -87,10 +91,10 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
     ));
     given(status1.getOrderReference()).willReturn(ORDER_REFERENCE1);
     given(status2.getOrderReference()).willReturn(ORDER_REFERENCE2);
-    given(support.isValidOrderReference(ORDER_REFERENCE1, RECIPIENT_DOMAIN)).willReturn(true);
-    given(support.isValidOrderReference(ORDER_REFERENCE2, RECIPIENT_DOMAIN)).willReturn(false);
+    given(messageSupport.isValidOrderReference(ORDER_REFERENCE1, RECIPIENT_DOMAIN)).willReturn(true);
+    given(messageSupport.isValidOrderReference(ORDER_REFERENCE2, RECIPIENT_DOMAIN)).willReturn(false);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isFalse();
   }
 
   @Test

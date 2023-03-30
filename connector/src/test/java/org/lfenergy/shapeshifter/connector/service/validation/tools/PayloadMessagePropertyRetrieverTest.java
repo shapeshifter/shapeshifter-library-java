@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.tools;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +49,7 @@ class PayloadMessagePropertyRetrieverTest {
       Metering.class
   })
   void typeInMap_matches_sameType(Class<? extends PayloadMessageType> type) {
-    assertThat(testSubject.typeInMap(type)).isTrue();
+    assertThat(testSubject.isTypeInMap(type)).isTrue();
   }
 
   public static Stream<Arguments> flexMessageTypesInMap() {
@@ -55,7 +59,7 @@ class PayloadMessagePropertyRetrieverTest {
   @ParameterizedTest
   @MethodSource("flexMessageTypesInMap")
   void typeInMap_matches_derivedType(Class<? extends PayloadMessageType> type) {
-    assertThat(testSubject.typeInMap(type)).isTrue();
+    assertThat(testSubject.isTypeInMap(type)).isTrue();
   }
 
   public static Stream<Class<? extends PayloadMessageType>> appliesToStream() {
@@ -75,14 +79,14 @@ class PayloadMessagePropertyRetrieverTest {
   @ParameterizedTest
   @MethodSource("notAppliesToTypes")
   void typeInMap_notMatches_otherTypes(Class<? extends PayloadMessageType> type) {
-    assertThat(testSubject.typeInMap(type)).isFalse();
+    assertThat(testSubject.isTypeInMap(type)).isFalse();
   }
 
   @Test
   void getSameTypeMappingSecondCall() {
     // See code coverage in getTypeMapping()
-    assertThat(testSubject.typeInMap(FlexMessageType.class)).isTrue();
-    assertThat(testSubject.typeInMap(FlexMessageType.class)).isTrue();
+    assertThat(testSubject.isTypeInMap(FlexMessageType.class)).isTrue();
+    assertThat(testSubject.isTypeInMap(FlexMessageType.class)).isTrue();
   }
 
   public static Stream<Arguments> validInstances() {

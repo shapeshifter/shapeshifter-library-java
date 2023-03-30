@@ -1,6 +1,12 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.model;
 
+import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.api.TestMessageResponse;
 
 public record UftpMessage<T extends PayloadMessageType>(
     UftpParticipant sender,
@@ -34,4 +40,7 @@ public record UftpMessage<T extends PayloadMessageType>(
                                       referencedType);
   }
 
+  public static boolean isResponse(PayloadMessageType message) {
+    return message instanceof PayloadMessageResponseType || message instanceof TestMessageResponse;
+  }
 }

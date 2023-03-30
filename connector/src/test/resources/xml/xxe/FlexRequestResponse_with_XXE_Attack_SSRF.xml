@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "http://internal.vulnerable-website.com/"> ]>
+
+<!--
+Copyright 2023 Contributors to the Shapeshifter project
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE foo [ <!ENTITY xxe SYSTEM "http://internal.vulnerable-website.com/"> ]>
       <FlexRequestResponse
         Version="1.0.1"
         SenderDomain="aggregator.org"

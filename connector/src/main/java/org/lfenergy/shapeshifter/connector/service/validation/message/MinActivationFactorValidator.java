@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import java.math.BigDecimal;
@@ -6,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MinActivationFactorValidator implements UftpMessageValidator<FlexOffer> {
+public class MinActivationFactorValidator implements UftpValidator<FlexOffer> {
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -29,7 +33,7 @@ public class MinActivationFactorValidator implements UftpMessageValidator<FlexOf
   }
 
   @Override
-  public boolean valid(UftpMessage<FlexOffer> uftpMessage) {
+  public boolean isValid(UftpMessage<FlexOffer> uftpMessage) {
     var flexOffer = uftpMessage.payloadMessage();
     return flexOffer.getOfferOptions().stream().allMatch(
         it -> minActivationFactorIsNull(it.getMinActivationFactor()) || minActivationFactorInProperRange(it.getMinActivationFactor()));

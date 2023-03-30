@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +25,7 @@ import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -33,7 +37,7 @@ class FlexOptionRequestMatchValidatorTest {
   private UftpParticipant sender;
 
   @Mock
-  private UftpValidatorSupport uftpValidatorSupport;
+  private UftpMessageSupport messageSupport;
   @InjectMocks
   private FlexOptionRequestMatchValidator testSubject;
 
@@ -64,8 +68,8 @@ class FlexOptionRequestMatchValidatorTest {
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
-    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @Test
@@ -75,9 +79,9 @@ class FlexOptionRequestMatchValidatorTest {
     flexOffer.setFlexRequestMessageID(null);
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
 
-    verifyNoInteractions(uftpValidatorSupport);
+    verifyNoInteractions(messageSupport);
   }
 
   @Test
@@ -87,8 +91,8 @@ class FlexOptionRequestMatchValidatorTest {
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
-    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.empty());
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.empty());
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @Test
@@ -103,8 +107,8 @@ class FlexOptionRequestMatchValidatorTest {
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
-    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
-    assertThat(testSubject.valid(uftpMessage)).isFalse();
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
   @Test
@@ -119,7 +123,7 @@ class FlexOptionRequestMatchValidatorTest {
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
-    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
-    assertThat(testSubject.valid(uftpMessage)).isFalse();
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 }

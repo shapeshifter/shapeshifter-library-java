@@ -1,4 +1,4 @@
 uftp-connector:
   receiving:
     validation:
-      enabled: false
+      enabled: true

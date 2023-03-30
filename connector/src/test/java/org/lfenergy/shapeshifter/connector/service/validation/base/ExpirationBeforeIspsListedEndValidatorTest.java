@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,7 +110,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
     flexMessage.setISPDuration(DURATION_15_MINUTES);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexMessage))).isTrue();
   }
 
   @Test
@@ -123,7 +127,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     flexRequest.setISPDuration(DURATION_15_MINUTES);
     flexRequest.getISPS().add(isp);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
   }
 
   @Test
@@ -140,7 +144,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     flexRequest.setISPDuration(DURATION_15_MINUTES);
     flexRequest.getISPS().add(isp);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
   }
 
   public static Stream<Arguments> valid_whenExpirationEqualToLastIspEnd() {
@@ -186,7 +190,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
     flexMessage.setISPDuration(DURATION_15_MINUTES);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexMessage))).isTrue();
   }
 
   public static Stream<Arguments> valid_false_whenExpirationAfterLastIspEnd() {
@@ -225,7 +229,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
     flexMessage.setISPDuration(DURATION_15_MINUTES);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexMessage))).isFalse();
   }
 
   @Test
@@ -234,7 +238,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
 
     var uftpMessage = UftpMessageFixture.<PayloadMessageType>createOutgoing(sender, flexRequest);
     IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
-        testSubject.valid(uftpMessage));
+        testSubject.isValid(uftpMessage));
 
     assertThat(thrown.getMessage()).isEqualTo("No ISPs found");
   }
@@ -245,7 +249,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
 
     var uftpMessage = UftpMessageFixture.<PayloadMessageType>createOutgoing(sender, flexOffer);
     IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
-        testSubject.valid(uftpMessage));
+        testSubject.isValid(uftpMessage));
 
     assertThat(thrown.getMessage()).isEqualTo("No ISPs found");
   }

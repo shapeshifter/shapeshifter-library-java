@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +53,7 @@ class IspRequestedDispositionValidatorTest {
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 3, 1, -5000000, 5000000),
         flexRequestIsp(AvailableRequestedType.REQUESTED, 4, 1, -1000000, 0)
     ));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
   }
 
   @Test
@@ -61,6 +65,6 @@ class IspRequestedDispositionValidatorTest {
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 3, 1, -5000000, 5000000),
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 4, 1, -5000000, 5000000)
     ));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isFalse();
   }
 }

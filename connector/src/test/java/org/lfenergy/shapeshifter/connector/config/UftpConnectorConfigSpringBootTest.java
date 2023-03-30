@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +19,7 @@ class UftpConnectorConfigSpringBootTest {
 
   @Test
   void test() {
-    assertThat(config.receiving().validation().enabled()).isFalse();
+    assertThat(config.receiving().validation().enabled()).isTrue();
   }
 
 }

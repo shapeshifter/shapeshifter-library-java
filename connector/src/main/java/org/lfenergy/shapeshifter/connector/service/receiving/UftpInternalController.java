@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.receiving;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +24,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
+/**
+ * Exposes an endpoint for sending a signed UFTP message to the receiving counterparty
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +42,11 @@ public class UftpInternalController {
   private final ReceivedMessageProcessor processor;
   private final UftpErrorProcessor errorProcessor;
 
+  /**
+   * Receives a signed UFTP message which will be sent to the receiving counterparty
+   *
+   * @param transportXml the signed UFTP message in XML format
+   */
   @PostMapping(value = "/message", consumes = MediaType.TEXT_XML_VALUE)
   @Operation(summary = "Send an UFTP message", description = "Send an UFTP message in a signed XML document",
       responses = {
@@ -55,7 +68,7 @@ public class UftpInternalController {
       var signedMessage = deserializer.fromSignedXml(transportXml);
       log.info("Received UFTP message from " + signedMessage.getSenderDomain());
 
-      var payloadXml = uftpCryptoService.unsealMessage(signedMessage);
+      var payloadXml = uftpCryptoService.verifySignedMessage(signedMessage);
       log.debug("Received UFTP message unsealed.");
       var payloadMessage = deserializer.fromPayloadXml(payloadXml);
 

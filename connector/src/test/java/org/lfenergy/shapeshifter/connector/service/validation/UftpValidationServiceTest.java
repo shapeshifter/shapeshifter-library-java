@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,13 +24,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class UftpValidationServiceTest {
 
   @Mock
-  private UftpBaseValidator<FlexOffer> baseValidation1;
+  private UftpValidator<FlexOffer> baseValidation1;
   @Mock
-  private UftpBaseValidator<FlexOffer> baseValidation2;
+  private UftpValidator<FlexOffer> baseValidation2;
   @Mock
-  private UftpMessageValidator<FlexOffer> messageValidation1;
+  private UftpValidator<FlexOffer> messageValidation1;
   @Mock
-  private UftpMessageValidator<FlexOffer> messageValidation2;
+  private UftpValidator<FlexOffer> messageValidation2;
   @Mock
   private UftpUserDefinedValidator<FlexOffer> userDefinedValidation1;
   @Mock
@@ -86,11 +90,11 @@ class UftpValidationServiceTest {
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
 
-    given(baseValidation1.valid(uftpMessage)).willReturn(true);
-    given(baseValidation2.valid(uftpMessage)).willReturn(true);
-    given(messageValidation1.valid(uftpMessage)).willReturn(true);
-    given(messageValidation2.valid(uftpMessage)).willReturn(true);
-    given(userDefinedValidation1.valid(uftpMessage)).willReturn(true);
+    given(baseValidation1.isValid(uftpMessage)).willReturn(true);
+    given(baseValidation2.isValid(uftpMessage)).willReturn(true);
+    given(messageValidation1.isValid(uftpMessage)).willReturn(true);
+    given(messageValidation2.isValid(uftpMessage)).willReturn(true);
+    given(userDefinedValidation1.isValid(uftpMessage)).willReturn(true);
 
     var result = testSubject.validate(uftpMessage);
 
@@ -109,7 +113,7 @@ class UftpValidationServiceTest {
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOfferResponse);
 
-    given(userDefinedValidation2.valid(uftpMessage)).willReturn(true);
+    given(userDefinedValidation2.isValid(uftpMessage)).willReturn(true);
 
     var result = testSubject.validate(uftpMessage);
 
@@ -138,7 +142,7 @@ class UftpValidationServiceTest {
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOfferResponse);
 
-    given(userDefinedValidation2.valid(uftpMessage)).willReturn(false);
+    given(userDefinedValidation2.isValid(uftpMessage)).willReturn(false);
     given(userDefinedValidation2.getReason()).willReturn("userDefinedValidation2");
 
     var result = testSubject.validate(uftpMessage);
@@ -156,9 +160,9 @@ class UftpValidationServiceTest {
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
 
-    given(baseValidation1.valid(uftpMessage)).willReturn(true);
-    given(baseValidation2.valid(uftpMessage)).willReturn(true);
-    given(messageValidation1.valid(uftpMessage)).willReturn(false);
+    given(baseValidation1.isValid(uftpMessage)).willReturn(true);
+    given(baseValidation2.isValid(uftpMessage)).willReturn(true);
+    given(messageValidation1.isValid(uftpMessage)).willReturn(false);
     given(messageValidation1.getReason()).willReturn("messageValidation1");
 
     var result = testSubject.validate(uftpMessage);
@@ -178,11 +182,11 @@ class UftpValidationServiceTest {
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
 
-    given(baseValidation1.valid(uftpMessage)).willReturn(true);
-    given(baseValidation2.valid(uftpMessage)).willReturn(true);
-    given(messageValidation1.valid(uftpMessage)).willReturn(true);
-    given(messageValidation2.valid(uftpMessage)).willReturn(true);
-    given(userDefinedValidation1.valid(uftpMessage)).willReturn(false);
+    given(baseValidation1.isValid(uftpMessage)).willReturn(true);
+    given(baseValidation2.isValid(uftpMessage)).willReturn(true);
+    given(messageValidation1.isValid(uftpMessage)).willReturn(true);
+    given(messageValidation2.isValid(uftpMessage)).willReturn(true);
+    given(userDefinedValidation1.isValid(uftpMessage)).willReturn(false);
     given(userDefinedValidation1.getReason()).willReturn("userDefinedValidation1");
 
     var result = testSubject.validate(uftpMessage);
@@ -197,7 +201,7 @@ class UftpValidationServiceTest {
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOfferResponse);
 
-    given(userDefinedValidation2.valid(uftpMessage)).willReturn(false);
+    given(userDefinedValidation2.isValid(uftpMessage)).willReturn(false);
     given(userDefinedValidation2.getReason()).willReturn("userDefinedValidation2");
 
     var result = testSubject.validate(uftpMessage);

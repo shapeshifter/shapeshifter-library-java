@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.lfenergy.shapeshifter.api.datetime.DateTimeCalculation.lengthOfDay;
@@ -17,10 +21,10 @@ import org.lfenergy.shapeshifter.api.Metering;
 import org.lfenergy.shapeshifter.api.MeteringProfileType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 
-public abstract class IspListValidatorBase implements UftpBaseValidator<PayloadMessageType> {
+public abstract class IspListValidatorBase implements UftpValidator<PayloadMessageType> {
 
   private final PayloadMessagePropertyRetriever<PayloadMessageType, Boolean> retriever = new PayloadMessagePropertyRetriever<>(
       Map.of(
@@ -38,11 +42,11 @@ public abstract class IspListValidatorBase implements UftpBaseValidator<PayloadM
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
-    return retriever.typeInMap(clazz);
+    return retriever.isTypeInMap(clazz);
   }
 
   @Override
-  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+  public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
     return retriever.getProperty(uftpMessage.payloadMessage());
   }
 

@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,7 +26,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,7 +38,7 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   private static final String DPROGNOSIS_MESSAGE_ID2 = "DPROGNOSIS_MESSAGE_ID2";
 
   @Mock
-  private UftpValidatorSupport support;
+  private UftpMessageSupport messageSupport;
 
   @InjectMocks
   private ReferencedDPrognosisMessageIdValidator testSubject;
@@ -47,7 +51,7 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   @AfterEach
   void noMore() {
     verifyNoMoreInteractions(
-        support,
+        messageSupport,
         sender,
         dPrognosisType1, dPrognosisType2
     );
@@ -108,7 +112,7 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -117,13 +121,13 @@ class ReferencedDPrognosisMessageIdValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
     if (baselineRefs.size() >= 1) {
-      given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, DPrognosis.class))).willReturn(Optional.of(dPrognosisType1));
+      given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, DPrognosis.class))).willReturn(Optional.of(dPrognosisType1));
     }
     if (baselineRefs.size() == 2) {
-      given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID2, DPrognosis.class))).willReturn(Optional.of(dPrognosisType2));
+      given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID2, DPrognosis.class))).willReturn(Optional.of(dPrognosisType2));
     }
 
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
@@ -131,9 +135,9 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   void valid_false_whenFoundMessageIdIsOfUnknownMessage(PayloadMessageType payloadMessage, List<String> baselineRefs) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, DPrognosis.class))).willReturn(Optional.empty());
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, DPrognosis.class))).willReturn(Optional.empty());
 
-    assertThat(testSubject.valid(uftpMessage)).isFalse();
+    assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
   @Test

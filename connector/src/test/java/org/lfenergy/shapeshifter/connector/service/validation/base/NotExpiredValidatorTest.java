@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static java.time.ZoneOffset.UTC;
@@ -27,7 +31,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -39,7 +43,7 @@ class NotExpiredValidatorTest {
   private static final OffsetDateTime PERIOD = OffsetDateTime.of(2022, 11, 22, 0, 0, 0, 0, UTC);
 
   @Mock
-  private UftpValidatorSupport support;
+  private UftpMessageSupport messageSupport;
 
   @InjectMocks
   private NotExpiredValidator testSubject;
@@ -50,7 +54,7 @@ class NotExpiredValidatorTest {
   @AfterEach
   void noMore() {
     verifyNoMoreInteractions(
-        support,
+        messageSupport,
         sender
     );
   }
@@ -93,7 +97,7 @@ class NotExpiredValidatorTest {
     flexOffer.setFlexRequestMessageID(null);
     flexOffer.setPeriod(PERIOD);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }
 
   @Test
@@ -109,9 +113,9 @@ class NotExpiredValidatorTest {
 
     var uftpMessage = UftpMessageFixture.<PayloadMessageType>createOutgoing(sender, flexOffer);
 
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, FlexRequest.class))).willReturn(Optional.of(flexRequest));
 
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @Test
@@ -127,9 +131,9 @@ class NotExpiredValidatorTest {
 
     var uftpMessage = UftpMessageFixture.<PayloadMessageType>createOutgoing(sender, flexOrder);
 
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, FlexOffer.class))).willReturn(Optional.of(flexOffer));
 
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
@@ -138,11 +142,11 @@ class NotExpiredValidatorTest {
       PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
   ) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.empty());
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.empty());
 
     // Matching message may not be found, although it should be there. This returns valid() == true
     // because that is not the purpose of this validation. It is checked in Referenced******MessageIdValidation classes.
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
@@ -152,9 +156,9 @@ class NotExpiredValidatorTest {
   ) throws Exception {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
     setExpirationDateTime(matchingMessageType, matchingMessage, OffsetDateTime.now().plus(1, ChronoUnit.HOURS));
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
@@ -164,9 +168,9 @@ class NotExpiredValidatorTest {
   ) throws Exception {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
     setExpirationDateTime(matchingMessageType, matchingMessage, OffsetDateTime.now().minus(1, ChronoUnit.HOURS));
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
-    assertThat(testSubject.valid(uftpMessage)).isFalse();
+    assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
   private <T extends PayloadMessageType> void setExpirationDateTime(Class<T> matchingMessageType, T matchingMessage, OffsetDateTime value) throws Exception {

@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.sending;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,7 +21,7 @@ import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestResponse;
 import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
-import org.lfenergy.shapeshifter.connector.model.ShippingDetails;
+import org.lfenergy.shapeshifter.connector.model.SigningDetails;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.connector.service.participant.ParticipantResolutionService;
@@ -65,7 +69,7 @@ class UftpSendMessageServiceTest {
   @Mock
   private FlexRequest flexRequest;
   @Mock
-  private ShippingDetails details;
+  private SigningDetails details;
   @Mock
   private UftpParticipant sender;
   @Mock
@@ -110,7 +114,7 @@ class UftpSendMessageServiceTest {
     given(serializer.toXml(flexRequest)).willReturn(PAYLOAD_XML);
     given(details.sender()).willReturn(sender);
     given(details.senderPrivateKey()).willReturn(PRIVATE_KEY);
-    given(cryptoService.sealMessage(PAYLOAD_XML, sender, PRIVATE_KEY)).willReturn(signedMessage);
+    given(cryptoService.signMessage(PAYLOAD_XML, sender, PRIVATE_KEY)).willReturn(signedMessage);
     given(serializer.toXml(signedMessage)).willReturn(SIGNED_XML);
   }
 
@@ -213,7 +217,7 @@ class UftpSendMessageServiceTest {
     given(serializer.toXml(flexRequestResponse)).willReturn(PAYLOAD_XML);
     given(details.sender()).willReturn(sender);
     given(details.senderPrivateKey()).willReturn(PRIVATE_KEY);
-    given(cryptoService.sealMessage(PAYLOAD_XML, sender, PRIVATE_KEY)).willReturn(signedMessage);
+    given(cryptoService.signMessage(PAYLOAD_XML, sender, PRIVATE_KEY)).willReturn(signedMessage);
     given(serializer.toXml(signedMessage)).willReturn(SIGNED_XML);
 
     mockSending();

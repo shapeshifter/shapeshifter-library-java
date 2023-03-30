@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import java.math.BigDecimal;
@@ -8,8 +12,8 @@ import org.lfenergy.shapeshifter.api.FlexOfferOptionType;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +23,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FlexOrderPriceMatchValidator implements UftpMessageValidator<FlexOrder> {
+public class FlexOrderPriceMatchValidator implements UftpValidator<FlexOrder> {
 
-  private final UftpValidatorSupport uftpValidatorSupport;
+  private final UftpMessageSupport messageSupport;
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -34,9 +38,9 @@ public class FlexOrderPriceMatchValidator implements UftpMessageValidator<FlexOr
   }
 
   @Override
-  public boolean valid(UftpMessage<FlexOrder> uftpMessage) {
+  public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
     var flexOrder = uftpMessage.payloadMessage();
-    var flexOffer = uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(), FlexOffer.class));
+    var flexOffer = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(), FlexOffer.class));
     return flexOffer.map(offer -> offer.getOfferOptions().stream().allMatch(it -> priceMatches(it, flexOrder.getPrice()))).orElse(false);
   }
 

@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import java.util.List;
@@ -10,8 +14,8 @@ import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexOrderISPType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +25,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FlexOrderIspMatchValidator implements UftpMessageValidator<FlexOrder> {
+public class FlexOrderIspMatchValidator implements UftpValidator<FlexOrder> {
 
-  private final UftpValidatorSupport uftpValidatorSupport;
+  private final UftpMessageSupport messageSupport;
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -36,10 +40,10 @@ public class FlexOrderIspMatchValidator implements UftpMessageValidator<FlexOrde
   }
 
   @Override
-  public boolean valid(UftpMessage<FlexOrder> uftpMessage) {
+  public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
     var flexOrder = uftpMessage.payloadMessage();
 
-    var flexOffer = uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(), FlexOffer.class));
+    var flexOffer = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(), FlexOffer.class));
     // if there is no flex offer => return false
     if (flexOffer.isEmpty()) {
       return false;

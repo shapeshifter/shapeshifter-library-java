@@ -1,9 +1,14 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import java.util.TimeZone;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +41,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class TimeZoneSupportedValidatorTest {
 
-  private static final String TIME_ZONE = "TIME_ZONE";
+  private static final String TIME_ZONE_AMSTERDAM_ID = "Europe/Amsterdam";
+  private static final TimeZone TIME_ZONE_AMSTERDAM = TimeZone.getTimeZone(TIME_ZONE_AMSTERDAM_ID);
 
   @Mock
   private UftpValidatorSupport support;
@@ -94,21 +100,21 @@ class TimeZoneSupportedValidatorTest {
   public static Stream<Arguments> withParameter() {
 
     AGRPortfolioUpdate agrPortfolioUpdate = new AGRPortfolioUpdate();
-    agrPortfolioUpdate.setTimeZone(TIME_ZONE);
+    agrPortfolioUpdate.setTimeZone(TIME_ZONE_AMSTERDAM_ID);
     AGRPortfolioQuery agrPortfolioQuery = new AGRPortfolioQuery();
-    agrPortfolioQuery.setTimeZone(TIME_ZONE);
+    agrPortfolioQuery.setTimeZone(TIME_ZONE_AMSTERDAM_ID);
     AGRPortfolioQueryResponse agrPortfolioQueryResponse = new AGRPortfolioQueryResponse();
-    agrPortfolioQueryResponse.setTimeZone(TIME_ZONE);
+    agrPortfolioQueryResponse.setTimeZone(TIME_ZONE_AMSTERDAM_ID);
     FlexRequest flexRequest = new FlexRequest();
-    flexRequest.setTimeZone(TIME_ZONE);
+    flexRequest.setTimeZone(TIME_ZONE_AMSTERDAM_ID);
     DSOPortfolioUpdate dSOPortfolioUpdate = new DSOPortfolioUpdate();
-    dSOPortfolioUpdate.setTimeZone(TIME_ZONE);
+    dSOPortfolioUpdate.setTimeZone(TIME_ZONE_AMSTERDAM_ID);
     DSOPortfolioQuery dSOPortfolioQuery = new DSOPortfolioQuery();
-    dSOPortfolioQuery.setTimeZone(TIME_ZONE);
+    dSOPortfolioQuery.setTimeZone(TIME_ZONE_AMSTERDAM_ID);
     DSOPortfolioQueryResponse dSOPortfolioQueryResponse = new DSOPortfolioQueryResponse();
-    dSOPortfolioQueryResponse.setTimeZone(TIME_ZONE);
+    dSOPortfolioQueryResponse.setTimeZone(TIME_ZONE_AMSTERDAM_ID);
     Metering meteringMessage = new Metering();
-    meteringMessage.setTimeZone(TIME_ZONE);
+    meteringMessage.setTimeZone(TIME_ZONE_AMSTERDAM_ID);
 
     return Stream.of(
         Arguments.of(agrPortfolioUpdate),
@@ -125,23 +131,23 @@ class TimeZoneSupportedValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
   void valid_true_whenFoundValueIsSupported(PayloadMessageType payloadMessage) {
-    given(support.isSupportedTimeZone(TIME_ZONE)).willReturn(true);
+    given(support.isSupportedTimeZone(TIME_ZONE_AMSTERDAM)).willReturn(true);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
   void valid_false_whenFoundValueIsNotSupported(PayloadMessageType payloadMessage) {
-    given(support.isSupportedTimeZone(TIME_ZONE)).willReturn(false);
+    given(support.isSupportedTimeZone(TIME_ZONE_AMSTERDAM)).willReturn(false);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

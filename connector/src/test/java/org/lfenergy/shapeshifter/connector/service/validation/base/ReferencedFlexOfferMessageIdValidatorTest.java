@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +23,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,7 +34,7 @@ class ReferencedFlexOfferMessageIdValidatorTest {
   private static final String FLEX_OFFER_MESSAGE_ID = "FLEX_OFFER_MESSAGE_ID";
 
   @Mock
-  private UftpValidatorSupport support;
+  private UftpMessageSupport messageSupport;
 
   @InjectMocks
   private ReferencedFlexOfferMessageIdValidator testSubject;
@@ -43,7 +47,7 @@ class ReferencedFlexOfferMessageIdValidatorTest {
   @AfterEach
   void noMore() {
     verifyNoMoreInteractions(
-        support,
+        messageSupport,
         sender,
         flexOffer
     );
@@ -85,25 +89,25 @@ class ReferencedFlexOfferMessageIdValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
   void valid_true_whenFoundMessageIdIsOfKnownMessage(PayloadMessageType payloadMessage) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, FlexOffer.class))).willReturn(Optional.of(flexOffer));
 
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
   void valid_false_whenFoundMessageIdIsOfUnknownMessage(PayloadMessageType payloadMessage) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, FlexOffer.class))).willReturn(Optional.empty());
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, FlexOffer.class))).willReturn(Optional.empty());
 
-    assertThat(testSubject.valid(uftpMessage)).isFalse();
+    assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
   @Test

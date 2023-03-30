@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,36 +45,36 @@ class MinActivationFactorValidatorTest {
   @Test
   void test_happy_flow_one_missing_min_activation_factor() {
     var flexOffer = flexOffer(null);
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }
 
   @Test
   void test_happy_flow_two_correct_min_activation_factor() {
     var flexOffer = flexOffer(BigDecimal.valueOf(0.5));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }
 
   @Test
   void test_happy_flow_three_correct_min_activation_factor() {
     var flexOffer = flexOffer(BigDecimal.valueOf(1.0));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }
 
   @Test
   void test_min_activation_cannot_be_0() {
     var flexOffer = flexOffer(BigDecimal.valueOf(0));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isFalse();
   }
 
   @Test
   void test_min_activation_cannot_be_smaller_than_0() {
     var flexOffer = flexOffer(BigDecimal.valueOf(-1.0));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isFalse();
   }
 
   @Test
   void test_min_activation_cannot_be_greater_than_1() {
     var flexOffer = flexOffer(BigDecimal.valueOf(1.1));
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isFalse();
   }
 }

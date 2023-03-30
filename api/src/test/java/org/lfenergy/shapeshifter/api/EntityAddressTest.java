@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,6 +17,13 @@ class EntityAddressTest {
 
   private static final String EA1 = "2013-11.info.usef.test:001:002.090807002a&b#";
   private static final String EA1_XML_STRING = "ea1." + EA1;
+
+  @Test
+  void parseNull() {
+    assertThatThrownBy(() -> EntityAddress.parse(null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Can not parse an Entity Address from null");
+  }
 
   @Test
   void parseNoScheme() {

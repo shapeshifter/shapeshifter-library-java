@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static java.time.ZoneOffset.UTC;
@@ -26,7 +30,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -39,7 +43,7 @@ class PeriodReferenceValidatorTest {
   private static final OffsetDateTime OTHER = OffsetDateTime.of(2023, 12, 28, 1, 2, 3, 999, UTC);
 
   @Mock
-  private UftpValidatorSupport support;
+  private UftpMessageSupport messageSupport;
 
   @InjectMocks
   private PeriodReferenceValidator testSubject;
@@ -50,7 +54,7 @@ class PeriodReferenceValidatorTest {
   @AfterEach
   void noMore() {
     verifyNoMoreInteractions(
-        support,
+        messageSupport,
         sender
     );
   }
@@ -101,7 +105,7 @@ class PeriodReferenceValidatorTest {
     flexOffer.setFlexRequestMessageID(null);
     flexOffer.setPeriod(PERIOD);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }
 
   @ParameterizedTest
@@ -111,11 +115,11 @@ class PeriodReferenceValidatorTest {
   ) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.empty());
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.empty());
 
     // Matching message may not be found, although it should be there. This returns valid() == true
     // because that is not the purpose of this validation. It is checked in Referenced******MessageIdValidation classes.
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
@@ -126,9 +130,9 @@ class PeriodReferenceValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
     setPeriod(matchingMessageType, matchingMessage, PERIOD);
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @ParameterizedTest
@@ -139,9 +143,9 @@ class PeriodReferenceValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
     setPeriod(matchingMessageType, matchingMessage, OTHER);
-    given(support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
-    assertThat(testSubject.valid(uftpMessage)).isFalse();
+    assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
   private <T extends PayloadMessageType> void setPeriod(Class<T> matchingMessageType, T matchingMessage, OffsetDateTime value) throws Exception {

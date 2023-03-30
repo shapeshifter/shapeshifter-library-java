@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.tools;
 
 import java.util.Map;
@@ -16,7 +20,7 @@ public class PayloadMessagePropertyRetriever<T extends PayloadMessageType, R> {
     this.typePropertyGetterMap = typePropertyGetterMap;
   }
 
-  public boolean typeInMap(Class<? extends PayloadMessageType> validatedMsgType) {
+  public boolean isTypeInMap(Class<? extends PayloadMessageType> validatedMsgType) {
     return findApplicableKey(validatedMsgType).isPresent();
   }
 

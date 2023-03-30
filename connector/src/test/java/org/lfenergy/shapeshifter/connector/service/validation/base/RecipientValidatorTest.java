@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,7 +16,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.ParticipantSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,7 +27,7 @@ class RecipientValidatorTest {
   private static final String RECIPIENT_DOMAIN = "RECIPIENT_DOMAIN";
 
   @Mock
-  private UftpValidatorSupport support;
+  private ParticipantSupport participantSupport;
 
   @InjectMocks
   private RecipientValidator testSubject;
@@ -33,10 +37,13 @@ class RecipientValidatorTest {
   @Mock
   private PayloadMessageType payloadMessage;
 
+  private static final UftpParticipant RECIPIENT_AGR = new UftpParticipant(RECIPIENT_DOMAIN, USEFRoleType.AGR);
+  private static final UftpParticipant RECIPIENT_DSO = new UftpParticipant(RECIPIENT_DOMAIN, USEFRoleType.DSO);
+
   @AfterEach
   void noMore() {
     verifyNoMoreInteractions(
-        support,
+        participantSupport,
         sender,
         payloadMessage
     );
@@ -51,40 +58,40 @@ class RecipientValidatorTest {
   void valid_when_handled_agr() {
     given(payloadMessage.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
     given(sender.role()).willReturn(USEFRoleType.DSO);
-    given(support.isHandledRecipient(RECIPIENT_DOMAIN, USEFRoleType.AGR)).willReturn(true);
+    given(participantSupport.isHandledRecipient(RECIPIENT_AGR)).willReturn(true);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
-    verify(support).isHandledRecipient(RECIPIENT_DOMAIN, USEFRoleType.AGR);
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    verify(participantSupport).isHandledRecipient(RECIPIENT_AGR);
   }
 
   @Test
   void valid_when_handled_dso() {
     given(payloadMessage.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
     given(sender.role()).willReturn(USEFRoleType.AGR);
-    given(support.isHandledRecipient(RECIPIENT_DOMAIN, USEFRoleType.DSO)).willReturn(true);
+    given(participantSupport.isHandledRecipient(RECIPIENT_DSO)).willReturn(true);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
-    verify(support).isHandledRecipient(RECIPIENT_DOMAIN, USEFRoleType.DSO);
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    verify(participantSupport).isHandledRecipient(RECIPIENT_DSO);
   }
 
   @Test
   void valid_false_when_not_handled_agr() {
     given(payloadMessage.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
     given(sender.role()).willReturn(USEFRoleType.DSO);
-    given(support.isHandledRecipient(RECIPIENT_DOMAIN, USEFRoleType.AGR)).willReturn(false);
+    given(participantSupport.isHandledRecipient(RECIPIENT_AGR)).willReturn(false);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
-    verify(support).isHandledRecipient(RECIPIENT_DOMAIN, USEFRoleType.AGR);
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    verify(participantSupport).isHandledRecipient(RECIPIENT_AGR);
   }
 
   @Test
   void valid_false_when_not_handled_dso() {
     given(payloadMessage.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
     given(sender.role()).willReturn(USEFRoleType.AGR);
-    given(support.isHandledRecipient(RECIPIENT_DOMAIN, USEFRoleType.DSO)).willReturn(false);
+    given(participantSupport.isHandledRecipient(RECIPIENT_DSO)).willReturn(false);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
-    verify(support).isHandledRecipient(RECIPIENT_DOMAIN, USEFRoleType.DSO);
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    verify(participantSupport).isHandledRecipient(RECIPIENT_DSO);
   }
 
   @Test

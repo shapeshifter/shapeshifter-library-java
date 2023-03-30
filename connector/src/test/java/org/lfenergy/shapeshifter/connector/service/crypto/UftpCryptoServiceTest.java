@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.crypto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,13 +78,13 @@ class UftpCryptoServiceTest {
   }
 
   @Test
-  void sealMessage() throws Exception {
+  void signMessage() throws Exception {
     given(lazySodiumInstancePool.claim()).willReturn(lazySodium);
     given(lazySodium.cryptoSign(PAYLOAD_XML, PRIVATE_KEY)).willReturn(BASE_64_BODY);
     given(sender.domain()).willReturn(SENDER_DOMAIN);
     given(sender.role()).willReturn(SENDER_ROLE);
 
-    var result = testSubject.sealMessage(PAYLOAD_XML, sender, PRIVATE_KEY);
+    var result = testSubject.signMessage(PAYLOAD_XML, sender, PRIVATE_KEY);
 
     assertThat(result.getSenderDomain()).isEqualTo(SENDER_DOMAIN);
     assertThat(result.getSenderRole()).isEqualTo(SENDER_ROLE);
@@ -89,19 +93,19 @@ class UftpCryptoServiceTest {
   }
 
   @Test
-  void sealMessageThrows() throws Exception {
+  void signMessageThrows() throws Exception {
     given(lazySodiumInstancePool.claim()).willReturn(lazySodium);
     given(lazySodium.cryptoSign(PAYLOAD_XML, PRIVATE_KEY)).willThrow(sodiumException);
 
     UftpConnectorException actual = assertThrows(UftpConnectorException.class, () ->
-        testSubject.sealMessage(PAYLOAD_XML, sender, PRIVATE_KEY));
+        testSubject.signMessage(PAYLOAD_XML, sender, PRIVATE_KEY));
 
-    assertException(actual, "Failed to seal message.", sodiumException);
+    assertException(actual, "Failed to sign message.", sodiumException);
     verify(lazySodiumInstancePool).release(lazySodium);
   }
 
   @Test
-  void unsealMessage() throws Exception {
+  void verifySignedMessage() throws Exception {
     given(signedMessage.getSenderDomain()).willReturn(SENDER_DOMAIN);
     given(signedMessage.getSenderRole()).willReturn(SENDER_ROLE);
     given(participantService.getPublicKey(SENDER_ROLE, SENDER_DOMAIN)).willReturn(PUBLIC_KEY);
@@ -110,14 +114,14 @@ class UftpCryptoServiceTest {
     given(factory.keyFromBase64String(PUBLIC_KEY)).willReturn(publicKey);
     given(lazySodium.cryptoSignOpen(BASE_64_BODY, publicKey)).willReturn(PAYLOAD_XML);
 
-    var result = testSubject.unsealMessage(signedMessage);
+    var result = testSubject.verifySignedMessage(signedMessage);
 
     assertThat(result).isEqualTo(PAYLOAD_XML);
     verify(lazySodiumInstancePool).release(lazySodium);
   }
 
   @Test
-  void cryptoSignOpenThrows() {
+  void verifySignedMessageThrows() {
     given(signedMessage.getSenderDomain()).willReturn(SENDER_DOMAIN);
     given(signedMessage.getSenderRole()).willReturn(SENDER_ROLE);
     given(participantService.getPublicKey(SENDER_ROLE, SENDER_DOMAIN)).willReturn(PUBLIC_KEY);
@@ -127,14 +131,14 @@ class UftpCryptoServiceTest {
     given(lazySodium.cryptoSignOpen(BASE_64_BODY, publicKey)).willThrow(runtimeException);
 
     UftpConnectorException actual = assertThrows(UftpConnectorException.class, () ->
-        testSubject.unsealMessage(signedMessage));
+        testSubject.verifySignedMessage(signedMessage));
 
-    assertException(actual, "Failed to unseal message.", runtimeException, 401);
+    assertException(actual, "Failed to verify message.", runtimeException, 401);
     verify(lazySodiumInstancePool).release(lazySodium);
   }
 
   @Test
-  void cryptoSignOpenReturnsNullWhenMessageNotValidlySignedWithPublicKey() {
+  void verifySignedMessageReturnsNullWhenMessageNotValidlySignedWithPublicKey() {
     given(signedMessage.getSenderDomain()).willReturn(SENDER_DOMAIN);
     given(signedMessage.getSenderRole()).willReturn(SENDER_ROLE);
     given(participantService.getPublicKey(SENDER_ROLE, SENDER_DOMAIN)).willReturn(PUBLIC_KEY);
@@ -144,7 +148,7 @@ class UftpCryptoServiceTest {
     given(lazySodium.cryptoSignOpen(BASE_64_BODY, publicKey)).willReturn(null);
 
     var exception = assertThrows(UftpConnectorException.class, () ->
-        testSubject.unsealMessage(signedMessage));
+        testSubject.verifySignedMessage(signedMessage));
 
     assertThat(exception).isInstanceOf(UftpConnectorException.class);
 

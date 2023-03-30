@@ -1,7 +1,12 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.receiving;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.lfenergy.shapeshifter.connector.service.receiving.DuplicateMessageDetection.DuplicateMessageResult.DUPLICATE_MESSAGE;
 import static org.lfenergy.shapeshifter.connector.service.receiving.DuplicateMessageDetection.DuplicateMessageResult.NEW_MESSAGE;
 import static org.mockito.BDDMockito.given;
@@ -22,12 +27,13 @@ import org.lfenergy.shapeshifter.api.USEFRoleType;
 import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.UftpErrorProcessor;
-import org.lfenergy.shapeshifter.connector.service.forwarding.UftpPayloadForwarder;
+import org.lfenergy.shapeshifter.connector.service.handler.UftpPayloadHandler;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class ReceivedMessageProcessorTest {
@@ -37,7 +43,7 @@ class ReceivedMessageProcessorTest {
   private static final String MESSAGE_ID = "MESSAGE_ID";
 
   @Mock
-  private UftpPayloadForwarder forwarder;
+  private UftpPayloadHandler payloadHandler;
   @Mock
   private DuplicateMessageDetection duplicateDetection;
   @Mock
@@ -58,7 +64,7 @@ class ReceivedMessageProcessorTest {
   @AfterEach
   void noMore() {
     verifyNoMoreInteractions(
-        forwarder,
+        payloadHandler,
         duplicateDetection,
         signedMessage,
         businessMsg,
@@ -87,7 +93,7 @@ class ReceivedMessageProcessorTest {
     testSubject.onReceivedMessage(signedMessage, businessMsg);
     waitFinished(startThreadCount);
 
-    verify(forwarder, times(1)).notifyNewIncomingMessage(senderCaptor.capture(), eq(businessMsg));
+    verify(payloadHandler, times(1)).notifyNewIncomingMessage(senderCaptor.capture(), eq(businessMsg));
 
     assertThat(senderCaptor.getAllValues()).hasSize(1);
     UftpParticipant sender = senderCaptor.getValue();
@@ -116,7 +122,12 @@ class ReceivedMessageProcessorTest {
     given(businessMsg.getMessageID()).willReturn(MESSAGE_ID);
 
     int startThreadCount = numberOfThreads();
-    testSubject.onReceivedMessage(signedMessage, businessMsg);
+
+    var thrown = assertThrows(UftpConnectorException.class,
+                              () -> testSubject.onReceivedMessage(signedMessage, businessMsg));
+
+    assertThat(thrown.getHttpStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+
     waitFinished(startThreadCount);
 
     verify(errorProcessor).duplicateReceived(senderCaptor.capture(), eq(businessMsg));
@@ -136,7 +147,7 @@ class ReceivedMessageProcessorTest {
     testSubject.onReceivedMessage(signedMessage, responseMsg);
     waitFinished(startThreadCount);
 
-    verify(forwarder, times(1)).notifyNewIncomingMessage(senderCaptor.capture(), eq(responseMsg));
+    verify(payloadHandler, times(1)).notifyNewIncomingMessage(senderCaptor.capture(), eq(responseMsg));
 
     assertThat(senderCaptor.getAllValues()).hasSize(1);
     UftpParticipant sender = senderCaptor.getValue();
@@ -152,7 +163,10 @@ class ReceivedMessageProcessorTest {
     given(duplicateDetection.isDuplicate(responseMsg)).willReturn(DUPLICATE_MESSAGE);
     given(responseMsg.getMessageID()).willReturn(MESSAGE_ID);
 
-    testSubject.onReceivedMessage(signedMessage, responseMsg);
+    var thrown = assertThrows(UftpConnectorException.class,
+                              () -> testSubject.onReceivedMessage(signedMessage, responseMsg));
+
+    assertThat(thrown.getHttpStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
 
     verify(errorProcessor).duplicateReceived(senderCaptor.capture(), eq(responseMsg));
     assertThat(senderCaptor.getAllValues()).hasSize(1);

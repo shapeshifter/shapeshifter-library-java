@@ -1,6 +1,12 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.lfenergy.shapeshifter.connector.model.UftpMessageFixture.createOutgoing;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -14,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.lfenergy.shapeshifter.api.DPrognosis;
+import org.lfenergy.shapeshifter.api.EntityAddress;
 import org.lfenergy.shapeshifter.api.FlexMessageType;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexOrder;
@@ -23,9 +30,8 @@ import org.lfenergy.shapeshifter.api.FlexReservationUpdate;
 import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
-import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.CongestionPointSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -33,11 +39,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class CongestionPointValidatorTest {
 
-  private static final String CONGESTION_POINT1 = "CONGESTION_POINT1";
-  private static final String CONGESTION_POINT2 = "CONGESTION_POINT2";
+  private static final String CONGESTION_POINT_STRING_1 = "ean.871685900012636543";
+  private static final String CONGESTION_POINT_STRING_2 = "ean.871685900012636599";
 
   @Mock
-  private UftpValidatorSupport support;
+  private CongestionPointSupport congestionPointSupport;
 
   @InjectMocks
   private CongestionPointValidator testSubject;
@@ -48,7 +54,7 @@ class CongestionPointValidatorTest {
   @AfterEach
   void noMore() {
     verifyNoMoreInteractions(
-        support,
+        congestionPointSupport,
         sender
     );
   }
@@ -81,42 +87,53 @@ class CongestionPointValidatorTest {
   public static Stream<Arguments> withParameter() {
 
     FlexRequest flexRequest = new FlexRequest();
-    flexRequest.setCongestionPoint(CONGESTION_POINT1);
+    flexRequest.setCongestionPoint(CONGESTION_POINT_STRING_1);
 
     FlexOrderSettlementType t1 = new FlexOrderSettlementType();
-    t1.setCongestionPoint(CONGESTION_POINT1);
+    t1.setCongestionPoint(CONGESTION_POINT_STRING_1);
     FlexOrderSettlementType t2 = new FlexOrderSettlementType();
-    t2.setCongestionPoint(CONGESTION_POINT2);
+    t2.setCongestionPoint(CONGESTION_POINT_STRING_2);
 
     FlexSettlement flexSettlement = new FlexSettlement();
     flexSettlement.getFlexOrderSettlements().addAll(List.of(t1, t2, new FlexOrderSettlementType()));
 
     return Stream.of(
-        Arguments.of(flexRequest, Set.of(CONGESTION_POINT1)),
-        Arguments.of(flexSettlement, Set.of(CONGESTION_POINT1, CONGESTION_POINT2))
+        Arguments.of(flexRequest, Set.of(EntityAddress.parse(CONGESTION_POINT_STRING_1))),
+        Arguments.of(flexSettlement, Set.of(EntityAddress.parse(CONGESTION_POINT_STRING_1),
+                                            EntityAddress.parse(CONGESTION_POINT_STRING_2)))
     );
   }
 
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    var outgoingMessage = createOutgoing(sender, payloadMessage);
+    if (payloadMessage instanceof FlexRequest) {
+      var thrown = assertThrows(
+          IllegalArgumentException.class,
+          () -> testSubject.isValid(outgoingMessage)
+      );
+      assertThat(thrown.getMessage()).isEqualTo("Can not parse an Entity Address from null");
+    }
+    if (payloadMessage instanceof FlexSettlement) {
+      assertThat(testSubject.isValid(createOutgoing(sender, payloadMessage))).isTrue();
+    }
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
-  void valid_true_whenFoundValueIsSupported(PayloadMessageType payloadMessage, Set<String> congestionPoints) {
-    given(support.areKnownCongestionPoints(congestionPoints)).willReturn(true);
+  void valid_true_whenFoundValueIsSupported(PayloadMessageType payloadMessage, Set<EntityAddress> congestionPoints) {
+    given(congestionPointSupport.areKnownCongestionPoints(congestionPoints)).willReturn(true);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
   @MethodSource("withParameter")
-  void valid_false_whenFoundValueIsNotSupported(PayloadMessageType payloadMessage, Set<String> congestionPoints) {
-    given(support.areKnownCongestionPoints(congestionPoints)).willReturn(false);
+  void valid_false_whenFoundValueIsNotSupported(PayloadMessageType payloadMessage, Set<EntityAddress> congestionPoints) {
+    given(congestionPointSupport.areKnownCongestionPoints(congestionPoints)).willReturn(false);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

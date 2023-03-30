@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.api.conversion;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -8,6 +12,10 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 
 public class DateTimeAdapter {
+
+  private DateTimeAdapter() {
+    // private constructor to hide implicit public one
+  }
 
   private static final DateTimeFormatter XSD_DATE_TIME = new DateTimeFormatterBuilder()
       .append(ISO_LOCAL_DATE_TIME)

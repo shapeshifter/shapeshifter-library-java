@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.lfenergy.shapeshifter.api.datetime.DateTimeCalculation.startOfDay;
@@ -12,14 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.FlexMessageType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PeriodFutureOrTodayValidator implements UftpBaseValidator<FlexMessageType> {
+public class PeriodFutureOrTodayValidator implements UftpValidator<FlexMessageType> {
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -32,7 +36,7 @@ public class PeriodFutureOrTodayValidator implements UftpBaseValidator<FlexMessa
   }
 
   @Override
-  public boolean valid(UftpMessage<FlexMessageType> uftpMessage) {
+  public boolean isValid(UftpMessage<FlexMessageType> uftpMessage) {
     var period = Optional.ofNullable(uftpMessage.payloadMessage().getPeriod());
     var timeZone = Optional.ofNullable(uftpMessage.payloadMessage().getTimeZone());
 

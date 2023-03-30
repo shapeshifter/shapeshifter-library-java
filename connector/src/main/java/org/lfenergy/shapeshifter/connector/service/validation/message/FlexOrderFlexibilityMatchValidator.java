@@ -1,6 +1,8 @@
-package org.lfenergy.shapeshifter.connector.service.validation.message;
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +13,8 @@ import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexOrderISPType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +24,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FlexOrderFlexibilityMatchValidator implements UftpMessageValidator<FlexOrder> {
+public class FlexOrderFlexibilityMatchValidator implements UftpValidator<FlexOrder> {
 
-  private final UftpValidatorSupport uftpValidatorSupport;
+  private final UftpMessageSupport uftpMessageSupport;
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -37,15 +39,15 @@ public class FlexOrderFlexibilityMatchValidator implements UftpMessageValidator<
   }
 
   @Override
-  public boolean valid(UftpMessage<FlexOrder> uftpMessage) {
+  public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
     var flexOrder = uftpMessage.payloadMessage();
 
-    var flexOffer = uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(), FlexOffer.class));
+    var flexOffer = uftpMessageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(), FlexOffer.class));
     if (flexOffer.isEmpty()) {
       return false;
     }
 
-    if (isNotBlank(flexOrder.getOptionReference())) {
+    if (flexOrder.getOptionReference() != null && !flexOrder.getOptionReference().isBlank()) {
       return validForOptionReference(flexOrder, flexOffer.get());
     }
     return validWithoutOptionReference(flexOrder, flexOffer.get());
@@ -63,7 +65,7 @@ public class FlexOrderFlexibilityMatchValidator implements UftpMessageValidator<
 
   private boolean validForOptionReference(FlexOrder flexOrder, FlexOffer flexOffer) {
     var flexOfferOptionsFiltered = flexOffer.getOfferOptions().stream().filter(
-        it -> isNotBlank(it.getOptionReference()) && it.getOptionReference().equals(flexOrder.getOptionReference())).toList();
+        it -> it.getOptionReference() != null && !it.getOptionReference().isBlank() && it.getOptionReference().equals(flexOrder.getOptionReference())).toList();
     if (flexOfferOptionsFiltered.isEmpty()) {
       // Option reference does not refer to an existing option in the flex offer message
       return false;

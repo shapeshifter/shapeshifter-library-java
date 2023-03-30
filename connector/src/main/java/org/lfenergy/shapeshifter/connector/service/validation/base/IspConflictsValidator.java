@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import java.util.Collections;
@@ -23,7 +27,7 @@ public class IspConflictsValidator extends IspListValidatorBase {
 
   @Override
   protected boolean validateIsps(long maxNumberIsps, List<IspInfo> isps) {
-    return noOverlap(isps);
+    return hasNoOverlap(isps);
   }
 
   @Override
@@ -31,12 +35,12 @@ public class IspConflictsValidator extends IspListValidatorBase {
     return ValidationOrder.SPEC_FLEX_MESSAGE;
   }
 
-  private boolean noOverlap(List<IspInfo> isps) {
+  private boolean hasNoOverlap(List<IspInfo> isps) {
     Set<Long> used = new HashSet<>();
-    return isps.stream().allMatch(isp -> noOverlap(used, isp));
+    return isps.stream().allMatch(isp -> hasNoOverlap(used, isp));
   }
 
-  private boolean noOverlap(Set<Long> used, IspInfo isp) {
+  private boolean hasNoOverlap(Set<Long> used, IspInfo isp) {
     var thisRange = LongStream.range(isp.start(), isp.end() + 1/*exclusive*/).boxed().toList();
     var result = Collections.disjoint(used, thisRange);
     used.addAll(thisRange);

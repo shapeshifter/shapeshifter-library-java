@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.model;
 
 import static java.util.stream.Collectors.toMap;
@@ -32,6 +36,8 @@ import org.lfenergy.shapeshifter.api.Metering;
 import org.lfenergy.shapeshifter.api.MeteringResponse;
 import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.api.TestMessageResponse;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 
 public class UftpRequestResponseMapping {
@@ -40,7 +46,7 @@ public class UftpRequestResponseMapping {
     // Private constructor to hide implicit one
   }
 
-  private static final Map<Class<? extends PayloadMessageType>, Class<? extends PayloadMessageResponseType>> REQUEST_TO_RESPONSE_TYPES =
+  private static final Map<Class<? extends PayloadMessageType>, Class<? extends PayloadMessageType>> REQUEST_TO_RESPONSE_TYPES =
       Map.ofEntries(
           Map.entry(AGRPortfolioQuery.class, AGRPortfolioQueryResponse.class),
           Map.entry(AGRPortfolioUpdate.class, AGRPortfolioUpdateResponse.class),
@@ -53,12 +59,11 @@ public class UftpRequestResponseMapping {
           Map.entry(FlexRequest.class, FlexRequestResponse.class),
           Map.entry(FlexReservationUpdate.class, FlexReservationUpdateResponse.class),
           Map.entry(FlexSettlement.class, FlexSettlementResponse.class),
-          Map.entry(Metering.class, MeteringResponse.class)
-// TODO TestMessageResponse must extend PayloadMessageResponseType in the XSD
-//          Map.entry(TestMessage.class, TestMessageResponse.class)
+          Map.entry(Metering.class, MeteringResponse.class),
+          Map.entry(TestMessage.class, TestMessageResponse.class)
       );
 
-  private static final Map<Class<? extends PayloadMessageResponseType>, Class<? extends PayloadMessageType>> RESPONSE_TO_REQUEST_TYPES =
+  private static final Map<Class<? extends PayloadMessageType>, Class<? extends PayloadMessageType>> RESPONSE_TO_REQUEST_TYPES =
       Collections.unmodifiableMap(
           REQUEST_TO_RESPONSE_TYPES.entrySet().stream().collect(toMap(Map.Entry::getValue, Map.Entry::getKey))
       );
@@ -98,7 +103,7 @@ public class UftpRequestResponseMapping {
           Map.entry(MeteringResponse.class, (request, response) -> ((MeteringResponse) response).setMeteringMessageID(request.getMessageID())));
 
   public static boolean hasReferencedRequestMessageId(Class<? extends PayloadMessageType> clazz) {
-    return REFERENCED_REQUEST_MESSAGE_ID_RETRIEVER.typeInMap(clazz);
+    return REFERENCED_REQUEST_MESSAGE_ID_RETRIEVER.isTypeInMap(clazz);
   }
 
   public static Optional<String> getReferencedRequestMessageId(PayloadMessageResponseType response) {
@@ -109,11 +114,11 @@ public class UftpRequestResponseMapping {
     REFERENCED_REQUEST_MESSAGE_ID_SETTER.get(response.getClass()).accept(request, response);
   }
 
-  public static <T extends PayloadMessageType> Class<? extends PayloadMessageResponseType> getResponseTypeFor(T request) {
+  public static <T extends PayloadMessageType> Class<? extends PayloadMessageType> getResponseTypeFor(T request) {
     return getResponseTypeFor(request.getClass());
   }
 
-  public static Class<? extends PayloadMessageResponseType> getResponseTypeFor(Class<? extends PayloadMessageType> requestType) {
+  public static Class<? extends PayloadMessageType> getResponseTypeFor(Class<? extends PayloadMessageType> requestType) {
     return REQUEST_TO_RESPONSE_TYPES.get(requestType);
   }
 

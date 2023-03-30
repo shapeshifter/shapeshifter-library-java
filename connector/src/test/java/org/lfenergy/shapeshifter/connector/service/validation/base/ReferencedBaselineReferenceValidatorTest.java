@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,7 +99,7 @@ class ReferencedBaselineReferenceValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -108,7 +112,7 @@ class ReferencedBaselineReferenceValidatorTest {
       given(support.isValidBaselineReference(BASELINE_REFERENCE2)).willReturn(true);
     }
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -116,7 +120,7 @@ class ReferencedBaselineReferenceValidatorTest {
   void valid_false_whenFoundValueIsFirstNotSupported(PayloadMessageType payloadMessage, List<String> baselineRefs) {
     given(support.isValidBaselineReference(BASELINE_REFERENCE1)).willReturn(false);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

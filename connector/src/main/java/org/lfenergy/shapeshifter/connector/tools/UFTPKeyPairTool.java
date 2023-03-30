@@ -1,32 +1,38 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.tools;
 
 import com.goterl.lazysodium.LazySodiumJava;
 import com.goterl.lazysodium.SodiumJava;
 import java.util.Base64;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
 
-public class UFTPKeyPairTool {
+@Slf4j
+public class UftpKeyPairTool {
 
   public static void main(String[] args) {
-    System.out.println("GOPACS UFTP Key Pair Tool");
-    System.out.println("-------------------------");
-    System.out.println("Generating key pair...");
+    log.info("GOPACS UFTP Key Pair Tool");
+    log.info("-------------------------");
+    log.info("Generating key pair...");
 
     val keypair = generateKeyPair();
 
-    System.out.println();
-    System.out.println("Private Key:");
-    System.out.println();
-    System.out.println(keypair.privateKey());
+    log.info("\n");
+    log.info("Private Key:");
+    log.info("\n");
+    log.info(keypair.privateKey());
 
-    System.out.println();
-    System.out.println("Public Key:");
-    System.out.println();
-    System.out.println(keypair.publicKey());
+    log.info("\n");
+    log.info("Public Key:");
+    log.info("\n");
+    log.info(keypair.publicKey());
 
-    System.out.println();
-    System.out.println("All done!");
+    log.info("\n");
+    log.info("All done!");
   }
 
   public static KeyPair generateKeyPair() {

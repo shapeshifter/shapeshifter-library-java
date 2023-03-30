@@ -1,9 +1,14 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.serialization;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.lfenergy.shapeshifter.connector.common.xml.TestFileHelper.readXml;
 
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,7 +20,6 @@ import org.lfenergy.shapeshifter.api.FlexOrderResponse;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestResponse;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.connector.application.TestSpringConfigExcludingTestMappings;
 import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +32,22 @@ class UftpSerializerIntegrationTest {
 
   private static final String XXE_ATTACK = "xml/xxe/FlexRequestResponse_with_XXE_Attack.xml";
   private static final String XXE_ATTACK_SSRF = "xml/xxe/FlexRequestResponse_with_XXE_Attack_SSRF.xml";
+  private static final String XML_PROLOG = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
   @Autowired
   private UftpSerializer serializer;
 
   @Test
   void signedMessage() throws Exception {
-    String xml = TestFile.readResourceFileAsString(getClass(), "SignedMessage", ".xml");
-    SignedMessage msg = serializer.fromSignedXml(xml);
-    String backToXml = serializer.toXml(msg);
+    var xml = TestFile.readResourceFileAsString(getClass(), "SignedMessage", ".xml");
+
+    testSignedMessage(xml);
+    testSignedMessage(XML_PROLOG + xml);
+  }
+
+  private void testSignedMessage(String xml) throws IOException {
+    var msg = serializer.fromSignedXml(xml);
+    var backToXml = serializer.toXml(msg);
     assertThat(msg).isNotNull();
     assertThat(backToXml).isNotNull();
     TestFile.compareAsXml(getClass(), "SignedMessage", backToXml);
@@ -51,11 +62,15 @@ class UftpSerializerIntegrationTest {
       FlexOrder.class,
       FlexOrderResponse.class
   })
-  void payloadMessage(Class<? extends PayloadMessageType> payloadMessageType) throws Exception {
+  void payloadMessage(Class<? extends PayloadMessageType> payloadMessageType) throws IOException {
     var testName = payloadMessageType.getSimpleName();
-
     var xml = TestFile.readResourceFileAsString(getClass(), testName, ".xml");
 
+    testPayloadMessage(testName, xml);
+    testPayloadMessage(testName, XML_PROLOG + xml);
+  }
+
+  private void testPayloadMessage(String testName, String xml) throws IOException {
     var msg = serializer.fromPayloadXml(xml);
     assertThat(msg).isNotNull();
 

@@ -1,0 +1,34 @@
+@startuml
+
+autonumber
+
+title Message flow between library and application
+
+actor UFTPParticipant
+
+box Library #lightgrey
+participant Controller #red
+participant UftpReceiveMessageService #red
+participant UftpSendMessageService #red
+end box
+
+participant @UftpIncomingHandler #lightgreen
+participant @UftpOutgoingHandler #lightgreen
+
+UFTPParticipant -> Controller : POST
+Controller --> @UftpIncomingHandler : handle request
+note left : Validate XSD + \nVerify message
+Controller <-- @UftpIncomingHandler : return
+Controller --> UFTPParticipant : 200 OK
+
+== Asynchronous: Process received message ==
+@UftpIncomingHandler -> UftpReceiveMessageService : process
+note left : Validations + \nCreate response
+UftpReceiveMessageService --> @UftpOutgoingHandler : handle response
+
+@UftpOutgoingHandler -> UftpSendMessageService : send response
+UftpSendMessageService -> UFTPParticipant : POST
+note right : Sign message
+UFTPParticipant --> UftpSendMessageService : 200 OK
+
+@enduml

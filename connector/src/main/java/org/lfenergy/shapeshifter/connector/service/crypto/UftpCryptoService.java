@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.crypto;
 
 import com.goterl.lazysodium.LazySodiumJava;
@@ -20,7 +24,7 @@ public class UftpCryptoService {
   private final LazySodiumFactory factory;
   private final LazySodiumBase64Pool lazySodiumInstancePool;
 
-  public SignedMessage sealMessage(String payloadXml, UftpParticipant sender, String privateKey) {
+  public SignedMessage signMessage(String payloadXml, UftpParticipant sender, String privateKey) {
     LazySodiumJava lazySodium = null;
     try {
       lazySodium = lazySodiumInstancePool.claim();
@@ -33,22 +37,22 @@ public class UftpCryptoService {
 
       return signedMessage;
     } catch (Exception cause) {
-      throw new UftpConnectorException("Failed to seal message.", cause);
+      throw new UftpConnectorException("Failed to sign message.", cause);
     } finally {
       lazySodiumInstancePool.release(lazySodium);
     }
   }
 
-  public String unsealMessage(SignedMessage signedMessage) {
+  public String verifySignedMessage(SignedMessage signedMessage) {
     try {
       String publicKey = participantService.getPublicKey(signedMessage.getSenderRole(), signedMessage.getSenderDomain());
-      return unsealMessage(signedMessage, publicKey);
+      return verifySignedMessage(signedMessage, publicKey);
     } catch (Exception cause) {
-      throw new UftpConnectorException("Failed to unseal message.", cause, HttpStatus.UNAUTHORIZED);
+      throw new UftpConnectorException("Failed to verify message.", cause, HttpStatus.UNAUTHORIZED);
     }
   }
 
-  public String unsealMessage(SignedMessage signedMessage, String publicKey) {
+  public String verifySignedMessage(SignedMessage signedMessage, String publicKey) {
     LazySodiumJava lazySodium = null;
     try {
       String base64Body = Base64.getEncoder().encodeToString(signedMessage.getBody());
@@ -57,7 +61,7 @@ public class UftpCryptoService {
       var unsealed = lazySodium.cryptoSignOpen(base64Body, factory.keyFromBase64String(publicKey));
 
       if (unsealed == null) {
-        throw new UftpConnectorException("Failed to unseal message. Message is not validly signed for given public key.");
+        throw new UftpConnectorException("Failed to verify message. Message is not validly signed for given public key.");
       }
 
       return unsealed;

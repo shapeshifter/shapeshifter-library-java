@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +23,7 @@ import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,7 +35,7 @@ class FlexOrderFlexibilityMatchValidatorTest {
   private UftpParticipant sender;
 
   @Mock
-  private UftpValidatorSupport uftpValidatorSupport;
+  private UftpMessageSupport messageSupport;
   @InjectMocks
   private FlexOrderFlexibilityMatchValidator testSubject;
 
@@ -63,8 +67,8 @@ class FlexOrderFlexibilityMatchValidatorTest {
     flexOrder.getISPS().addAll(flexOrderIsps());
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.valid(uftpMessage)).isTrue();
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @Test
@@ -72,8 +76,8 @@ class FlexOrderFlexibilityMatchValidatorTest {
     var messageId = messageId();
     var flexOrder = flexOrder(messageId);
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
-    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(messageId, FlexOffer.class))).willReturn(Optional.empty());
-    assertThat(testSubject.valid(uftpMessage)).isFalse();
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(messageId, FlexOffer.class))).willReturn(Optional.empty());
+    assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
   @Test
@@ -89,8 +93,8 @@ class FlexOrderFlexibilityMatchValidatorTest {
     flexOrder.getISPS().addAll(flexOrderIsps());
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.valid(uftpMessage)).isFalse();
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
   @Test
@@ -106,7 +110,7 @@ class FlexOrderFlexibilityMatchValidatorTest {
     flexOrder.getISPS().addAll(flexOrderIsps());
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-    given(uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.valid(uftpMessage)).isFalse();
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 }

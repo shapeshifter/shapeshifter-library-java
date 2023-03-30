@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import lombok.RequiredArgsConstructor;
@@ -7,7 +11,7 @@ import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestISPType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class IspPowerDiscrepancyValidator implements UftpMessageValidator<FlexRequest> {
+public class IspPowerDiscrepancyValidator implements UftpValidator<FlexRequest> {
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -30,7 +34,7 @@ public class IspPowerDiscrepancyValidator implements UftpMessageValidator<FlexRe
   }
 
   @Override
-  public boolean valid(UftpMessage<FlexRequest> uftpMessage) {
+  public boolean isValid(UftpMessage<FlexRequest> uftpMessage) {
     var flexRequest = uftpMessage.payloadMessage();
     return flexRequest.getISPS().stream().filter(this::dispositionEqualsRequested).noneMatch(this::powerHasNoDirection);
   }

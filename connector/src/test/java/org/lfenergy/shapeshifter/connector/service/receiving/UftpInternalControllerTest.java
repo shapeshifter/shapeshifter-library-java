@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.receiving;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -101,7 +105,7 @@ class UftpInternalControllerTest {
   void receiveUftpMessageOk() {
     given(deserializer.fromSignedXml(TRANSPORT_XML)).willReturn(signedMessage);
     given(signedMessage.getSenderDomain()).willReturn(SENDER_DOMAIN);
-    given(uftpCryptoService.unsealMessage(signedMessage)).willReturn(PAYLOAD_XML);
+    given(uftpCryptoService.verifySignedMessage(signedMessage)).willReturn(PAYLOAD_XML);
     given(deserializer.fromPayloadXml(PAYLOAD_XML)).willReturn(payloadMessage);
 
     var result = testSubject.postUftpMessage(TRANSPORT_XML);

@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.api.datetime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +32,6 @@ class DateTimeCalculationTest {
   // EU: Last Sunday of October (October 10th for 2022)
   private static final OffsetDateTime SUMMER_TO_WINTER_TIME_TRANSITION_DAY = OffsetDateTime.parse("2022-10-30T00:00:00+02:00");
   private static final javax.xml.datatype.Duration DURATION_15_MINUTES;
-  private static final String TIME_ZONE_AMSTERDAM = "Europe/Amsterdam";
 
   static {
     try {
@@ -89,7 +92,7 @@ class DateTimeCalculationTest {
 
     assertThat(actual.getSeconds()).isEqualTo(
         days * SECS_PER_DAY + hours * SECS_PER_HOUR + minutes * SECS_PER_MIN + seconds);
-    assertThat(actual.getNano()).isEqualTo(0);
+    assertThat(actual.getNano()).isZero();
   }
 
   @ParameterizedTest
@@ -125,7 +128,7 @@ class DateTimeCalculationTest {
     var result = DateTimeCalculation.toZoneId(ianaTimeZone);
 
     assertThat(result).isNotNull();
-    assertThat(result.toString()).isEqualTo(ianaTimeZone);
+    assertThat(result).hasToString(ianaTimeZone);
   }
 
   @Test
@@ -159,7 +162,7 @@ class DateTimeCalculationTest {
     var result = DateTimeCalculation.toZonedDateTime(pointInTime, ianaTimeZone);
 
     assertThat(result).isNotNull();
-    assertThat(result.toString()).isEqualTo(expectedResultToString);
+    assertThat(result).hasToString(expectedResultToString);
   }
 
   public static Stream<Arguments> for_lengthOfDay() {
@@ -185,7 +188,7 @@ class DateTimeCalculationTest {
     var result = DateTimeCalculation.lengthOfDay(onDay, ianaTimeZone);
 
     assertThat(result.getSeconds()).isEqualTo(expectedDurationSeconds);
-    assertThat(result.getNano()).isEqualTo(0);
+    assertThat(result.getNano()).isZero();
   }
 
   public static Stream<Arguments> for_startOfDay() {
@@ -211,7 +214,7 @@ class DateTimeCalculationTest {
   void startOfDay_forOffsetDateTime(OffsetDateTime pointInTime, String expectedStartOfDayAsString) {
     var result = DateTimeCalculation.startOfDay(pointInTime);
 
-    assertThat(result.toString()).isEqualTo(expectedStartOfDayAsString);
+    assertThat(result).hasToString(expectedStartOfDayAsString);
   }
 
 
@@ -233,7 +236,7 @@ class DateTimeCalculationTest {
 
     var result = DateTimeCalculation.ispEndInDay(onDay, "Europe/Amsterdam", ofOneBasedIspIndex, ispDuration);
 
-    assertThat(result.toString()).isEqualTo(expectedEndTimeAsString);
+    assertThat(result).hasToString(expectedEndTimeAsString);
   }
 
   public static Stream<Arguments> for_ispEndInDay() {
@@ -291,7 +294,7 @@ class DateTimeCalculationTest {
 
     var result = DateTimeCalculation.ispEndInDay(onDay, "Europe/Amsterdam", ofOneBasedIspIndex, ispDuration);
 
-    assertThat(result.toString()).isEqualTo(expectedEndTimeAsString);
+    assertThat(result).hasToString(expectedEndTimeAsString);
   }
 
   @Test
@@ -302,6 +305,6 @@ class DateTimeCalculationTest {
 
     var result = DateTimeCalculation.ispEndInDay(onDay, "Europe/Amsterdam", ofOneBasedIspIndex, ispDuration);
 
-    assertThat(result.toString()).isEqualTo("2022-06-24T02:00+02:00");
+    assertThat(result).hasToString("2022-06-24T02:00+02:00");
   }
 }

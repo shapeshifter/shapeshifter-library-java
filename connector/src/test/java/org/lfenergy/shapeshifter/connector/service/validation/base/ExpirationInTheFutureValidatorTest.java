@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +63,7 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_whenNotPresent")
   void valid_whenNotPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> valid_whenInTheFuture() {
@@ -78,7 +82,7 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_whenInTheFuture")
   void valid_whenInTheFuture(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   public static Stream<Arguments> valid_false_whenNow() {
@@ -97,7 +101,7 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_false_whenNow")
   void valid_false_whenNow(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   public static Stream<Arguments> valid_whenInThePassed() {
@@ -116,7 +120,7 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_whenInThePassed")
   void valid_whenInThePassed(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.lfenergy.shapeshifter.api.datetime.DateTimeCalculation.ispEndInDay;
@@ -13,7 +17,7 @@ import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 import org.springframework.stereotype.Service;
@@ -21,7 +25,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ExpirationBeforeIspsListedEndValidator implements UftpBaseValidator<PayloadMessageType> {
+public class ExpirationBeforeIspsListedEndValidator implements UftpValidator<PayloadMessageType> {
 
   private final PayloadMessagePropertyRetriever<PayloadMessageType, Boolean> retriever = new PayloadMessagePropertyRetriever<>(
       Map.of(
@@ -32,7 +36,7 @@ public class ExpirationBeforeIspsListedEndValidator implements UftpBaseValidator
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
-    return retriever.typeInMap(clazz);
+    return retriever.isTypeInMap(clazz);
   }
 
   @Override
@@ -41,7 +45,7 @@ public class ExpirationBeforeIspsListedEndValidator implements UftpBaseValidator
   }
 
   @Override
-  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+  public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
     return retriever.getProperty(uftpMessage.payloadMessage());
   }
 

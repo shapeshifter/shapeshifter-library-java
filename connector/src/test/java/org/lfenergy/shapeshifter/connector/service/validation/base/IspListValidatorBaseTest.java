@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -237,7 +241,7 @@ class IspListValidatorBaseTest {
   <T extends PayloadMessageType> void valid(T msg, List<List<IspInfo>> expectedIspsInCalls) {
     TestImplementation testSubject = new TestImplementation(true);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, msg))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, msg))).isTrue();
 
     assertThat(testSubject.calls).hasSize(expectedIspsInCalls.size());
     forEach(testSubject.calls, (call, i, n) -> {

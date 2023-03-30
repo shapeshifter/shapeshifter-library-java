@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.lfenergy.shapeshifter.connector.service.validation.tools.NullablesToLinkedSet.toSetIgnoreNulls;
@@ -9,17 +13,17 @@ import org.lfenergy.shapeshifter.api.FlexOrderSettlementStatusType;
 import org.lfenergy.shapeshifter.api.FlexSettlementResponse;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ReferencedFlexSettlementResponseOrderReferenceValidator implements UftpBaseValidator<FlexSettlementResponse> {
+public class ReferencedFlexSettlementResponseOrderReferenceValidator implements UftpValidator<FlexSettlementResponse> {
 
-  private final UftpValidatorSupport support;
+  private final UftpMessageSupport messageSupport;
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -32,11 +36,11 @@ public class ReferencedFlexSettlementResponseOrderReferenceValidator implements 
   }
 
   @Override
-  public boolean valid(UftpMessage<FlexSettlementResponse> uftpMessage) {
+  public boolean isValid(UftpMessage<FlexSettlementResponse> uftpMessage) {
     var flexSettlementResponse = uftpMessage.payloadMessage();
     var orderReferences = collectOrderReferences(flexSettlementResponse);
     return orderReferences.isEmpty() || orderReferences.stream().allMatch(
-        orderReference -> support.isValidOrderReference(orderReference, flexSettlementResponse.getRecipientDomain()));
+        orderReference -> messageSupport.isValidOrderReference(orderReference, flexSettlementResponse.getRecipientDomain()));
   }
 
   @Override

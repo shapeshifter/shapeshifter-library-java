@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import lombok.RequiredArgsConstructor;
@@ -6,14 +10,14 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.model.UftpRoleInformation;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SenderRoleMatchesContentTypeValidator implements UftpBaseValidator<PayloadMessageType> {
+public class SenderRoleMatchesContentTypeValidator implements UftpValidator<PayloadMessageType> {
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -26,7 +30,7 @@ public class SenderRoleMatchesContentTypeValidator implements UftpBaseValidator<
   }
 
   @Override
-  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+  public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
     return contentMatchesRole(uftpMessage.sender(), uftpMessage.payloadMessage());
   }
 

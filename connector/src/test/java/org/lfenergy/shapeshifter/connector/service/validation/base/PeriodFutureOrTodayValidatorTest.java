@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,7 +80,7 @@ class PeriodFutureOrTodayValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(FlexMessageType flexMessage) {
-    assertThat(testSubject.valid(createOutgoing(sender, flexMessage))).isTrue();
+    assertThat(testSubject.isValid(createOutgoing(sender, flexMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -85,7 +89,7 @@ class PeriodFutureOrTodayValidatorTest {
     flexMessage.setPeriod(startOfDay(OffsetDateTime.now()).plusDays(1));
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
 
-    assertThat(testSubject.valid(createOutgoing(sender, flexMessage))).isTrue();
+    assertThat(testSubject.isValid(createOutgoing(sender, flexMessage))).isTrue();
   }
 
   @ParameterizedTest
@@ -94,7 +98,7 @@ class PeriodFutureOrTodayValidatorTest {
     flexMessage.setPeriod(startOfDay(OffsetDateTime.now()));
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
 
-    assertThat(testSubject.valid(createOutgoing(sender, flexMessage))).isTrue();
+    assertThat(testSubject.isValid(createOutgoing(sender, flexMessage))).isTrue();
   }
 
   @Test
@@ -105,7 +109,7 @@ class PeriodFutureOrTodayValidatorTest {
     flexRequest.setPeriod(startOfDay(ZonedDateTime.now(ZoneId.of(TIME_ZONE_BUCHAREST))).toOffsetDateTime());
     flexRequest.setTimeZone(TIME_ZONE_BUCHAREST);
 
-    assertThat(testSubject.valid(createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.isValid(createOutgoing(sender, flexRequest))).isTrue();
   }
 
   @Test
@@ -116,7 +120,7 @@ class PeriodFutureOrTodayValidatorTest {
     flexRequest.setPeriod(startOfDay(ZonedDateTime.now(ZoneId.of(TIME_ZONE_AMSTERDAM)).toOffsetDateTime()));
     flexRequest.setTimeZone(TIME_ZONE_AMSTERDAM);
 
-    assertThat(testSubject.valid(createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.isValid(createOutgoing(sender, flexRequest))).isTrue();
   }
 
   @ParameterizedTest
@@ -125,7 +129,7 @@ class PeriodFutureOrTodayValidatorTest {
     flexMessage.setPeriod(startOfDay(OffsetDateTime.now()).minusDays(1));
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
 
-    assertThat(testSubject.valid(createOutgoing(sender, flexMessage))).isFalse();
+    assertThat(testSubject.isValid(createOutgoing(sender, flexMessage))).isFalse();
   }
 
   @Test

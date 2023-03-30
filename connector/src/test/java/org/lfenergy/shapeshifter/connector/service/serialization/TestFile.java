@@ -1,6 +1,10 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.serialization;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.xmlunit.assertj3.XmlAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +41,11 @@ public class TestFile {
 
   private static void compareWithExpectedTextFile(Class<?> testClass, String testName, String fileExt, String actualText) throws IOException {
     String expectedText = readResourceFileAsString(testClass, testName, ".expected." + fileExt);
-    assertThat(actualText).isEqualToIgnoringWhitespace(expectedText);
+
+    assertThat(actualText).and(expectedText)
+                          .ignoreComments()
+                          .ignoreWhitespace()
+                          .ignoreChildNodesOrder()
+                          .areIdentical();
   }
 }

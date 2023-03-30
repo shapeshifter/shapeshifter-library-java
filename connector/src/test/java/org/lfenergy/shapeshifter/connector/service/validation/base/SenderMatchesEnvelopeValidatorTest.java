@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +50,7 @@ class SenderMatchesEnvelopeValidatorTest {
     given(sender.domain()).willReturn(SENDER_DOMAIN);
     given(payloadMessage.getSenderDomain()).willReturn(SENDER_DOMAIN);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
   }
 
   @Test
@@ -54,7 +58,7 @@ class SenderMatchesEnvelopeValidatorTest {
     given(sender.domain()).willReturn(SENDER_DOMAIN);
     given(payloadMessage.getSenderDomain()).willReturn(DIFFERENT);
 
-    assertThat(testSubject.valid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
   }
 
   @Test

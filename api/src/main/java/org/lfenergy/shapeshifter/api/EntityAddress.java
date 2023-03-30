@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.api;
 
 /**
@@ -17,6 +21,9 @@ package org.lfenergy.shapeshifter.api;
 public record EntityAddress(Scheme scheme, String address) {
 
   public static EntityAddress parse(String str) {
+    if (str == null) {
+      throw new IllegalArgumentException("Can not parse an Entity Address from null");
+    }
     var parts = str.split("\\.", 2);
     if (parts.length != 2) {
       throw new IllegalArgumentException("Entity Address does not specify a scheme: " + str);

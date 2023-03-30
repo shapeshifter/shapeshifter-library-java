@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.lfenergy.shapeshifter.connector.service.validation.tools.DateTimeCompareAllowingInfinite.equalOrAfter;
@@ -14,7 +18,7 @@ import org.lfenergy.shapeshifter.api.DSOPortfolioUpdateConnectionType;
 import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.lfenergy.shapeshifter.connector.service.validation.tools.PayloadMessagePropertyRetriever;
 import org.springframework.stereotype.Service;
@@ -22,7 +26,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PeriodIsInRangeValidator implements UftpBaseValidator<PayloadMessageType> {
+public class PeriodIsInRangeValidator implements UftpValidator<PayloadMessageType> {
 
   private final PayloadMessagePropertyRetriever<PayloadMessageType, Boolean> retriever = new PayloadMessagePropertyRetriever<>(
       Map.of(
@@ -33,7 +37,7 @@ public class PeriodIsInRangeValidator implements UftpBaseValidator<PayloadMessag
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
-    return retriever.typeInMap(clazz);
+    return retriever.isTypeInMap(clazz);
   }
 
   @Override
@@ -42,7 +46,7 @@ public class PeriodIsInRangeValidator implements UftpBaseValidator<PayloadMessag
   }
 
   @Override
-  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+  public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
     return retriever.getProperty(uftpMessage.payloadMessage());
   }
 

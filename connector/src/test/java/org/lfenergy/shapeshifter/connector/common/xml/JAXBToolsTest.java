@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.common.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,7 +15,7 @@ import javax.xml.bind.util.JAXBResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
-import org.lfenergy.shapeshifter.connector.model.ShippingDetails;
+import org.lfenergy.shapeshifter.connector.model.SigningDetails;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -67,8 +71,8 @@ class JAXBToolsTest {
   @Test
   public void createUnmarshaller() {
     final Unmarshaller m1 = jaxbTools.createUnmarshaller(UftpParticipant.class);
-    final Unmarshaller m2 = jaxbTools.createUnmarshaller(ShippingDetails.class);
-    final Unmarshaller m3 = jaxbTools.createUnmarshaller(ShippingDetails.class);
+    final Unmarshaller m2 = jaxbTools.createUnmarshaller(SigningDetails.class);
+    final Unmarshaller m3 = jaxbTools.createUnmarshaller(SigningDetails.class);
 
     assertThat(m1).isNotNull();
     assertThat(m2).isNotNull();
@@ -88,8 +92,8 @@ class JAXBToolsTest {
   @Test
   public void newJAXBResult() {
     final JAXBResult m1 = jaxbTools.newJAXBResult(UftpParticipant.class);
-    final JAXBResult m2 = jaxbTools.newJAXBResult(ShippingDetails.class);
-    final JAXBResult m3 = jaxbTools.newJAXBResult(ShippingDetails.class);
+    final JAXBResult m2 = jaxbTools.newJAXBResult(SigningDetails.class);
+    final JAXBResult m3 = jaxbTools.newJAXBResult(SigningDetails.class);
 
     assertThat(m1).isNotNull();
     assertThat(m2).isNotNull();

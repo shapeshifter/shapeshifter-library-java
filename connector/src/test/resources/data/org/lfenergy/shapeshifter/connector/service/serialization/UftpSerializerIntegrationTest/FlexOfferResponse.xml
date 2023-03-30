@@ -1,3 +1,9 @@
+<!--
+Copyright 2023 Contributors to the Shapeshifter project
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <FlexOfferResponse
   Version="3.0.0"
   SenderDomain="uftp.dso.nl"

@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import java.time.OffsetDateTime;
@@ -9,17 +13,17 @@ import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NotExpiredValidator implements UftpBaseValidator<PayloadMessageType> {
+public class NotExpiredValidator implements UftpValidator<PayloadMessageType> {
 
-  private final UftpValidatorSupport support;
+  private final UftpMessageSupport messageSupport;
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -32,7 +36,7 @@ public class NotExpiredValidator implements UftpBaseValidator<PayloadMessageType
   }
 
   @Override
-  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+  public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
     var payloadMessage = uftpMessage.payloadMessage();
 
     if (payloadMessage instanceof FlexOffer flexOffer) {
@@ -56,7 +60,7 @@ public class NotExpiredValidator implements UftpBaseValidator<PayloadMessageType
       return true;
     }
 
-    var request = support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(messageId.get(), FlexRequest.class));
+    var request = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(messageId.get(), FlexRequest.class));
     return request.map(flexRequest -> validate(flexRequest.getExpirationDateTime())).orElse(true);
   }
 
@@ -66,7 +70,7 @@ public class NotExpiredValidator implements UftpBaseValidator<PayloadMessageType
       return true;
     }
 
-    var offer = support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(messageId.get(), FlexOffer.class));
+    var offer = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(messageId.get(), FlexOffer.class));
     return offer.map(flexOffer -> validate(flexOffer.getExpirationDateTime())).orElse(true);
   }
 

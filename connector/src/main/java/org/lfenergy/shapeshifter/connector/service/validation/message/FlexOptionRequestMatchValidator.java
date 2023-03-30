@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.message;
 
 import java.util.List;
@@ -11,8 +15,8 @@ import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestISPType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageValidator;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +26,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FlexOptionRequestMatchValidator implements UftpMessageValidator<FlexOffer> {
+public class FlexOptionRequestMatchValidator implements UftpValidator<FlexOffer> {
 
-  private final UftpValidatorSupport uftpValidatorSupport;
+  private final UftpMessageSupport messageSupport;
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -37,14 +41,14 @@ public class FlexOptionRequestMatchValidator implements UftpMessageValidator<Fle
   }
 
   @Override
-  public boolean valid(UftpMessage<FlexOffer> uftpMessage) {
+  public boolean isValid(UftpMessage<FlexOffer> uftpMessage) {
     var flexOffer = uftpMessage.payloadMessage();
 
     if (flexOffer.getFlexRequestMessageID() == null) {
       return true;
     }
 
-    var flexRequest = uftpValidatorSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOffer.getFlexRequestMessageID(), FlexRequest.class));
+    var flexRequest = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOffer.getFlexRequestMessageID(), FlexRequest.class));
     // if there is no flex request, then this is an unsolicited flex offer, which is perfectly fine
     if (flexRequest.isEmpty()) {
       return true;

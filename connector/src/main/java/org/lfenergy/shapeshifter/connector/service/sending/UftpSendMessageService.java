@@ -1,10 +1,14 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.sending;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.model.ShippingDetails;
+import org.lfenergy.shapeshifter.connector.model.SigningDetails;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
 import org.lfenergy.shapeshifter.connector.model.UftpMessageDirection;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
@@ -19,6 +23,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
+/**
+ * Sends UFTP messages to recipients
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,20 +38,20 @@ public class UftpSendMessageService {
   private final UftpValidationService uftpValidationService;
 
   /**
-   * Attempts to sends the message, without validation
+   * Attempts to send a message, without validation
    *
    * @throws UftpSendException if sending fails
    */
-  public void attemptToSendMessage(PayloadMessageType payloadMessage, ShippingDetails details) throws UftpSendException {
+  public void attemptToSendMessage(PayloadMessageType payloadMessage, SigningDetails details) throws UftpSendException {
     doSend(payloadMessage, details);
   }
 
   /**
-   * Attempts to send the message, with validation
+   * Attempts to send a message, with validation
    *
    * @throws UftpSendException if validation fails, or if sending fails
    */
-  public void attemptToValidateAndSendMessage(PayloadMessageType payloadMessage, ShippingDetails details) throws UftpSendException {
+  public void attemptToValidateAndSendMessage(PayloadMessageType payloadMessage, SigningDetails details) throws UftpSendException {
     // We will validate outgoing messages, but we will not validate outgoing response messages.
     if (!(payloadMessage instanceof PayloadMessageResponseType)) {
       var uftpMessage = new UftpMessage<>(details.sender(), UftpMessageDirection.OUTGOING, payloadMessage);
@@ -57,14 +64,14 @@ public class UftpSendMessageService {
     doSend(payloadMessage, details);
   }
 
-  private void doSend(PayloadMessageType payloadMessage, ShippingDetails details) {
+  private void doSend(PayloadMessageType payloadMessage, SigningDetails details) {
     String signedXml = getSignedXml(payloadMessage, details);
     send(signedXml, details.recipient());
   }
 
-  private String getSignedXml(PayloadMessageType payloadMessage, ShippingDetails details) {
+  private String getSignedXml(PayloadMessageType payloadMessage, SigningDetails details) {
     var payloadXml = serializer.toXml(payloadMessage);
-    var signedMessage = cryptoService.sealMessage(payloadXml, details.sender(), details.senderPrivateKey());
+    var signedMessage = cryptoService.signMessage(payloadXml, details.sender(), details.senderPrivateKey());
     return serializer.toXml(signedMessage);
   }
 

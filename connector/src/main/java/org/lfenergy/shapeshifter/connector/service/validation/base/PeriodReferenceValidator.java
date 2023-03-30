@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import java.util.Optional;
@@ -12,17 +16,17 @@ import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.model.UftpMessage;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpBaseValidator;
-import org.lfenergy.shapeshifter.connector.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.connector.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.connector.service.validation.ValidationOrder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PeriodReferenceValidator implements UftpBaseValidator<PayloadMessageType> {
+public class PeriodReferenceValidator implements UftpValidator<PayloadMessageType> {
 
-  private final UftpValidatorSupport support;
+  private final UftpMessageSupport messageSupport;
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -38,7 +42,7 @@ public class PeriodReferenceValidator implements UftpBaseValidator<PayloadMessag
   }
 
   @Override
-  public boolean valid(UftpMessage<PayloadMessageType> uftpMessage) {
+  public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
     var payloadMessage = uftpMessage.payloadMessage();
 
     if (payloadMessage instanceof AGRPortfolioQueryResponse agrPortfolioQueryResponse) {
@@ -64,7 +68,7 @@ public class PeriodReferenceValidator implements UftpBaseValidator<PayloadMessag
 
   private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, AGRPortfolioQueryResponse msg) {
     var period = msg.getPeriod();
-    var request = support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(msg.getAGRPortfolioQueryMessageID(), AGRPortfolioQuery.class));
+    var request = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(msg.getAGRPortfolioQueryMessageID(), AGRPortfolioQuery.class));
     if (request.isEmpty()) {
       return true; // validated in ReferencedRequestMessageIdValidation
     }
@@ -74,7 +78,7 @@ public class PeriodReferenceValidator implements UftpBaseValidator<PayloadMessag
 
   private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, DSOPortfolioQueryResponse msg) {
     var period = msg.getPeriod();
-    var request = support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(msg.getDSOPortfolioQueryMessageID(), DSOPortfolioQuery.class));
+    var request = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(msg.getDSOPortfolioQueryMessageID(), DSOPortfolioQuery.class));
     if (request.isEmpty()) {
       return true; // validated in ReferencedRequestMessageIdValidation
     }
@@ -88,7 +92,7 @@ public class PeriodReferenceValidator implements UftpBaseValidator<PayloadMessag
     if (requestId.isEmpty()) {
       return true; // Unsolicited FlexOffer, thus no matching with FlexRequest period.
     }
-    var request = support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(requestId.get(), FlexRequest.class));
+    var request = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(requestId.get(), FlexRequest.class));
     if (request.isEmpty()) {
       return true; // validated in ReferencedFlexRequestMessageIdValidation
     }
@@ -98,7 +102,7 @@ public class PeriodReferenceValidator implements UftpBaseValidator<PayloadMessag
 
   private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, FlexOrder msg) {
     var period = msg.getPeriod();
-    var offer = support.getPreviousMessage(uftpMessage.referenceToPreviousMessage(msg.getFlexOfferMessageID(), FlexOffer.class));
+    var offer = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(msg.getFlexOfferMessageID(), FlexOffer.class));
     if (offer.isEmpty()) {
       return true; // validated in ReferencedFlexOfferMessageIdValidation
     }

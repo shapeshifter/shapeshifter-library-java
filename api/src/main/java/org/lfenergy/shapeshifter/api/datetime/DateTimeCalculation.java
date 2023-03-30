@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.api.datetime;
 
 import static java.time.temporal.ChronoField.NANO_OF_DAY;
@@ -8,6 +12,10 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class DateTimeCalculation {
+
+  private DateTimeCalculation() {
+    // private constructor to hide implicit public one
+  }
 
   public static Duration toJavaTime(javax.xml.datatype.Duration duration) {
     if (!canBeConvertedWithoutOffset(duration)) {

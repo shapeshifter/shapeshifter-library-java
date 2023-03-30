@@ -1,6 +1,8 @@
-package org.lfenergy.shapeshifter.connector.service.validation.model;
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+package org.lfenergy.shapeshifter.connector.service.validation.model;
 
 public record ValidationResult(boolean valid, String rejectionReason) {
 
@@ -9,7 +11,7 @@ public record ValidationResult(boolean valid, String rejectionReason) {
   }
 
   public static ValidationResult rejection(String reason) {
-    if (isBlank(reason)) {
+    if (reason == null || reason.isBlank()) {
       throw new IllegalArgumentException("Rejection reason cannot be blank.");
     }
     return new ValidationResult(false, reason);

@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.connector.service.validation;
 
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
@@ -7,13 +11,13 @@ import org.lfenergy.shapeshifter.connector.model.UftpMessage;
  * Validator that validates incoming (and outgoing) UFTP payload messages.
  *
  * <p>Beans that implement this interface automatically picked up for validation.</p>
- * <p>Application-specific validators cannot implement this interface, but was must implement {@link UftpUserDefinedValidator} instead.</p>
+ * <p>Application-specific validators should not implement this interface, but instead use {@link UftpUserDefinedValidator}.</p>
  *
  * <p>It is expected that every {@link UftpValidator} implementation validates a single aspect of a UFTP payload message.</p>
  *
  * @param <T> The type of UFTP payload message that can be validated by this class.
  */
-interface UftpValidator<T extends PayloadMessageType> {
+public interface UftpValidator<T extends PayloadMessageType> {
 
   /**
    * Checks if this validator can validate the specified UFTP payload message type.
@@ -38,7 +42,7 @@ interface UftpValidator<T extends PayloadMessageType> {
    * @param uftpMessage The UFTP message.
    * @return <code>true</code> if the message is valid, <code>false</code> otherwise.
    */
-  boolean valid(UftpMessage<T> uftpMessage);
+  boolean isValid(UftpMessage<T> uftpMessage);
 
   /**
    * @return The rejection reason that must be included in the response message if the validation failed.
