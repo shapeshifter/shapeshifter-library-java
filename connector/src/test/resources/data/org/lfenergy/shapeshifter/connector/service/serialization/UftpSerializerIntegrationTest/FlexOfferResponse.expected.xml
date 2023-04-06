@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+Copyright 2023 Contributors to the Shapeshifter project
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<FlexOfferResponse FlexOfferMessageID="338ed243-5517-4400-962e-2b7b812c468c" Result="Accepted" RejectionReason="None" Version="3.0.0" SenderDomain="uftp.dso.nl" RecipientDomain="aggregator.org"
+  TimeStamp="2021-10-29T06:55:20.077Z" MessageID="b3bf4cd7-be8e-49c4-9372-5a7e0a2b6d36" ConversationID="48cdc3d2-56c0-436c-8d5a-6f6cc3dc538d"/>

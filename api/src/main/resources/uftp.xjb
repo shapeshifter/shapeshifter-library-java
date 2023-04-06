@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jaxb:bindings xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" version="2.1">
+
+  <jaxb:globalBindings>
+    <jaxb:serializable uid="1"/>
+
+    <xjc:simple/> <!-- essential to generate @XmlRootElement on the types -->
+
+    <!-- Modern Java types for date and date time handling -->
+    <jaxb:javaType
+      name="java.time.OffsetDateTime"
+      xmlType="xs:dateTime"
+      parseMethod="org.lfenergy.shapeshifter.api.conversion.DateTimeAdapter.parse"
+      printMethod="org.lfenergy.shapeshifter.api.conversion.DateTimeAdapter.print"/>
+    <jaxb:javaType
+      name="java.time.LocalDate"
+      xmlType="xs:date"
+      parseMethod="org.lfenergy.shapeshifter.api.conversion.DateAdapter.parse"
+      printMethod="org.lfenergy.shapeshifter.api.conversion.DateAdapter.print"/>
+    <jaxb:javaType
+      name="java.time.Duration"
+      xmlType="xs:duration"
+      parseMethod="org.lfenergy.shapeshifter.api.conversion.DurationAdapter.parse"
+      printMethod="org.lfenergy.shapeshifter.api.conversion.DurationAdapter.print"/>
+
+    <!-- Simple integer is sufficient -->
+    <jaxb:javaType
+      name="java.lang.Long"
+      xmlType="xs:integer"/>
+  </jaxb:globalBindings>
+</jaxb:bindings>
+

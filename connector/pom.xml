@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.lfenergy.shapeshifter</groupId>
+    <artifactId>shapeshifter-library</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>shapeshifter-connector</artifactId>
+
+  <name>Shapeshifter Connector</name>
+  <url>https://www.lfenergy.org/projects/shapeshifter/</url>
+
+  <description>Spring Boot library to connect your application to UFTP. Provides UFTP protocol
+    handling (sealing, unsealing of messages, serialisation and deserialisation)
+  </description>
+
+  <properties>
+    <jna.version>5.12.1</jna.version>
+    <lazysodium-java.version>5.1.1</lazysodium-java.version>
+    <resource-loader.version>2.0.1</resource-loader.version>
+    <spring-boot.version>2.7.7</spring-boot.version>
+    <spring-cloud-contract-runner.version>3.1.5</spring-cloud-contract-runner.version>
+    <swagger-annotations.version>2.2.8</swagger-annotations.version>
+    <wiremock.version>2.33.2</wiremock.version>
+    <xmlunit.verion>2.9.1</xmlunit.verion>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <!-- To use spring boot configuration -->
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- Include readers and sources -->
+      <groupId>org.springframework.ws</groupId>
+      <artifactId>spring-xml</artifactId>
+    </dependency>
+    <dependency>
+      <!-- required for 'Tools' classes -->
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <!-- access to UFTP XSDs and generated classes -->
+      <groupId>org.lfenergy.shapeshifter</groupId>
+      <artifactId>shapeshifter-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+    </dependency>
+
+    <!-- Java wrapper for libsodium native implementation of NaCl encryption used in UFTP -->
+    <!-- https://github.com/terl/lazysodium-java -->
+    <dependency>
+      <groupId>com.goterl</groupId>
+      <artifactId>lazysodium-java</artifactId>
+      <version>${lazysodium-java.version}</version>
+      <exclusions>
+        <exclusion>
+          <!-- Exclude here and include a newer version to support Apple M1 -->
+          <groupId>net.java.dev.jna</groupId>
+          <artifactId>jna</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>${jna.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.goterl</groupId>
+      <artifactId>resource-loader</artifactId>
+      <version>${resource-loader.version}</version>
+    </dependency>
+
+    <!-- For exposing OpenAPI documentation -->
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>${swagger-annotations.version}</version>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+      <version>${spring-cloud-contract-runner.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- Configure a test application without UftpConnector mapping test beans -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aspects</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-jre8</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.xmlunit</groupId>
+      <artifactId>xmlunit-core</artifactId>
+      <version>${xmlunit.verion}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.xmlunit</groupId>
+      <artifactId>xmlunit-assertj3</artifactId>
+      <version>${xmlunit.verion}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.lfenergy.shapeshifter</groupId>
+        <artifactId>shapeshifter-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.lfenergy.shapeshifter</groupId>
+            <artifactId>shapeshifter-api</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>uftp-processor</goal>
+            </goals>
+            <configuration>
+              <uftpApiPackage>org.lfenergy.shapeshifter.api</uftpApiPackage>
+              <uftpMessageBaseClass>PayloadMessageType</uftpMessageBaseClass>
+              <uftpAnnotationOutputPackage>org.lfenergy.shapeshifter.connector.generated.handler.annotation</uftpAnnotationOutputPackage>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

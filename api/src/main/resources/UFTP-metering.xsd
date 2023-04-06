@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Copyright 2023 Contributors to the Shapeshifter project
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+  <xs:include schemaLocation="UFTP-common.xsd"/>
+
+  <!-- -->
+  <!-- EAN Type -->
+  <!-- -->
+  <xs:simpleType name="EANType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[Ee][0-9]{16}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- -->
+  <!-- -->
+  <!--  Metering Unit Type -->
+  <!-- -->
+  <xs:simpleType name="MeteringUnitType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="kW">
+        <xs:annotation>
+          <xs:documentation>kW must be used with Power profile values.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="kWh">
+        <xs:annotation>
+          <xs:documentation>kWh must be used with energy profile values (ImportEnergy,ExportEnergy,ImportMeterReading,ExportMeterReading).</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- -->
+  <!--  Metering Profile Enum -->
+  <!-- -->
+  <xs:simpleType name="MeteringProfileEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Power">
+        <xs:annotation>
+          <xs:documentation>The average active power during ISP, considering both import and export energy. Power=(ImportEnergy-ExportEnergy)*(60/ISP-Length-Minutes).
+            For example with a 15 minute ISP length we have a multiplier of 4, with a 30 minute ISP length we have a multiplier of 2.
+            Including the power profile is recommended. It is expected that in the following major version the power will become a mandatory value.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="ImportEnergy">
+        <xs:annotation>
+          <xs:documentation>Imported active energy, consumed during the ISP</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="ExportEnergy">
+        <xs:annotation>
+          <xs:documentation>Exported active energy, generated during the ISP</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="ImportMeterReading">
+        <xs:annotation>
+          <xs:documentation>Cumulative metered imported active energy reading, at the end of the ISP</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="ExportMeterReading">
+        <xs:annotation>
+          <xs:documentation>Cumulative metered exported active energy reading, at the end of the ISP</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- -->
+  <!--  Metering Message Type -->
+  <!-- -->
+  <xs:complexType name="MeteringMessageType">
+    <xs:complexContent>
+      <xs:extension base="PayloadMessageType">
+        <xs:sequence>
+          <xs:annotation>
+            <xs:documentation>The message must contain one or more profiles with metering, energy or price values.</xs:documentation>
+          </xs:annotation>
+          <xs:element name="Profile" type="MeteringProfileType" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="Revision" type="xs:long" use="required">
+          <xs:annotation>
+            <xs:documentation>Revision of this message. A sequence number that must be incremented each time a new revision of a metering message is sent.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="ISP-Duration" type="xs:duration" use="required">
+          <xs:annotation>
+            <xs:documentation>ISO 8601 time interval (minutes only, for example PT15M) indicating the duration of the ISPs referenced in this message. Although the ISP length is a market-wide fixed
+              value, making this assumption explicit in each message is important for validation purposes, allowing implementations to reject messages with an errant ISP duration.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="TimeZone" type="TimeZoneNameType" use="required">
+          <xs:annotation>
+            <xs:documentation>Time zone ID (as per the IANA time zone database, http://www.iana.org/time-zones, for example: Europe/Amsterdam) indicating the UTC offset that applies to the Period
+              referenced in this message. Although the time zone is a market-wide fixed value, making this assumption explicit in each message is important for validation purposes, allowing
+              implementations to reject messages with an errant UTC offset.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="Currency" type="ISO4217CurrencyType" use="optional">
+          <xs:annotation>
+            <xs:documentation>ISO 4217 code indicating the currency that applies to the price of the Tariff Rates. Only required if ImportTariff or ExportTariff profiles are included.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="Period" type="PeriodType" use="required">
+          <xs:annotation>
+            <xs:documentation>Day (in yyyy-mm-dd format) the ISPs referenced in this Metering message belong to.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="EAN" type="EANType" use="required">
+          <xs:annotation>
+            <xs:documentation>EAN of the meter the message applies to.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- -->
+  <!-- Metering Profile Type -->
+  <!-- -->
+  <xs:complexType name="MeteringProfileType">
+    <xs:annotation>
+      <xs:documentation>A profile carries a sequence of ISPs with a defined type of metering data</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ISP" type="MeteringISPType" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="ProfileType" type="MeteringProfileEnum" use="required"/>
+    <xs:attribute name="Unit" type="MeteringUnitType" use="required"/>
+  </xs:complexType>
+  <!-- -->
+  <!-- Metering ISP Type -->
+  <!-- -->
+  <xs:complexType name="MeteringISPType">
+    <xs:attribute name="Start" type="xs:integer" use="required">
+      <xs:annotation>
+        <xs:documentation>Number of the ISP this element refers to. The first ISP of a day has number 1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Value" type="xs:decimal" use="required">
+      <xs:annotation>
+        <xs:documentation>Metering, energy or price value at the end of this ISP, in the designated profile units.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <!-- -->
+  <!-- Metering Response Type -->
+  <!-- -->
+  <xs:complexType name="MeteringResponseType">
+    <xs:complexContent>
+      <xs:extension base="PayloadMessageResponseType">
+        <xs:attribute name="MeteringMessageID" type="UUIDType" use="required">
+          <xs:annotation>
+            <xs:documentation>MessageID of the Metering message this response is based on.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- ELEMENT DEFINITIONS -->
+  <xs:element name="Metering" type="MeteringMessageType"/>
+  <xs:element name="MeteringResponse" type="MeteringResponseType"/>
+</xs:schema>
