@@ -4,9 +4,9 @@
 
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
-import static org.lfenergy.shapeshifter.connector.service.validation.tools.DateTimeCompareAllowingInfinite.equalOrAfter;
+import static org.lfenergy.shapeshifter.connector.service.validation.tools.DateCompareAllowingInfinite.equalOrAfter;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -79,12 +79,12 @@ public class PeriodIsInRangeValidator implements UftpValidator<PayloadMessageTyp
     return cp.getConnections().stream().allMatch(conn -> subRangeIsInRange(start, end, conn));
   }
 
-  private boolean subRangeIsInRange(OffsetDateTime start, OffsetDateTime end, DSOPortfolioUpdateConnectionType conn) {
+  private boolean subRangeIsInRange(LocalDate start, LocalDate end, DSOPortfolioUpdateConnectionType conn) {
     return valueIsInRange(start, end, conn.getStartPeriod())
         && valueIsInRange(start, end, conn.getEndPeriod());
   }
 
-  private boolean valueIsInRange(OffsetDateTime start, OffsetDateTime end, OffsetDateTime value) {
+  private boolean valueIsInRange(LocalDate start, LocalDate end, LocalDate value) {
     return equalOrAfter(value, start) && equalOrAfter(end, value);
   }
 }

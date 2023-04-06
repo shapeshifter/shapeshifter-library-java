@@ -4,10 +4,7 @@
 
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
-import static org.lfenergy.shapeshifter.api.datetime.DateTimeCalculation.startOfDay;
-import static org.lfenergy.shapeshifter.api.datetime.DateTimeCalculation.toZonedDateTime;
-
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -50,10 +47,9 @@ public class PeriodFutureOrTodayValidator implements UftpValidator<FlexMessageTy
     return "Period out of bounds";
   }
 
-  private boolean isInFutureOrIsToday(OffsetDateTime value, String ianaTimeZone) {
-    var period = toZonedDateTime(value, ianaTimeZone);
-    var today = startOfDay(ZonedDateTime.now(ZoneId.of(ianaTimeZone)));
+  private boolean isInFutureOrIsToday(LocalDate value, String ianaTimeZone) {
+    var today = ZonedDateTime.now(ZoneId.of(ianaTimeZone)).toLocalDate();
 
-    return period.isAfter(today) || period.isEqual(today);
+    return value.isAfter(today) || value.isEqual(today);
   }
 }

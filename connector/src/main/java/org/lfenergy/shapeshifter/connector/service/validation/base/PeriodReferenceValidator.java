@@ -73,7 +73,7 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
       return true; // validated in ReferencedRequestMessageIdValidation
     }
     var requestPeriod = request.get().getPeriod();
-    return period.toLocalDate().isEqual(requestPeriod.toLocalDate());
+    return period.isEqual(requestPeriod);
   }
 
   private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, DSOPortfolioQueryResponse msg) {
@@ -83,7 +83,7 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
       return true; // validated in ReferencedRequestMessageIdValidation
     }
     var requestPeriod = request.get().getPeriod();
-    return period.toLocalDate().isEqual(requestPeriod.toLocalDate());
+    return period.isEqual(requestPeriod);
   }
 
   private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, FlexOffer msg) {
@@ -97,7 +97,7 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
       return true; // validated in ReferencedFlexRequestMessageIdValidation
     }
     var requestPeriod = request.get().getPeriod();
-    return period.toLocalDate().isEqual(requestPeriod.toLocalDate());
+    return period.isEqual(requestPeriod);
   }
 
   private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, FlexOrder msg) {
@@ -107,6 +107,6 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
       return true; // validated in ReferencedFlexOfferMessageIdValidation
     }
     var offerPeriod = offer.get().getPeriod();
-    return period.toLocalDate().isEqual(offerPeriod.toLocalDate());
+    return period.isEqual(offerPeriod);
   }
 }

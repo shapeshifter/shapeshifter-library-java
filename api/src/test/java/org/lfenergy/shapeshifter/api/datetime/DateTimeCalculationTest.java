@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.time.zone.ZoneRulesException;
 import java.util.stream.Stream;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -25,12 +25,12 @@ class DateTimeCalculationTest {
   private static final long SECS_PER_HOUR = 60 * SECS_PER_MIN;
   private static final long SECS_PER_DAY = 24 * SECS_PER_HOUR;
 
-  private static final OffsetDateTime WINTER_TIME_DAY = OffsetDateTime.parse("2022-11-22T00:00:00+01:00");
-  private static final OffsetDateTime SUMMER_TIME_DAY = OffsetDateTime.parse("2022-06-22T00:00:00+02:00");
+  private static final LocalDate WINTER_TIME_DAY = LocalDate.parse("2022-11-22");
+  private static final LocalDate SUMMER_TIME_DAY = LocalDate.parse("2022-06-22");
   // EU: Last Sunday of March (March 27th for 2022)
-  private static final OffsetDateTime WINTER_TO_SUMMER_TIME_TRANSITION_DAY = OffsetDateTime.parse("2022-03-27T00:00:00+01:00");
+  private static final LocalDate WINTER_TO_SUMMER_TIME_TRANSITION_DAY = LocalDate.parse("2022-03-27");
   // EU: Last Sunday of October (October 10th for 2022)
-  private static final OffsetDateTime SUMMER_TO_WINTER_TIME_TRANSITION_DAY = OffsetDateTime.parse("2022-10-30T00:00:00+02:00");
+  private static final LocalDate SUMMER_TO_WINTER_TIME_TRANSITION_DAY = LocalDate.parse("2022-10-30");
   private static final javax.xml.datatype.Duration DURATION_15_MINUTES;
 
   static {
@@ -145,10 +145,10 @@ class DateTimeCalculationTest {
         Arguments.of(SUMMER_TIME_DAY, "Europe/Amsterdam", "2022-06-22T00:00+02:00[Europe/Amsterdam]"),
         Arguments.of(WINTER_TO_SUMMER_TIME_TRANSITION_DAY, "Europe/Amsterdam", "2022-03-27T00:00+01:00[Europe/Amsterdam]"),
         Arguments.of(SUMMER_TO_WINTER_TIME_TRANSITION_DAY, "Europe/Amsterdam", "2022-10-30T00:00+02:00[Europe/Amsterdam]"),
-        Arguments.of(WINTER_TIME_DAY, "Europe/London", "2022-11-21T23:00Z[Europe/London]"),
-        Arguments.of(SUMMER_TIME_DAY, "Europe/London", "2022-06-21T23:00+01:00[Europe/London]"),
-        Arguments.of(WINTER_TO_SUMMER_TIME_TRANSITION_DAY, "Europe/London", "2022-03-26T23:00Z[Europe/London]"),
-        Arguments.of(SUMMER_TO_WINTER_TIME_TRANSITION_DAY, "Europe/London", "2022-10-29T23:00+01:00[Europe/London]"),
+        Arguments.of(WINTER_TIME_DAY, "Europe/London", "2022-11-22T00:00Z[Europe/London]"),
+        Arguments.of(SUMMER_TIME_DAY, "Europe/London", "2022-06-22T00:00+01:00[Europe/London]"),
+        Arguments.of(WINTER_TO_SUMMER_TIME_TRANSITION_DAY, "Europe/London", "2022-03-27T00:00Z[Europe/London]"),
+        Arguments.of(SUMMER_TO_WINTER_TIME_TRANSITION_DAY, "Europe/London", "2022-10-30T00:00+01:00[Europe/London]"),
         Arguments.of(WINTER_TIME_DAY, "Europe/Paris", "2022-11-22T00:00+01:00[Europe/Paris]"),
         Arguments.of(SUMMER_TIME_DAY, "Europe/Paris", "2022-06-22T00:00+02:00[Europe/Paris]"),
         Arguments.of(WINTER_TO_SUMMER_TIME_TRANSITION_DAY, "Europe/Paris", "2022-03-27T00:00+01:00[Europe/Paris]"),
@@ -158,7 +158,7 @@ class DateTimeCalculationTest {
 
   @ParameterizedTest
   @MethodSource("for_toZonedDateTime")
-  void pointInTime_and_ianaTimeZoneName_toZonedDateTime(OffsetDateTime pointInTime, String ianaTimeZone, String expectedResultToString) {
+  void pointInTime_and_ianaTimeZoneName_toZonedDateTime(LocalDate pointInTime, String ianaTimeZone, String expectedResultToString) {
     var result = DateTimeCalculation.toZonedDateTime(pointInTime, ianaTimeZone);
 
     assertThat(result).isNotNull();
@@ -184,7 +184,7 @@ class DateTimeCalculationTest {
 
   @ParameterizedTest
   @MethodSource("for_lengthOfDay")
-  void lengthOfDayInTimeZone(OffsetDateTime onDay, String ianaTimeZone, long expectedDurationSeconds) {
+  void lengthOfDayInTimeZone(LocalDate onDay, String ianaTimeZone, long expectedDurationSeconds) {
     var result = DateTimeCalculation.lengthOfDay(onDay, ianaTimeZone);
 
     assertThat(result.getSeconds()).isEqualTo(expectedDurationSeconds);
@@ -193,45 +193,43 @@ class DateTimeCalculationTest {
 
   public static Stream<Arguments> for_startOfDay() {
     return Stream.of(
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:00+01:00"), "2022-11-22T00:00+01:00"),
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:01+02:00"), "2022-11-22T00:00+02:00"),
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:01:05+04:00"), "2022-11-22T00:00+04:00"),
-        Arguments.of(OffsetDateTime.parse("2022-06-22T01:05:10+06:00"), "2022-06-22T00:00+06:00"),
-        Arguments.of(OffsetDateTime.parse("2022-06-22T04:10:15+07:00"), "2022-06-22T00:00+07:00"),
-        Arguments.of(OffsetDateTime.parse("2022-06-22T06:15:20+09:00"), "2022-06-22T00:00+09:00"),
-        Arguments.of(OffsetDateTime.parse("2022-03-27T10:20:25+10:00"), "2022-03-27T00:00+10:00"),
-        Arguments.of(OffsetDateTime.parse("2022-03-27T12:25:30+11:00"), "2022-03-27T00:00+11:00"),
-        Arguments.of(OffsetDateTime.parse("2022-03-27T15:30:35+11:30"), "2022-03-27T00:00+11:30"),
-        Arguments.of(OffsetDateTime.parse("2022-10-30T18:35:40-01:00"), "2022-10-30T00:00-01:00"),
-        Arguments.of(OffsetDateTime.parse("2022-10-30T20:40:45-05:00"), "2022-10-30T00:00-05:00"),
-        Arguments.of(OffsetDateTime.parse("2022-10-30T22:45:50-08:00"), "2022-10-30T00:00-08:00"),
-        Arguments.of(OffsetDateTime.parse("2022-10-30T23:59:59.999999999-11:00"), "2022-10-30T00:00-11:00")
+        Arguments.of(LocalDate.parse("2022-11-22"), "2022-11-22"),
+        Arguments.of(LocalDate.parse("2022-11-22"), "2022-11-22"),
+        Arguments.of(LocalDate.parse("2022-11-22"), "2022-11-22"),
+        Arguments.of(LocalDate.parse("2022-06-22"), "2022-06-22"),
+        Arguments.of(LocalDate.parse("2022-06-22"), "2022-06-22"),
+        Arguments.of(LocalDate.parse("2022-06-22"), "2022-06-22"),
+        Arguments.of(LocalDate.parse("2022-03-27"), "2022-03-27"),
+        Arguments.of(LocalDate.parse("2022-03-27"), "2022-03-27"),
+        Arguments.of(LocalDate.parse("2022-03-27"), "2022-03-27"),
+        Arguments.of(LocalDate.parse("2022-10-30"), "2022-10-30"),
+        Arguments.of(LocalDate.parse("2022-10-30"), "2022-10-30"),
+        Arguments.of(LocalDate.parse("2022-10-30"), "2022-10-30"),
+        Arguments.of(LocalDate.parse("2022-10-30"), "2022-10-30")
     );
   }
 
   @ParameterizedTest
   @MethodSource("for_startOfDay")
-  void startOfDay_forOffsetDateTime(OffsetDateTime pointInTime, String expectedStartOfDayAsString) {
-    var result = DateTimeCalculation.startOfDay(pointInTime);
-
-    assertThat(result).hasToString(expectedStartOfDayAsString);
+  void startOfDay_forOffsetDateTime(LocalDate pointInTime, String expectedStartOfDayAsString) {
+    assertThat(pointInTime).hasToString(expectedStartOfDayAsString);
   }
 
 
   public static Stream<Arguments> for_ispEndInDay_differentIspDurations() {
     return Stream.of(
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:00+01:00"), 1, 10, "2022-11-22T00:10+01:00"),
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:01+01:00"), 1, 15, "2022-11-22T00:15+01:00"),
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:05+01:00"), 1, 20, "2022-11-22T00:20+01:00"),
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:10+02:00"), 1, 30, "2022-06-22T00:30+02:00"),
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:15+02:00"), 1, 60, "2022-06-22T01:00+02:00"),
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:20+02:00"), 1, 90, "2022-06-22T01:30+02:00")
+        Arguments.of(LocalDate.parse("2022-11-22"), 1, 10, "2022-11-22T00:10+01:00"),
+        Arguments.of(LocalDate.parse("2022-11-22"), 1, 15, "2022-11-22T00:15+01:00"),
+        Arguments.of(LocalDate.parse("2022-11-22"), 1, 20, "2022-11-22T00:20+01:00"),
+        Arguments.of(LocalDate.parse("2022-06-22"), 1, 30, "2022-06-22T00:30+02:00"),
+        Arguments.of(LocalDate.parse("2022-06-22"), 1, 60, "2022-06-22T01:00+02:00"),
+        Arguments.of(LocalDate.parse("2022-06-22"), 1, 90, "2022-06-22T01:30+02:00")
     );
   }
 
   @ParameterizedTest
   @MethodSource("for_ispEndInDay_differentIspDurations")
-  void ispEndInDay_differentIspDurations(OffsetDateTime onDay, long ofOneBasedIspIndex, long minutesIspDuration, String expectedEndTimeAsString) {
+  void ispEndInDay_differentIspDurations(LocalDate onDay, long ofOneBasedIspIndex, long minutesIspDuration, String expectedEndTimeAsString) {
     var ispDuration = Duration.ofMinutes(minutesIspDuration);
 
     var result = DateTimeCalculation.ispEndInDay(onDay, "Europe/Amsterdam", ofOneBasedIspIndex, ispDuration);
@@ -241,55 +239,52 @@ class DateTimeCalculationTest {
 
   public static Stream<Arguments> for_ispEndInDay() {
     return Stream.of(
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:00+01:00"), 4, 15, "2022-11-22T01:00+01:00"), // 1
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:01+01:00"), 7, 15, "2022-11-22T01:45+01:00"), // 2
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:05+01:00"), 8, 15, "2022-11-22T02:00+01:00"), // 3
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:05+01:00"), 9, 15, "2022-11-22T02:15+01:00"), // 4
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:05+01:00"), 10, 15, "2022-11-22T02:30+01:00"), // 5
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:05+01:00"), 11, 15, "2022-11-22T02:45+01:00"), // 6
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:05+01:00"), 12, 15, "2022-11-22T03:00+01:00"), // 7
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:05+01:00"), 13, 15, "2022-11-22T03:15+01:00"), // 8
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:05+01:00"), 40, 15, "2022-11-22T10:00+01:00"), // 9
-        Arguments.of(OffsetDateTime.parse("2022-11-22T00:00:05+01:00"), 60, 15, "2022-11-22T15:00+01:00"), // 10
-
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:10+02:00"), 4, 15, "2022-06-22T01:00+02:00"), // 11
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:15+02:00"), 7, 15, "2022-06-22T01:45+02:00"), // 12
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:20+02:00"), 8, 15, "2022-06-22T02:00+02:00"), // 13
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:20+02:00"), 9, 15, "2022-06-22T02:15+02:00"), // 14
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:20+02:00"), 10, 15, "2022-06-22T02:30+02:00"), // 15
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:20+02:00"), 11, 15, "2022-06-22T02:45+02:00"), // 16
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:20+02:00"), 12, 15, "2022-06-22T03:00+02:00"), // 17
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:20+02:00"), 13, 15, "2022-06-22T03:15+02:00"), // 18
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:20+02:00"), 40, 15, "2022-06-22T10:00+02:00"), // 19
-        Arguments.of(OffsetDateTime.parse("2022-06-22T00:00:20+02:00"), 60, 15, "2022-06-22T15:00+02:00"), // 20
-
-        Arguments.of(OffsetDateTime.parse("2022-03-27T00:00:25+01:00"), 4, 15, "2022-03-27T01:00+01:00"), // 21
-        Arguments.of(OffsetDateTime.parse("2022-03-27T00:00:25+01:00"), 7, 15, "2022-03-27T01:45+01:00"), // 22
-        Arguments.of(OffsetDateTime.parse("2022-03-27T00:00:25+01:00"), 8, 15, "2022-03-27T03:00+02:00"), // 23
-        Arguments.of(OffsetDateTime.parse("2022-03-27T00:00:25+01:00"), 9, 15, "2022-03-27T03:15+02:00"), // 24
-        Arguments.of(OffsetDateTime.parse("2022-03-27T00:00:25+01:00"), 10, 15, "2022-03-27T03:30+02:00"), // 25
-        Arguments.of(OffsetDateTime.parse("2022-03-27T00:00:25+01:00"), 11, 15, "2022-03-27T03:45+02:00"), // 26
-        Arguments.of(OffsetDateTime.parse("2022-03-27T00:00:25+01:00"), 12, 15, "2022-03-27T04:00+02:00"), // 27
-        Arguments.of(OffsetDateTime.parse("2022-03-27T00:00:25+01:00"), 13, 15, "2022-03-27T04:15+02:00"), // 28
-        Arguments.of(OffsetDateTime.parse("2022-03-27T00:00:30+01:00"), 40, 15, "2022-03-27T11:00+02:00"), // 29
-        Arguments.of(OffsetDateTime.parse("2022-03-27T00:00:35+01:00"), 60, 15, "2022-03-27T16:00+02:00"), // 30
-
-        Arguments.of(OffsetDateTime.parse("2022-10-30T00:00:40+02:00"), 4, 15, "2022-10-30T01:00+02:00"), // 31
-        Arguments.of(OffsetDateTime.parse("2022-10-30T00:00:40+02:00"), 7, 15, "2022-10-30T01:45+02:00"), // 32
-        Arguments.of(OffsetDateTime.parse("2022-10-30T00:00:40+02:00"), 8, 15, "2022-10-30T02:00+02:00"), // 33
-        Arguments.of(OffsetDateTime.parse("2022-10-30T00:00:40+02:00"), 9, 15, "2022-10-30T02:15+02:00"), // 34
-        Arguments.of(OffsetDateTime.parse("2022-10-30T00:00:40+02:00"), 10, 15, "2022-10-30T02:30+02:00"), // 35
-        Arguments.of(OffsetDateTime.parse("2022-10-30T00:00:40+02:00"), 11, 15, "2022-10-30T02:45+02:00"), // 36
-        Arguments.of(OffsetDateTime.parse("2022-10-30T00:00:40+02:00"), 12, 15, "2022-10-30T02:00+01:00"), // 37
-        Arguments.of(OffsetDateTime.parse("2022-10-30T00:00:40+02:00"), 13, 15, "2022-10-30T02:15+01:00"), // 38
-        Arguments.of(OffsetDateTime.parse("2022-10-30T00:00:45+02:00"), 40, 15, "2022-10-30T09:00+01:00"), // 39
-        Arguments.of(OffsetDateTime.parse("2022-10-30T00:00:50+02:00"), 60, 15, "2022-10-30T14:00+01:00") // 40
+        Arguments.of(LocalDate.parse("2022-11-22"), 4, 15, "2022-11-22T01:00+01:00"), // 1
+        Arguments.of(LocalDate.parse("2022-11-22"), 7, 15, "2022-11-22T01:45+01:00"), // 2
+        Arguments.of(LocalDate.parse("2022-11-22"), 8, 15, "2022-11-22T02:00+01:00"), // 3
+        Arguments.of(LocalDate.parse("2022-11-22"), 9, 15, "2022-11-22T02:15+01:00"), // 4
+        Arguments.of(LocalDate.parse("2022-11-22"), 10, 15, "2022-11-22T02:30+01:00"), // 5
+        Arguments.of(LocalDate.parse("2022-11-22"), 11, 15, "2022-11-22T02:45+01:00"), // 6
+        Arguments.of(LocalDate.parse("2022-11-22"), 12, 15, "2022-11-22T03:00+01:00"), // 7
+        Arguments.of(LocalDate.parse("2022-11-22"), 13, 15, "2022-11-22T03:15+01:00"), // 8
+        Arguments.of(LocalDate.parse("2022-11-22"), 40, 15, "2022-11-22T10:00+01:00"), // 9
+        Arguments.of(LocalDate.parse("2022-11-22"), 60, 15, "2022-11-22T15:00+01:00"), // 10
+        Arguments.of(LocalDate.parse("2022-06-22"), 4, 15, "2022-06-22T01:00+02:00"), // 11
+        Arguments.of(LocalDate.parse("2022-06-22"), 7, 15, "2022-06-22T01:45+02:00"), // 12
+        Arguments.of(LocalDate.parse("2022-06-22"), 8, 15, "2022-06-22T02:00+02:00"), // 13
+        Arguments.of(LocalDate.parse("2022-06-22"), 9, 15, "2022-06-22T02:15+02:00"), // 14
+        Arguments.of(LocalDate.parse("2022-06-22"), 10, 15, "2022-06-22T02:30+02:00"), // 15
+        Arguments.of(LocalDate.parse("2022-06-22"), 11, 15, "2022-06-22T02:45+02:00"), // 16
+        Arguments.of(LocalDate.parse("2022-06-22"), 12, 15, "2022-06-22T03:00+02:00"), // 17
+        Arguments.of(LocalDate.parse("2022-06-22"), 13, 15, "2022-06-22T03:15+02:00"), // 18
+        Arguments.of(LocalDate.parse("2022-06-22"), 40, 15, "2022-06-22T10:00+02:00"), // 19
+        Arguments.of(LocalDate.parse("2022-06-22"), 60, 15, "2022-06-22T15:00+02:00"), // 20
+        Arguments.of(LocalDate.parse("2022-03-27"), 4, 15, "2022-03-27T01:00+01:00"), // 21
+        Arguments.of(LocalDate.parse("2022-03-27"), 7, 15, "2022-03-27T01:45+01:00"), // 22
+        Arguments.of(LocalDate.parse("2022-03-27"), 8, 15, "2022-03-27T03:00+02:00"), // 23
+        Arguments.of(LocalDate.parse("2022-03-27"), 9, 15, "2022-03-27T03:15+02:00"), // 24
+        Arguments.of(LocalDate.parse("2022-03-27"), 10, 15, "2022-03-27T03:30+02:00"), // 25
+        Arguments.of(LocalDate.parse("2022-03-27"), 11, 15, "2022-03-27T03:45+02:00"), // 26
+        Arguments.of(LocalDate.parse("2022-03-27"), 12, 15, "2022-03-27T04:00+02:00"), // 27
+        Arguments.of(LocalDate.parse("2022-03-27"), 13, 15, "2022-03-27T04:15+02:00"), // 28
+        Arguments.of(LocalDate.parse("2022-03-27"), 40, 15, "2022-03-27T11:00+02:00"), // 29
+        Arguments.of(LocalDate.parse("2022-03-27"), 60, 15, "2022-03-27T16:00+02:00"), // 30
+        Arguments.of(LocalDate.parse("2022-10-30"), 4, 15, "2022-10-30T01:00+02:00"), // 31
+        Arguments.of(LocalDate.parse("2022-10-30"), 7, 15, "2022-10-30T01:45+02:00"), // 32
+        Arguments.of(LocalDate.parse("2022-10-30"), 8, 15, "2022-10-30T02:00+02:00"), // 33
+        Arguments.of(LocalDate.parse("2022-10-30"), 9, 15, "2022-10-30T02:15+02:00"), // 34
+        Arguments.of(LocalDate.parse("2022-10-30"), 10, 15, "2022-10-30T02:30+02:00"), // 35
+        Arguments.of(LocalDate.parse("2022-10-30"), 11, 15, "2022-10-30T02:45+02:00"), // 36
+        Arguments.of(LocalDate.parse("2022-10-30"), 12, 15, "2022-10-30T02:00+01:00"), // 37
+        Arguments.of(LocalDate.parse("2022-10-30"), 13, 15, "2022-10-30T02:15+01:00"), // 38
+        Arguments.of(LocalDate.parse("2022-10-30"), 40, 15, "2022-10-30T09:00+01:00"), // 39
+        Arguments.of(LocalDate.parse("2022-10-30"), 60, 15, "2022-10-30T14:00+01:00") // 40
     );
   }
 
   @ParameterizedTest
   @MethodSource("for_ispEndInDay")
-  void ispEndInDay(OffsetDateTime onDay, long ofOneBasedIspIndex, long minutesIspDuration, String expectedEndTimeAsString) {
+  void ispEndInDay(LocalDate onDay, long ofOneBasedIspIndex, long minutesIspDuration, String expectedEndTimeAsString) {
     var ispDuration = Duration.ofMinutes(minutesIspDuration);
 
     var result = DateTimeCalculation.ispEndInDay(onDay, "Europe/Amsterdam", ofOneBasedIspIndex, ispDuration);

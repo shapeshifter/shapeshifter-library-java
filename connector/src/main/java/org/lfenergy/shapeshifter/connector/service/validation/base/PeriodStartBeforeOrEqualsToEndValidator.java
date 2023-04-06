@@ -4,9 +4,9 @@
 
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
-import static org.lfenergy.shapeshifter.connector.service.validation.tools.DateTimeCompareAllowingInfinite.equalOrAfter;
+import static org.lfenergy.shapeshifter.connector.service.validation.tools.DateCompareAllowingInfinite.equalOrAfter;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +71,7 @@ public class PeriodStartBeforeOrEqualsToEndValidator implements UftpValidator<Pa
         cp.getConnections().stream().allMatch(conn -> isStartBeforeOrEqualsToEnd(conn.getStartPeriod(), conn.getEndPeriod()));
   }
 
-  private boolean isStartBeforeOrEqualsToEnd(OffsetDateTime periodStart, OffsetDateTime periodEnd) {
+  private boolean isStartBeforeOrEqualsToEnd(LocalDate periodStart, LocalDate periodEnd) {
     if (periodStart == null) {
       return false; // start is mandatory
     }

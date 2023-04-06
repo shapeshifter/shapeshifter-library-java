@@ -4,13 +4,13 @@
 
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
-import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.lfenergy.shapeshifter.connector.service.validation.base.TestDataHelper.TIME_ZONE_AMSTERDAM;
 import static org.lfenergy.shapeshifter.connector.service.validation.base.TestDataHelper.TIME_ZONE_MEXICO_CITY;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -40,7 +40,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class NotExpiredValidatorTest {
 
   private static final String MATCHING_MESSAGE_ID = "MATCHING_MESSAGE_ID";
-  private static final OffsetDateTime PERIOD = OffsetDateTime.of(2022, 11, 22, 0, 0, 0, 0, UTC);
+  private static final LocalDate PERIOD = LocalDate.of(2022, 11, 22);
 
   @Mock
   private UftpMessageSupport messageSupport;

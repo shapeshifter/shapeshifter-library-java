@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,7 +44,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class IspListValidatorBaseTest {
 
-  private static final OffsetDateTime WINTER_TIME_DAY = OffsetDateTime.parse("2022-11-22T00:00:00+01:00");
+  private static final LocalDate WINTER_TIME_DAY = LocalDate.parse("2022-11-22");
   private static final Duration DURATION_15_MINUTES = Duration.ofMinutes(15);
   private static final String TIME_ZONE_AMSTERDAM = "Europe/Amsterdam";
 

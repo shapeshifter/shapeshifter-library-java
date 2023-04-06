@@ -7,7 +7,7 @@ package org.lfenergy.shapeshifter.connector.service.validation.base;
 import static org.lfenergy.shapeshifter.api.datetime.DateTimeCalculation.lengthOfDay;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.lfenergy.shapeshifter.api.DPrognosis;
@@ -50,7 +50,7 @@ public abstract class IspListValidatorBase implements UftpValidator<PayloadMessa
     return retriever.getProperty(uftpMessage.payloadMessage());
   }
 
-  private long numberOfIspsOnDay(OffsetDateTime onDay, Duration ispDuration, String ianaTimeZone) {
+  private long numberOfIspsOnDay(LocalDate onDay, Duration ispDuration, String ianaTimeZone) {
     var durationOfDay = lengthOfDay(onDay, ianaTimeZone);
     return durationOfDay.toSeconds() / ispDuration.toSeconds();
   }

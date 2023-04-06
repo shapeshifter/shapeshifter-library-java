@@ -7,6 +7,7 @@ package org.lfenergy.shapeshifter.api.datetime;
 import static java.time.temporal.ChronoField.NANO_OF_DAY;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -35,26 +36,21 @@ public class DateTimeCalculation {
     return ZoneId.of(ianaTimeZone);
   }
 
-  public static ZonedDateTime toZonedDateTime(OffsetDateTime pointInTime, String ianaTimeZone) {
-    return pointInTime.atZoneSameInstant(toZoneId(ianaTimeZone));
-  }
-
-  public static OffsetDateTime startOfDay(OffsetDateTime pointInTime) {
-    return pointInTime.with(NANO_OF_DAY, 0);
+  static ZonedDateTime toZonedDateTime(LocalDate pointInTime, String ianaTimeZone) {
+    return pointInTime.atStartOfDay(toZoneId(ianaTimeZone));
   }
 
   public static ZonedDateTime startOfDay(ZonedDateTime pointInTime) {
     return pointInTime.with(NANO_OF_DAY, 0);
   }
 
-  public static Duration lengthOfDay(OffsetDateTime onDay, String ianaTimeZone) {
-    OffsetDateTime startOfDay = startOfDay(onDay);
-    ZonedDateTime zonedDay = toZonedDateTime(startOfDay, ianaTimeZone);
+  public static Duration lengthOfDay(LocalDate onDay, String ianaTimeZone) {
+    ZonedDateTime zonedDay = toZonedDateTime(onDay, ianaTimeZone);
     return Duration.between(zonedDay, zonedDay.plusDays(1));
   }
 
   public static OffsetDateTime ispEndInDay(
-      OffsetDateTime onDay, String ianaTimeZone, long ofOneBasedIspIndex, Duration ispDuration
+      LocalDate onDay, String ianaTimeZone, long ofOneBasedIspIndex, Duration ispDuration
   ) {
     var toAdd = ispDuration.multipliedBy(ofOneBasedIspIndex);
     return startOfDay(toZonedDateTime(onDay, ianaTimeZone))

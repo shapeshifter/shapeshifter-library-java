@@ -7,6 +7,7 @@ package org.lfenergy.shapeshifter.connector.service.validation.base;
 import static org.lfenergy.shapeshifter.api.datetime.DateTimeCalculation.ispEndInDay;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -82,13 +83,13 @@ public class ExpirationBeforeIspsListedEndValidator implements UftpValidator<Pay
   private boolean expirationAdheresToIspList(
       OffsetDateTime expiration,
       List<List<IspInfo>> ispLists,
-      OffsetDateTime period,
+      LocalDate period,
       String ianaTimeZone,
       Duration ispDuration
   ) {
     var lastIspNumber = findMaxIspInLists(ispLists);
     var lastIspEndMoment = ispEndInDay(period, ianaTimeZone, lastIspNumber, ispDuration);
-    return expiration.isBefore(lastIspEndMoment) || expiration.isEqual(lastIspEndMoment);
+    return expiration.isBefore(OffsetDateTime.from(lastIspEndMoment)) || expiration.isEqual(OffsetDateTime.from(lastIspEndMoment));
   }
 
   private long findMaxIspInLists(List<List<IspInfo>> ispLists) {

@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <FlexOrder FlexOfferMessageID="338ed243-5517-4400-962e-2b7b812c468c" ContractID="202100001" Price="0" Currency="EUR" OrderReference="None" ActivationFactor="1" ISP-Duration="PT15M"
-  TimeZone="Europe/Amsterdam" Period="2021-10-30Z" CongestionPoint="ea1.2009-01.nl.enexis.usef:123-TP-bundel-congestiepunt" Version="3.0.0" SenderDomain="uftp.dso.nl" RecipientDomain="aggregator.org"
+  TimeZone="Europe/Amsterdam" Period="2021-10-30" CongestionPoint="ea1.2009-01.nl.enexis.usef:123-TP-bundel-congestiepunt" Version="3.0.0" SenderDomain="uftp.dso.nl" RecipientDomain="aggregator.org"
   TimeStamp="2021-10-29T06:55:36.518Z" MessageID="dc0f19c4-3835-4753-8f0c-0319d6642fbb" ConversationID="48cdc3d2-56c0-436c-8d5a-6f6cc3dc538d">
   <ISP Power="0" Start="1" Duration="1"/>
   <ISP Power="0" Start="2" Duration="1"/>

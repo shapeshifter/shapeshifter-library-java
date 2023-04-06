@@ -4,13 +4,12 @@
 
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
-import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.lang.reflect.Method;
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
@@ -39,8 +38,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PeriodReferenceValidatorTest {
 
   private static final String MATCHING_MESSAGE_ID = "MATCHING_MESSAGE_ID";
-  private static final OffsetDateTime PERIOD = OffsetDateTime.of(2022, 11, 22, 0, 0, 0, 0, UTC);
-  private static final OffsetDateTime OTHER = OffsetDateTime.of(2023, 12, 28, 1, 2, 3, 999, UTC);
+  private static final LocalDate PERIOD = LocalDate.of(2022, 11, 22);
+  private static final LocalDate OTHER = LocalDate.of(2023, 12, 28);
 
   @Mock
   private UftpMessageSupport messageSupport;
@@ -148,12 +147,12 @@ class PeriodReferenceValidatorTest {
     assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
-  private <T extends PayloadMessageType> void setPeriod(Class<T> matchingMessageType, T matchingMessage, OffsetDateTime value) throws Exception {
+  private <T extends PayloadMessageType> void setPeriod(Class<T> matchingMessageType, T matchingMessage, LocalDate value) throws Exception {
     Method setter = null;
     try {
-      setter = matchingMessageType.getDeclaredMethod("setPeriod", OffsetDateTime.class);
+      setter = matchingMessageType.getDeclaredMethod("setPeriod", LocalDate.class);
     } catch (NoSuchMethodException e) {
-      setter = matchingMessageType.getSuperclass().getDeclaredMethod("setPeriod", OffsetDateTime.class);
+      setter = matchingMessageType.getSuperclass().getDeclaredMethod("setPeriod", LocalDate.class);
     }
     setter.invoke(matchingMessage, value);
   }

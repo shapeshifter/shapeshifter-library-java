@@ -217,7 +217,6 @@ class UftpReceivedMessageServiceTest {
     setupResponse();
     setValidationsEnabled();
 
-    given(response.getResult()).willReturn(AcceptedRejectedType.ACCEPTED);
     given(validator.validate(uftpMessageCaptor.capture())).willReturn(ValidationResult.rejection(REJECTION_REASON));
 
     testSubject.process(recipient, response);
@@ -245,6 +244,8 @@ class UftpReceivedMessageServiceTest {
   @Test
   void process_valid_testMessage() {
     setupTestMessage();
+    setValidationsEnabled();
+
     given(validator.validate(UftpMessage.createIncoming(sender, testMessage))).willReturn(ValidationResult.ok());
 
     var result = testSubject.process(sender, testMessage);
@@ -264,6 +265,8 @@ class UftpReceivedMessageServiceTest {
   @Test
   void process_invalid_testMessage() {
     setupTestMessage();
+    setValidationsEnabled();
+
     given(validator.validate(UftpMessage.createIncoming(sender, testMessage))).willReturn(ValidationResult.rejection(REJECTION_REASON));
 
     var result = testSubject.process(sender, testMessage);
@@ -282,6 +285,8 @@ class UftpReceivedMessageServiceTest {
 
   @Test
   void process_testMessageResponse() {
+    setValidationsEnabled();
+
     given(validator.validate(UftpMessage.createIncoming(sender, testMessageResponse))).willReturn(ValidationResult.ok());
 
     var result = testSubject.process(sender, testMessageResponse);
@@ -292,6 +297,8 @@ class UftpReceivedMessageServiceTest {
 
   @Test
   void process_invalid_testMessageResponse() {
+    setValidationsEnabled();
+
     given(validator.validate(UftpMessage.createIncoming(sender, testMessageResponse))).willReturn(ValidationResult.rejection("test reason"));
 
     var result = testSubject.process(sender, testMessageResponse);

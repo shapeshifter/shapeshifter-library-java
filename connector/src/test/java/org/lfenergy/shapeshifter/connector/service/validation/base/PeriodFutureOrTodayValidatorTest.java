@@ -5,11 +5,10 @@
 package org.lfenergy.shapeshifter.connector.service.validation.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.lfenergy.shapeshifter.api.datetime.DateTimeCalculation.startOfDay;
 import static org.lfenergy.shapeshifter.connector.model.UftpMessageFixture.createOutgoing;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
@@ -86,7 +85,7 @@ class PeriodFutureOrTodayValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenPeriodInFuture(FlexMessageType flexMessage) {
-    flexMessage.setPeriod(startOfDay(OffsetDateTime.now()).plusDays(1));
+    flexMessage.setPeriod(LocalDate.now().plusDays(1));
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
 
     assertThat(testSubject.isValid(createOutgoing(sender, flexMessage))).isTrue();
@@ -95,7 +94,7 @@ class PeriodFutureOrTodayValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenToday(FlexMessageType flexMessage) {
-    flexMessage.setPeriod(startOfDay(OffsetDateTime.now()));
+    flexMessage.setPeriod(LocalDate.now());
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
 
     assertThat(testSubject.isValid(createOutgoing(sender, flexMessage))).isTrue();
@@ -106,7 +105,7 @@ class PeriodFutureOrTodayValidatorTest {
     TimeZone.setDefault(TimeZone.getTimeZone(TIME_ZONE_AMSTERDAM));
 
     var flexRequest = new FlexRequest();
-    flexRequest.setPeriod(startOfDay(ZonedDateTime.now(ZoneId.of(TIME_ZONE_BUCHAREST))).toOffsetDateTime());
+    flexRequest.setPeriod(ZonedDateTime.now(ZoneId.of(TIME_ZONE_BUCHAREST)).toLocalDate());
     flexRequest.setTimeZone(TIME_ZONE_BUCHAREST);
 
     assertThat(testSubject.isValid(createOutgoing(sender, flexRequest))).isTrue();
@@ -117,7 +116,7 @@ class PeriodFutureOrTodayValidatorTest {
     TimeZone.setDefault(TimeZone.getTimeZone(TIME_ZONE_AMSTERDAM));
 
     var flexRequest = new FlexRequest();
-    flexRequest.setPeriod(startOfDay(ZonedDateTime.now(ZoneId.of(TIME_ZONE_AMSTERDAM)).toOffsetDateTime()));
+    flexRequest.setPeriod(ZonedDateTime.now(ZoneId.of(TIME_ZONE_AMSTERDAM)).toLocalDate());
     flexRequest.setTimeZone(TIME_ZONE_AMSTERDAM);
 
     assertThat(testSubject.isValid(createOutgoing(sender, flexRequest))).isTrue();
@@ -126,7 +125,7 @@ class PeriodFutureOrTodayValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_false_whenBeforeToday(FlexMessageType flexMessage) {
-    flexMessage.setPeriod(startOfDay(OffsetDateTime.now()).minusDays(1));
+    flexMessage.setPeriod(LocalDate.now().minusDays(1));
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
 
     assertThat(testSubject.isValid(createOutgoing(sender, flexMessage))).isFalse();

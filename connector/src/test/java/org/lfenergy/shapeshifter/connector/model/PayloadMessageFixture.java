@@ -28,7 +28,7 @@ public class PayloadMessageFixture {
     flexRequest.setContractID(CONTRACT_ID);
     flexRequest.setSenderDomain(senderDomain);
     flexRequest.setRecipientDomain(recipientDomain);
-    flexRequest.setPeriod(NOW.plusDays(7));
+    flexRequest.setPeriod(NOW.plusDays(7).toLocalDate());
     flexRequest.setExpirationDateTime(NOW.plusDays(1));
     flexRequest.setCongestionPoint(CONGESTION_POINT);
     flexRequest.setISPDuration(Duration.ofMinutes(15));

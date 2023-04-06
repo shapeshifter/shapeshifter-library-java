@@ -14,11 +14,11 @@
       parseMethod="org.lfenergy.shapeshifter.api.conversion.DateTimeAdapter.parse"
       printMethod="org.lfenergy.shapeshifter.api.conversion.DateTimeAdapter.print"/>
     <jaxb:javaType
-      name="java.time.OffsetDateTime"
+      name="java.time.LocalDate"
       xmlType="xs:date"
       parseMethod="org.lfenergy.shapeshifter.api.conversion.DateAdapter.parse"
       printMethod="org.lfenergy.shapeshifter.api.conversion.DateAdapter.print"/>
-   <jaxb:javaType
+    <jaxb:javaType
       name="java.time.Duration"
       xmlType="xs:duration"
       parseMethod="org.lfenergy.shapeshifter.api.conversion.DurationAdapter.parse"

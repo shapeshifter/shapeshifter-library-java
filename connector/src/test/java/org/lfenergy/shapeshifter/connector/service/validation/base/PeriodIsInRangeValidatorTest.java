@@ -7,7 +7,7 @@ package org.lfenergy.shapeshifter.connector.service.validation.base;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
@@ -34,9 +34,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class PeriodIsInRangeValidatorTest {
 
-  private static final OffsetDateTime START_OF_RANGE = OffsetDateTime.parse("2022-11-22T00:00:00+01:00");
-  private static final OffsetDateTime END_OF_RANGE = START_OF_RANGE.plusDays(2);
-  private static final OffsetDateTime INFINITE = null;
+  private static final LocalDate START_OF_RANGE = LocalDate.parse("2022-11-22");
+  private static final LocalDate END_OF_RANGE = START_OF_RANGE.plusDays(2);
+  private static final LocalDate INFINITE = null;
 
   @InjectMocks
   private PeriodIsInRangeValidator testSubject;

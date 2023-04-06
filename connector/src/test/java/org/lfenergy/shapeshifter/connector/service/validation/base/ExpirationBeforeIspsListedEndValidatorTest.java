@@ -9,7 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Stream;
@@ -36,7 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ExpirationBeforeIspsListedEndValidatorTest {
 
-  private static final OffsetDateTime PERIOD = OffsetDateTime.parse("2022-11-22T00:00:00+01:00");
+  private static final LocalDate PERIOD = LocalDate.parse("2022-11-22");
   private static final Duration DURATION_15_MINUTES = Duration.ofMinutes(15);
   private static final String TIME_ZONE_AMSTERDAM = "Europe/Amsterdam";
 
@@ -67,7 +69,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
 
   public static Stream<Arguments> valid_whenExpirationBeforeLastIspEnd() {
     FlexRequest flexRequest = new FlexRequest();
-    flexRequest.setExpirationDateTime(PERIOD.plusHours(6));
+    flexRequest.setExpirationDateTime(PERIOD.atTime(6, 0).atOffset(ZoneOffset.UTC));
     // 15 min ISP max number at least 24. Is 50.
     flexRequest.getISPS().addAll(List.of(
         setStartAndDuration(new FlexRequestISPType(), 1, 1),
@@ -78,7 +80,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     ));
 
     FlexOffer flexOffer = new FlexOffer();
-    flexOffer.setExpirationDateTime(PERIOD.plusHours(6));
+    flexOffer.setExpirationDateTime(PERIOD.atTime(6, 0).atOffset(ZoneOffset.UTC));
     // 15 min ISP max number at least 24. Is 4.
     FlexOfferOptionType option1 = new FlexOfferOptionType();
     option1.getISPS().addAll(List.of(
@@ -114,23 +116,6 @@ class ExpirationBeforeIspsListedEndValidatorTest {
   }
 
   @Test
-  void test_period_23h_utc() {
-    var isp = new FlexRequestISPType();
-    isp.setStart(1L);
-    isp.setMaxPower(50000000L);
-    isp.setDuration(1L);
-
-    var flexRequest = new FlexRequest();
-    flexRequest.setPeriod(OffsetDateTime.of(2023, 1, 17, 23, 0, 0, 0, ZoneOffset.UTC));
-    flexRequest.setExpirationDateTime(OffsetDateTime.of(2023, 1, 17, 11, 0, 0, 0, ZoneOffset.UTC));
-    flexRequest.setTimeZone(TIME_ZONE_AMSTERDAM);
-    flexRequest.setISPDuration(DURATION_15_MINUTES);
-    flexRequest.getISPS().add(isp);
-
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
-  }
-
-  @Test
   void test_expiration_date_equal_to_end_time_of_last_isp_of_day() {
     var isp = new FlexRequestISPType();
     isp.setStart(96L);
@@ -138,7 +123,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     isp.setDuration(1L);
 
     var flexRequest = new FlexRequest();
-    flexRequest.setPeriod(OffsetDateTime.of(2023, 1, 17, 23, 0, 0, 0, ZoneOffset.UTC));
+    flexRequest.setPeriod(LocalDate.of(2023, 1, 18));
     flexRequest.setExpirationDateTime(OffsetDateTime.of(2023, 1, 18, 22, 45, 0, 0, ZoneOffset.UTC));
     flexRequest.setTimeZone(TIME_ZONE_AMSTERDAM);
     flexRequest.setISPDuration(DURATION_15_MINUTES);
@@ -149,7 +134,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
 
   public static Stream<Arguments> valid_whenExpirationEqualToLastIspEnd() {
     FlexRequest flexRequest = new FlexRequest();
-    flexRequest.setExpirationDateTime(PERIOD.plusHours(6));
+    flexRequest.setExpirationDateTime(PERIOD.atTime(6, 0).atZone(ZoneId.of(TIME_ZONE_AMSTERDAM)).toOffsetDateTime());
     // 15 min ISP max number at least 24. Is 24.
     flexRequest.getISPS().addAll(List.of(
         setStartAndDuration(new FlexRequestISPType(), 1, 1),
@@ -159,7 +144,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     ));
 
     FlexOffer flexOffer = new FlexOffer();
-    flexOffer.setExpirationDateTime(PERIOD.plusHours(6));
+    flexOffer.setExpirationDateTime(PERIOD.atTime(6, 0).atZone(ZoneId.of(TIME_ZONE_AMSTERDAM)).toOffsetDateTime());
     // 15 min ISP max number at least 24. Is 4.
     FlexOfferOptionType option1 = new FlexOfferOptionType();
     option1.getISPS().addAll(List.of(
@@ -195,24 +180,24 @@ class ExpirationBeforeIspsListedEndValidatorTest {
 
   public static Stream<Arguments> valid_false_whenExpirationAfterLastIspEnd() {
     FlexRequest flexRequest = new FlexRequest();
-    flexRequest.setExpirationDateTime(PERIOD.plusHours(6));
+    flexRequest.setExpirationDateTime(PERIOD.atTime(6, 0).atZone(ZoneId.of(TIME_ZONE_AMSTERDAM)).toOffsetDateTime());
     // 15 min ISP max number at least 24. Is 23.
-    flexRequest.getISPS().addAll(List.of(
+    flexRequest.getISPS().add(
         setStartAndDuration(new FlexRequestISPType(), 21, 3)
-    ));
+    );
 
     FlexOffer flexOffer = new FlexOffer();
-    flexOffer.setExpirationDateTime(PERIOD.plusHours(6));
+    flexOffer.setExpirationDateTime(PERIOD.atTime(6, 0).atZone(ZoneId.of(TIME_ZONE_AMSTERDAM)).toOffsetDateTime());
     // 15 min ISP max number at least 24. Is 4.
     FlexOfferOptionType option1 = new FlexOfferOptionType();
-    option1.getISPS().addAll(List.of(
+    option1.getISPS().add(
         setStartAndDuration(new FlexOfferOptionISPType(), 2, 2)
-    ));
+    );
     // 15 min ISP max number at least 24. Is 23.
     FlexOfferOptionType option2 = new FlexOfferOptionType();
-    option2.getISPS().addAll(List.of(
+    option2.getISPS().add(
         setStartAndDuration(new FlexOfferOptionISPType(), 21, 3) // end 23
-    ));
+    );
     // Option2 allows the set expiration time
     flexOffer.getOfferOptions().addAll(List.of(option1, option2));
 
