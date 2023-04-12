@@ -29,6 +29,7 @@ import org.springframework.xml.transform.StringSource;
 
 @ExtendWith(MockitoExtension.class)
 class XsdValidatorTest {
+
   @Mock
   private XmlFactory factory;
   @Mock
@@ -85,6 +86,6 @@ class XsdValidatorTest {
     UftpConnectorException actual = assertThrows(UftpConnectorException.class, () ->
         testSubject.validate("xml", url));
 
-    assertException(actual, "Validation of XML for XSD failed: file:/test.xsd", ioException);
+    assertException(actual, "XSD validation failed: test", ioException, 400);
   }
 }

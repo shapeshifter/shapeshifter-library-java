@@ -16,17 +16,12 @@ public class UftpErrorProcessorTestImpl implements UftpErrorProcessor {
 
 
   @Override
-  public void duplicateReceived(UftpParticipant senderInformation, PayloadMessageType payloadMessage) {
+  public void onDuplicateReceived(UftpParticipant senderInformation, PayloadMessageType payloadMessage) {
     log.warn("Received duplicate message {} from {}", payloadMessage, senderInformation);
   }
 
   @Override
   public void onErrorDuringReceivedMessageReading(String transportXml, Exception errorCause) {
-    log.error(errorCause.getMessage());
-  }
-
-  @Override
-  public void onErrorDuringReceivedMessageProcessing(PayloadMessageType payloadMessage, Exception errorCause) {
     log.error(errorCause.getMessage());
   }
 

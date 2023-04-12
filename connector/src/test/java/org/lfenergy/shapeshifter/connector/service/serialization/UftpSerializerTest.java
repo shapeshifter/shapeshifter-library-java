@@ -74,7 +74,7 @@ class UftpSerializerTest {
     UftpConnectorException thrown = assertThrows(UftpConnectorException.class, () ->
         testSubject.fromSignedXml(SIGNED_XML));
 
-    assertException(thrown, "Error during SignedMessage XML validation or deserialization.", exception, 400);
+    assertException(thrown, "SignedMessage XML deserialization failed: test", exception, 400);
     verify(xsdValidator).validate(SIGNED_XML, UftpXsds.COMMON.getUrl());
   }
 
@@ -95,7 +95,7 @@ class UftpSerializerTest {
     UftpConnectorException thrown = assertThrows(UftpConnectorException.class, () ->
         testSubject.fromPayloadXml(FLEX_REQUEST_XML));
 
-    assertException(thrown, "Error during payload message XML validation or deserialization.", exception, 400);
+    assertException(thrown, "Payload message XML deserialization failed: test", exception, 400);
     verify(xsdValidator).validate(FLEX_REQUEST_XML, UftpXsds.ALL.getUrl());
   }
 

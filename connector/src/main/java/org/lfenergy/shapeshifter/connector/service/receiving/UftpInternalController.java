@@ -75,10 +75,12 @@ public class UftpInternalController {
       processor.onReceivedMessage(signedMessage, payloadMessage);
 
       return ResponseEntity.ok(null);
+    } catch (DuplicateMessageException e) {
+      return ResponseEntity.badRequest().body("Duplicate message");
     } catch (UftpConnectorException cause) {
       return handleException(transportXml, cause);
     } catch (Exception cause) {
-      return handleException(transportXml, new UftpConnectorException(cause.getMessage(), cause));
+      return handleException(transportXml, new UftpReceiveException(cause.getMessage(), cause));
     }
   }
 
