@@ -9,13 +9,12 @@ import java.net.URL;
 import javax.xml.transform.Source;
 import javax.xml.validation.Validator;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
 import org.lfenergy.shapeshifter.connector.common.xml.XmlFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class XsdValidator {
@@ -28,9 +27,8 @@ public class XsdValidator {
     try {
       final Validator validator = schemaProvider.getValidator(xsd);
       validator.validate(xmlSource);
-      log.info("XML is valid for xsd: " + xsd);
     } catch (SAXException | IOException cause) {
-      throw new UftpConnectorException("Validation of XML for XSD failed: " + xsd, cause);
+      throw new UftpConnectorException("XSD validation failed: " + cause.getMessage(), cause, HttpStatus.BAD_REQUEST);
     }
   }
 }

@@ -11,9 +11,7 @@ public interface UftpErrorProcessor {
 
   void onErrorDuringReceivedMessageReading(String transportXml, Exception errorCause);
 
-  void onErrorDuringReceivedMessageProcessing(PayloadMessageType payloadMessage, Exception errorCause);
-
-  void duplicateReceived(UftpParticipant senderInformation, PayloadMessageType payloadMessage);
+  void onDuplicateReceived(UftpParticipant senderInformation, PayloadMessageType payloadMessage);
 
   /**
    * A received message is not valid according to the UFTP protocol specification or specific application rules that have been added to the definition.
