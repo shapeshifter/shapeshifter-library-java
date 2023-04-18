@@ -4,43 +4,68 @@
 
 package org.lfenergy.shapeshifter.connector.service.handler;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 
 @Slf4j
 @Controller
-@RequiredArgsConstructor
 public class UftpPayloadHandler {
 
-  private final UftpHandlerMapping handlerMapping;
+  private final List<UftpIncomingHandler<? extends PayloadMessageType>> incomingHandlers;
+  private final List<UftpOutgoingHandler<? extends PayloadMessageType>> outgoingHandlers;
 
-  public <T extends PayloadMessageType> void notifyNewIncomingMessage(UftpParticipant from, T message) {
-    log.debug("Notifying application of incoming {} message handler from {}", message.getClass(), from);
-    var handlerMethod = handlerMapping.findIncomingHandler(message.getClass());
-    if (handlerMethod.isEmpty()) {
-      throw new UftpConnectorException("No incoming handler method found for message type: " + message.getClass().getName());
-    }
-    handleMessage(handlerMethod.get(), from, message);
+  @Autowired
+  public UftpPayloadHandler(List<UftpIncomingHandler<? extends PayloadMessageType>> incomingHandlers,
+                            List<UftpOutgoingHandler<? extends PayloadMessageType>> outgoingHandlers) {
+    this.incomingHandlers = incomingHandlers;
+    this.outgoingHandlers = outgoingHandlers;
+
+    log.info("Discovered UFTP incoming handlers: {}", incomingHandlers);
+    log.info("Discovered UFTP outgoing handlers: {}", outgoingHandlers);
   }
 
-  public <T extends PayloadMessageType> void notifyNewOutgoingMessage(UftpParticipant from, T message) {
-    log.debug("Notifying application of outgoing {} message handler from {}", message.getClass(), from);
-    var handlerMethod = handlerMapping.findOutgoingHandler(message.getClass());
-    if (handlerMethod.isEmpty()) {
-      throw new UftpConnectorException("No outgoing handler method found for message type: " + message.getClass().getName());
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public void notifyNewIncomingMessage(UftpParticipant from, PayloadMessageType message) {
+    var messageType = message.getClass();
+
+    log.debug("Notifying application handler of incoming {} message from {}", messageType.getSimpleName(), from);
+
+    var matchingHandlers = incomingHandlers.stream()
+                                           .filter(incomingHandler -> incomingHandler.isSupported(messageType))
+                                           .toList();
+
+    if (matchingHandlers.isEmpty()) {
+      throw new UftpConnectorException("No incoming handler for message type: " + messageType.getSimpleName(), HttpStatus.NOT_IMPLEMENTED);
     }
-    handleMessage(handlerMethod.get(), from, message);
+
+    for (var handler : matchingHandlers) {
+      ((UftpIncomingHandler) handler).handle(from, message);
+    }
   }
 
-  private <T extends PayloadMessageType> void handleMessage(UftpHandlerMethod handlerMethod, UftpParticipant from, T message) {
-    try {
-      handlerMethod.method().invoke(handlerMethod.bean(), from, message);
-    } catch (Exception cause) {
-      throw new UftpConnectorException("Exception during processing of message of type: " + message.getClass().getSimpleName(), cause);
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public void notifyNewOutgoingMessage(UftpParticipant from, PayloadMessageType message) {
+    var messageType = message.getClass();
+
+    log.debug("Notifying application handler of outgoing {} message from {}", messageType.getSimpleName(), from);
+
+    var matchingHandlers = outgoingHandlers.stream()
+                                           .filter(outgoingHandler -> outgoingHandler.isSupported(messageType))
+                                           .toList();
+
+    if (matchingHandlers.isEmpty()) {
+      throw new UftpConnectorException("No outgoing handler for message type: " + messageType.getSimpleName());
+    }
+
+    for (var handler : matchingHandlers) {
+      ((UftpOutgoingHandler) handler).handle(from, message);
     }
   }
+
 }

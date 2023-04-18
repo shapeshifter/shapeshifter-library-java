@@ -51,7 +51,6 @@ import org.lfenergy.shapeshifter.connector.model.SigningDetails;
 import org.lfenergy.shapeshifter.connector.model.UftpParticipant;
 import org.lfenergy.shapeshifter.connector.service.UftpParticipantService;
 import org.lfenergy.shapeshifter.connector.service.crypto.UftpCryptoService;
-import org.lfenergy.shapeshifter.connector.service.handler.UftpHandlerMapping;
 import org.lfenergy.shapeshifter.connector.service.handler.UftpPayloadHandler;
 import org.lfenergy.shapeshifter.connector.service.sending.UftpSendMessageService;
 import org.lfenergy.shapeshifter.connector.service.serialization.UftpSerializer;
@@ -87,8 +86,6 @@ class UftpInternalControllerIntegrationTest {
   @LocalServerPort
   private int serverPort;
 
-  @MockBean
-  UftpHandlerMapping handlerMapping;
   @MockBean
   UftpPayloadHandler uftpPayloadHandler;
   @MockBean

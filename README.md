@@ -106,10 +106,6 @@ The Shapeshifter library consists of the following modules:
    classes for dealing with XML, signing and verifying XML messages, several validators, classes for
    sending and receiving flex messages (like REST controllers). It also contains helper classes to
    retrieve participant information to retrieve the location details to send your flex messages.
-3. `shapeshifter-maven-plugin` - simple small module that contains functionality to generate the
-   FlexMapping annotations that you can apply to your incoming and outgoing message handler
-   classes (e.g. it generates the annotation @FlexRequestMapping that you place on your handler
-   class that handles incoming flex request messages).
 
 # Technical description
 
@@ -136,10 +132,6 @@ the UFTP XSD specification is 3.0.0, and the current Shapeshifter library suppor
 When a new version of the XSD is published, the Shapeshifter foundation will make sure that the
 library is updated accordingly.
 
-The conversion of XSDs to Java objects is done by the class `UftpProcessorMojo` in the
-module `shapeshifter-maven-plugin`, which is also part of this Shapeshifter library. The XSDs are
-also part of the library, they can be found in the directory
-
 ```shell
 shapeshifter-library/shapeshifter-api/src/main/resources
 ```
@@ -158,18 +150,22 @@ Add a bean to your Spring Boot application to handle incoming UFTP messages:
 
 ```java
 
-@UftpIncomingHandler
-public class IncomingMessageHandler {
+@Component
+public class IncomingMessageHandler implements UftpIncomingHandler<FlexRequest> {
 
-  @FlexRequestMapping
-  public void onFlexRequest(UftpParticipant from, FlexRequest flexRequest) {
-    // implement your business logic here
+  @Override
+  public boolean isSupported(Class<? extends PayloadMessageType> messageType) {
+    return FlexRequest.class.isAssignableFrom(messageType);
+  }
+
+  @Override
+  public void handle(UftpParticipant sender, FlexRequest message) {
+    // call UftpReceivedMessageService immediately or queue for later processing
   }
 }
 ```
 
-You can add multiple methods for different types of messages. For every Flex message type there is a
-corresponding `Mapping` annotation.
+You can have multiple beans for different types of messages, or a single bean that handles all incoming `PayloadMessageType` messages.
 
 To process a message (asynchronously) you can use the `UftpReceivedMessageService`:
 
@@ -177,7 +173,7 @@ To process a message (asynchronously) you can use the `UftpReceivedMessageServic
 @Autowired 
 UftpReceivedMessageService uftpReceivedMessageService;
 
-    uftpReceivedMessageService.process(sender,message);
+uftpReceivedMessageService.process(sender,message);
 ```
 
 To verify an incoming message, the connector must know the sender's public key. For this you must
@@ -286,20 +282,24 @@ When the library creates a response message, it must be queued by the applicatio
 
 ```java
 
-@UftpOutgoingHandler
-public class OutgoingMessageHandler {
+@Component
+public class OutgoingMessageHandler implements UftpOutgoingHandler<FlexRequest> {
 
   private final QueueService queueService;
-
-  @FlexRequestResponseMapping
-  public void onFlexRequestResponse(UftpParticipant from, FlexRequestResponse flexRequestResponse) {
-    queueService.queueOutgoing(from, flexRequestResponse);
+  
+  @Override
+  public boolean isSupported(Class<? extends PayloadMessageType> messageType) {
+    return FlexRequest.class.isAssignableFrom(messageType);
   }
 
-  // implement more methods if needed
-}
+  @Override
+  public void handle(UftpParticipant sender, FlexRequest message) {
+    // call UftpSendMessageService immediately or queue message for sending later 
+  }
 
+}
 ```
+You can have multiple beans for different types of messages, or a single bean that handles all outgoing `PayloadMessageType` messages.
 
 Use the `UftpSendMessageService` bean to send UFTP messages to recipients:
 
@@ -324,13 +324,13 @@ use `attemptToValidateAndSendMessage`
 @Autowired 
 UftpSendMessageService uftpSendMessageService;
 
-    var message=new FlexRequest();
+var message=new FlexRequest();
 
-    var sender=new UftpParticipant("sender.com",USEFRoleType.DSO);
-    var recipient=new UftpParticipant("recipient.com",USEFRoleType.AGR);
-    var signingDetails=new SigningDetails(sender,"myPrivateKey",recipient);
+var sender=new UftpParticipant("sender.com",USEFRoleType.DSO);
+var recipient=new UftpParticipant("recipient.com",USEFRoleType.AGR);
+var signingDetails=new SigningDetails(sender,"myPrivateKey",recipient);
 
-    uftpSendMessageService.attemptToValidateAndSendMessage(message,signingDetails);
+uftpSendMessageService.attemptToValidateAndSendMessage(message,signingDetails);
 ```
 
 ## Verifying and signing messages

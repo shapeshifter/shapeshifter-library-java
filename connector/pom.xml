@@ -201,33 +201,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.lfenergy.shapeshifter</groupId>
-        <artifactId>shapeshifter-maven-plugin</artifactId>
-        <version>${project.version}</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.lfenergy.shapeshifter</groupId>
-            <artifactId>shapeshifter-api</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <goals>
-              <goal>uftp-processor</goal>
-            </goals>
-            <configuration>
-              <uftpApiPackage>org.lfenergy.shapeshifter.api</uftpApiPackage>
-              <uftpMessageBaseClass>PayloadMessageType</uftpMessageBaseClass>
-              <uftpAnnotationOutputPackage>org.lfenergy.shapeshifter.connector.generated.handler.annotation</uftpAnnotationOutputPackage>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>
