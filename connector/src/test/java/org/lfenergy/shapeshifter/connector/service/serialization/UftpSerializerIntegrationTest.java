@@ -20,14 +20,14 @@ import org.lfenergy.shapeshifter.api.FlexOrderResponse;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestResponse;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.connector.application.TestSpringConfigExcludingTestMappings;
+import org.lfenergy.shapeshifter.connector.application.TestSpringConfig;
 import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.xml.sax.SAXParseException;
 
 @Slf4j
-@SpringBootTest(classes = TestSpringConfigExcludingTestMappings.class)
+@SpringBootTest(classes = TestSpringConfig.class)
 class UftpSerializerIntegrationTest {
 
   private static final String XXE_ATTACK = "xml/xxe/FlexRequestResponse_with_XXE_Attack.xml";
