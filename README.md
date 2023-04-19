@@ -95,6 +95,19 @@ Make sure to replace `${shapeshifter.version}` with the actual shapeshifter libr
 If you also want to refer to the Shapeshifter library from your test code, you will have to add a
 separate dependency to your test dependencies, both in Maven and in Gradle.
 
+To enable scanning for the library components, simply add the `@EnableShapeshifter` annotation.
+
+```java
+@EnableShapeshifter
+public class MyUftpImplementation {
+
+  public static void main(String[] args) {
+    SpringApplication.run(MyUftpImplementation.class, args);
+  }
+
+}
+```
+
 ## Structure
 
 The Shapeshifter library consists of the following modules:
