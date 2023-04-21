@@ -30,7 +30,7 @@ class UftpConnectorExceptionTest {
     UftpConnectorException testSubject = new UftpConnectorException("test");
     assertThat(testSubject.getMessage()).isEqualTo("test");
     assertThat(testSubject.getCause()).isNull();
-    assertThat(testSubject.getHttpStatusCode()).isEqualTo(500);
+    assertThat(testSubject.getHttpStatusCode().value()).isEqualTo(500);
   }
 
   @Test
@@ -38,7 +38,7 @@ class UftpConnectorExceptionTest {
     UftpConnectorException testSubject = new UftpConnectorException("test", cause);
     assertThat(testSubject.getMessage()).isEqualTo("test");
     assertThat(testSubject.getCause()).isSameAs(cause);
-    assertThat(testSubject.getHttpStatusCode()).isEqualTo(500);
+    assertThat(testSubject.getHttpStatusCode().value()).isEqualTo(500);
   }
 
   @Test
@@ -46,30 +46,15 @@ class UftpConnectorExceptionTest {
     UftpConnectorException testSubject = new UftpConnectorException("test", HttpStatus.BAD_REQUEST);
     assertThat(testSubject.getMessage()).isEqualTo("test");
     assertThat(testSubject.getCause()).isNull();
-    assertThat(testSubject.getHttpStatusCode()).isEqualTo(400);
-  }
-
-  @Test
-  void testMessageAndHttpStatusCodeConstruction() {
-    UftpConnectorException testSubject = new UftpConnectorException("test", 123);
-    assertThat(testSubject.getMessage()).isEqualTo("test");
-    assertThat(testSubject.getCause()).isNull();
-    assertThat(testSubject.getHttpStatusCode()).isEqualTo(123);
+    assertThat(testSubject.getHttpStatusCode().value()).isEqualTo(400);
   }
 
   @Test
   void testMessageCauseAndHttpStatusConstruction() {
-    UftpConnectorException testSubject = new UftpConnectorException("test", cause, HttpStatus.BAD_REQUEST);
+    UftpConnectorException testSubject = new UftpConnectorException("test", HttpStatus.BAD_REQUEST, cause);
     assertThat(testSubject.getMessage()).isEqualTo("test");
     assertThat(testSubject.getCause()).isSameAs(cause);
-    assertThat(testSubject.getHttpStatusCode()).isEqualTo(400);
+    assertThat(testSubject.getHttpStatusCode().value()).isEqualTo(400);
   }
 
-  @Test
-  void testMessageCauseAndHttpStatusCodeConstruction() {
-    UftpConnectorException testSubject = new UftpConnectorException("test", cause, 123);
-    assertThat(testSubject.getMessage()).isEqualTo("test");
-    assertThat(testSubject.getCause()).isSameAs(cause);
-    assertThat(testSubject.getHttpStatusCode()).isEqualTo(123);
-  }
 }

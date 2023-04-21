@@ -50,18 +50,6 @@ public class UftpTestSupport {
     assertExceptionCauseNotNull(thrown, message, 500);
   }
 
-  public static void assertExceptionCauseInstanceOf(UftpConnectorException thrown,
-                                                    String message, Class<? extends Exception> causeType) {
-    assertThat(thrown).hasMessage(message)
-                      .hasCauseInstanceOf(causeType);
-    assertThat(thrown.getHttpStatusCode()).isEqualTo(500);
-  }
-
-  public static void assertExceptionCauseEquals(UftpConnectorException thrown,
-                                                String message, Throwable rootCause) {
-    assertException(thrown, message, rootCause, 500);
-  }
-
   public static void assertException(UftpConnectorException thrown,
                                      String message, Throwable rootCause) {
     assertException(thrown, message, rootCause, 500);
@@ -71,22 +59,14 @@ public class UftpTestSupport {
                                      String message, int httpStatusCode) {
     assertThat(thrown).hasMessage(message)
                       .hasNoCause();
-    assertThat(thrown.getHttpStatusCode()).isEqualTo(httpStatusCode);
+    assertThat(thrown.getHttpStatusCode().value()).isEqualTo(httpStatusCode);
   }
 
   public static void assertExceptionCauseNotNull(UftpConnectorException thrown,
                                                  String message, int httpStatusCode) {
     assertThat(thrown).hasMessage(message);
     assertThat(thrown.getCause()).isNotNull();
-    assertThat(thrown.getHttpStatusCode()).isEqualTo(httpStatusCode);
-  }
-
-  public static void assertExceptionCauseEquals(UftpConnectorException thrown,
-                                                String message, Throwable rootCause,
-                                                int httpStatusCode) {
-    assertThat(thrown).hasMessage(message);
-    assertThat(thrown.getCause()).isEqualTo(rootCause);
-    assertThat(thrown.getHttpStatusCode()).isEqualTo(httpStatusCode);
+    assertThat(thrown.getHttpStatusCode().value()).isEqualTo(httpStatusCode);
   }
 
   public static void assertException(UftpConnectorException thrown,
@@ -94,7 +74,7 @@ public class UftpTestSupport {
                                      int httpStatusCode) {
     assertThat(thrown).hasMessage(message);
     assertThat(thrown.getCause()).isSameAs(rootCause);
-    assertThat(thrown.getHttpStatusCode()).isEqualTo(httpStatusCode);
+    assertThat(thrown.getHttpStatusCode().value()).isEqualTo(httpStatusCode);
   }
 
   public static Set<Class<? extends FlexMessageType>> flexMessageTypes() {

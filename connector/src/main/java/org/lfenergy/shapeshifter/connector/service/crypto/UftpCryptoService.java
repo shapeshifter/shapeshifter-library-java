@@ -48,7 +48,7 @@ public class UftpCryptoService {
       String publicKey = participantService.getPublicKey(signedMessage.getSenderRole(), signedMessage.getSenderDomain());
       return verifySignedMessage(signedMessage, publicKey);
     } catch (Exception cause) {
-      throw new UftpConnectorException("Failed to verify message.", cause, HttpStatus.UNAUTHORIZED);
+      throw new UftpConnectorException("Failed to verify message.", HttpStatus.UNAUTHORIZED, cause);
     }
   }
 

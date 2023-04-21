@@ -77,11 +77,11 @@ class UftpInternalControllerTest {
   void receiveUftpMessageUftpConnectorException() {
     given(deserializer.fromSignedXml(TRANSPORT_XML)).willThrow(uftpException);
     given(uftpException.getMessage()).willReturn(ERROR_MESSAGE);
-    given(uftpException.getHttpStatusCode()).willReturn(456);
+    given(uftpException.getHttpStatusCode()).willReturn(HttpStatus.CONFLICT);
 
     var result = testSubject.postUftpMessage(TRANSPORT_XML);
 
-    assertThat(result.getStatusCodeValue()).isEqualTo(456);
+    assertThat(result.getStatusCode().value()).isEqualTo(409);
     assertThat(result.getBody()).isEqualTo("Failed to process received UFTP message. Error: ERROR_MESSAGE");
     verify(errorProcessor).onErrorDuringReceivedMessageReading(TRANSPORT_XML, uftpException);
   }

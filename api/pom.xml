@@ -16,12 +16,22 @@
   <name>Shapeshifter API</name>
   <url>https://www.lfenergy.org/projects/shapeshifter/</url>
 
+  <properties>
+    <jaxb.version>4.0.0</jaxb.version>
+    <jaxb40-maven-plugin.version>0.16.1</jaxb40-maven-plugin.version>
+  </properties>
+
   <dependencies>
     <dependency>
-      <groupId>javax.xml.bind</groupId>
-      <artifactId>jaxb-api</artifactId>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>${jaxb.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>${jaxb.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -44,9 +54,9 @@
 
     <plugins>
       <plugin>
-        <groupId>org.jvnet.jaxb2.maven2</groupId>
-        <artifactId>maven-jaxb2-plugin</artifactId>
-        <version>${maven-jaxb2-plugin.version}</version>
+        <groupId>com.helger.maven</groupId>
+        <artifactId>jaxb40-maven-plugin</artifactId>
+        <version>${jaxb40-maven-plugin.version}</version>
         <executions>
           <execution>
             <id>generate-uftp-xsd-classes</id>

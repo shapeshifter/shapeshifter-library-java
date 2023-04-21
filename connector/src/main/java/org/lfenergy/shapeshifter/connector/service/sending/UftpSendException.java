@@ -5,6 +5,7 @@
 package org.lfenergy.shapeshifter.connector.service.sending;
 
 import org.lfenergy.shapeshifter.connector.common.exception.UftpConnectorException;
+import org.springframework.http.HttpStatusCode;
 
 /**
  * Base class for exceptions thrown when sending an UFTP message fails e.g. when a request fails because of an error response, or a low level I/O error.
@@ -19,4 +20,7 @@ public class UftpSendException extends UftpConnectorException {
     super(message, cause);
   }
 
+  public UftpSendException(String message, HttpStatusCode httpStatusCode, Throwable cause) {
+    super(message, httpStatusCode, cause);
+  }
 }
