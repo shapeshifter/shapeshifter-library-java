@@ -195,7 +195,7 @@ class UftpSendMessageServiceTest {
 
     assertThat(actual)
         .isInstanceOfSatisfying(UftpClientErrorException.class, e ->
-            assertThat(e.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST))
+            assertThat(e.getHttpStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST))
         .hasMessage("Failed to send message to " + DOMAIN + " at " + ENDPOINT)
         .hasCause(httpClientErrorException);
     verifyNoInteractions(uftpValidationService);

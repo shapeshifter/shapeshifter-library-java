@@ -4,9 +4,9 @@
 
 package org.lfenergy.shapeshifter.connector.common.xml;
 
+import jakarta.xml.bind.JAXBException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXSource;
@@ -49,8 +49,8 @@ public class XmlSerializer {
   }
 
   /**
-   * Creates a SAX Parser factory with some measures to prevent XML External Entity vulnerabilities
-   * Taken from: <a href="https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html#jaxb-unmarshaller">...</a>
+   * Creates a SAX Parser factory with some measures to prevent XML External Entity vulnerabilities Taken from: <a
+   * href="https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html#jaxb-unmarshaller">...</a>
    *
    * @return a SAXParserFactory
    */

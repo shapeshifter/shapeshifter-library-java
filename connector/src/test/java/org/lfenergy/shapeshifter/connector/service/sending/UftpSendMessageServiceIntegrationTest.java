@@ -113,7 +113,7 @@ class UftpSendMessageServiceIntegrationTest {
 
     assertThatThrownBy(() -> testSubject.attemptToSendMessage(payload, signingDetails))
         .isInstanceOfSatisfying(UftpClientErrorException.class, e ->
-            assertThat(e.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST))
+            assertThat(e.getHttpStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST))
         .hasMessage("Failed to send message to " + RECIPIENT_DOMAIN + " at " + wireMockServer.url(RECIPIENT_ENDPOINT_PATH));
 
     await().atMost(5, SECONDS).untilAsserted(() -> verify(exactly(1), postRequestedFor(urlEqualTo(RECIPIENT_ENDPOINT_PATH))));

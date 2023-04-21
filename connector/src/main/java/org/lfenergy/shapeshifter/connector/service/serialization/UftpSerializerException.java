@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus;
 public class UftpSerializerException extends UftpConnectorException {
 
   public UftpSerializerException(String message, Throwable cause, HttpStatus status) {
-    super(message, cause, status);
+    super(message, status, cause);
   }
 
 }

@@ -6,33 +6,26 @@ package org.lfenergy.shapeshifter.connector.common.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 @Getter
 public class UftpConnectorException extends RuntimeException {
 
-  private final int httpStatusCode;
+  private final HttpStatusCode httpStatusCode;
 
   public UftpConnectorException(String message) {
-    this(message, null, HttpStatus.INTERNAL_SERVER_ERROR);
+    this(message, HttpStatus.INTERNAL_SERVER_ERROR, null);
   }
 
   public UftpConnectorException(String message, Throwable cause) {
-    this(message, cause, HttpStatus.INTERNAL_SERVER_ERROR);
+    this(message, HttpStatus.INTERNAL_SERVER_ERROR, cause);
   }
 
-  public UftpConnectorException(String message, HttpStatus status) {
-    this(message, null, status.value());
+  public UftpConnectorException(String message, HttpStatusCode httpStatusCode) {
+    this(message, httpStatusCode, null);
   }
 
-  public UftpConnectorException(String message, int httpStatusCode) {
-    this(message, null, httpStatusCode);
-  }
-
-  public UftpConnectorException(String message, Throwable cause, HttpStatus status) {
-    this(message, cause, status.value());
-  }
-
-  public UftpConnectorException(String message, Throwable cause, int httpStatusCode) {
+  public UftpConnectorException(String message, HttpStatusCode httpStatusCode, Throwable cause) {
     super(message, cause);
     this.httpStatusCode = httpStatusCode;
   }

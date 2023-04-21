@@ -90,7 +90,7 @@ public class UftpSendMessageService {
       }
 
     } catch (HttpClientErrorException e) {
-      throw new UftpClientErrorException(e.getStatusCode(), "Failed to send message to " + recipient.domain() + " at " + url, e);
+      throw new UftpClientErrorException("Failed to send message to " + recipient.domain() + " at " + url, e.getStatusCode(), e);
     } catch (Exception cause) {
       throw new UftpSendException("Failed to send message to " + recipient.domain() + " at " + url, cause);
     }

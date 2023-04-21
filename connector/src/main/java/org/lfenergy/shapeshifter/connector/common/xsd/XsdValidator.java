@@ -28,7 +28,7 @@ public class XsdValidator {
       final Validator validator = schemaProvider.getValidator(xsd);
       validator.validate(xmlSource);
     } catch (SAXException | IOException cause) {
-      throw new UftpConnectorException("XSD validation failed: " + cause.getMessage(), cause, HttpStatus.BAD_REQUEST);
+      throw new UftpConnectorException("XSD validation failed: " + cause.getMessage(), HttpStatus.BAD_REQUEST, cause);
     }
   }
 }
