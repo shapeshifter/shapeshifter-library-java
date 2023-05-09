@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.lfenergy.shapeshifter</groupId>
+    <artifactId>shapeshifter-library</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>shapeshifter-core</artifactId>
+
+  <name>Shapeshifter Core</name>
+  <url>https://www.lfenergy.org/projects/shapeshifter/</url>
+
+  <description>Library to connect your application to UFTP. Provides UFTP protocol
+    handling (sealing, unsealing of messages, serialisation and deserialisation)
+  </description>
+
+  <properties>
+    <jna.version>5.12.1</jna.version>
+    <lazysodium-java.version>5.1.1</lazysodium-java.version>
+    <resource-loader.version>2.0.1</resource-loader.version>
+    <swagger-annotations.version>2.2.8</swagger-annotations.version>
+    <wiremock.version>2.33.2</wiremock.version>
+    <xmlunit.verion>2.9.1</xmlunit.verion>
+    <jaxb.version>4.0.0</jaxb.version>
+    <lombok.version>1.18.26</lombok.version>
+    <slf4j.version>2.0.7</slf4j.version>
+    <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
+    <junit.version>5.9.2</junit.version>
+    <mockito.version>4.9.0</mockito.version>
+    <awaitility.version>4.2.0</awaitility.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>${jaxb.version}</version>
+    </dependency>
+    <dependency>
+      <!-- required for 'Tools' classes -->
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>${jaxb.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <!-- access to UFTP XSDs and generated classes -->
+      <groupId>org.lfenergy.shapeshifter</groupId>
+      <artifactId>shapeshifter-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+      <version>${jakarta-annotation.version}</version>
+    </dependency>
+
+    <!-- Java wrapper for libsodium native implementation of NaCl encryption used in UFTP -->
+    <!-- https://github.com/terl/lazysodium-java -->
+    <dependency>
+      <groupId>com.goterl</groupId>
+      <artifactId>lazysodium-java</artifactId>
+      <version>${lazysodium-java.version}</version>
+      <exclusions>
+        <exclusion>
+          <!-- Exclude here and include a newer version to support Apple M1 -->
+          <groupId>net.java.dev.jna</groupId>
+          <artifactId>jna</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>${jna.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.goterl</groupId>
+      <artifactId>resource-loader</artifactId>
+      <version>${resource-loader.version}</version>
+    </dependency>
+
+    <!-- For exposing OpenAPI documentation -->
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>${swagger-annotations.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>${awaitility.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- Configure a test application without UftpConnector mapping test beans -->
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-jre8</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.xmlunit</groupId>
+      <artifactId>xmlunit-core</artifactId>
+      <version>${xmlunit.verion}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.xmlunit</groupId>
+      <artifactId>xmlunit-assertj3</artifactId>
+      <version>${xmlunit.verion}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
