@@ -1,4 +1,0 @@
-uftp-connector:
-  receiving:
-    validation:
-      enabled: true
