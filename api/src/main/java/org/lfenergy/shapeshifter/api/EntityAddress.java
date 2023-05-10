@@ -16,7 +16,6 @@ package org.lfenergy.shapeshifter.api;
  * <li>The European Article Number (EAN), commonly used to uniquely identify connection points in the electricity network and therefore a natural identifier to do the same in USEF. An example of an EA using this scheme is: ean.871685900012636543</li>
  * <li>The USEF type 1 entity address (EA1) is designed to allow participants to generate unique identifiers for themselves and entities managed by them, without relying on a central authority.</li>
  * </ul>
- * </p>
  */
 public record EntityAddress(Scheme scheme, String address) {
 

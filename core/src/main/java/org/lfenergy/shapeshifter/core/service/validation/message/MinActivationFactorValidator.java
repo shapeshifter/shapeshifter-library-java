@@ -12,7 +12,7 @@ import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 
 /**
- * Validates that the min activation factor (if present) is in the interval <0,1] (thus: > 0, <=1)
+ * Validates that the min activation factor (if present) is in the interval &lt;0,1] (thus: &gt; 0, &lt;=1)
  */
 
 
