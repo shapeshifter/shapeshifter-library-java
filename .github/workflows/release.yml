@@ -14,6 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
@@ -27,6 +28,8 @@ jobs:
 
     - name: Publish to Maven central
       run: |
+        git config user.name Shapeshifter
+        git config user.email shapeshifter@lfenergy.org
         mvn -B release:prepare
         mvn -B release:perform -DdryRun
       env:
@@ -34,6 +37,4 @@ jobs:
 
     - name: Push tag and next development version
       run: |
-        git config user.name Shapeshifter
-        git config user.email shapeshifter@lfenergy.org
         git push --tags
