@@ -30,7 +30,6 @@ jobs:
       run: |
         git config user.name Shapeshifter
         git config user.email shapeshifter@lfenergy.org
-        mvn -B release:prepare
-        mvn -B release:perform -DdryRun
+        mvn -B release:prepare release:perform
       env:
         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
