@@ -42,14 +42,14 @@ By default, the minor version will be incremented. If you want to release or sta
 ### Security / bug fix release
 Let's assume the last release was `1.0.0` and you want to make a security or bug fix on it.
 
-1. Create a new branch from the tag `1.0.0`, e.g. `release-1.0` (name can be anything).
+1. Create a new branch from the tag `v1.0.0`, e.g. `v1.0.x` (name can be anything).
 2. Update the version in the pom.xml to `1.0.1-SNAPSHOT`.
 3. Make your changes and commit them.
-4. Trigger the `release` workflow on the `release-1.0` branch.
+4. Trigger the `release` workflow on the `v1.0.x` branch.
 5. This will build and upload version `1.0.1` to the Maven repository and will set the next development version on the branch to `1.0.2-SNAPSHOT`.
-6. Merge the branch `release-1.0` into `main`.
+6. Merge the branch `v1.0.x` into `main`.
 
-You can keep the branch open to make more fixes on the `1.0.x` line, or you can delete the branch when no longer needed.
+You can keep the branch open to make more bug/security fixes and releases on the `v1.0.x` branch, or you can delete the branch when no longer needed.
 
 This can be done for any previous release (including patch versions).
 
