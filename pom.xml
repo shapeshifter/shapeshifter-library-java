@@ -22,15 +22,22 @@
 
     <jaxb.version>4.0.0</jaxb.version>
 
+    <!-- Test dependency versions -->
     <junit.version>5.9.2</junit.version>
     <assertj.version>3.24.2</assertj.version>
     <mockito.version>5.2.0</mockito.version>
 
+    <!-- Plugin versions -->
     <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>3.0.0</maven-failsafe-plugin.version>
     <maven-jaxb2-plugin.version>0.15.2</maven-jaxb2-plugin.version>
     <dependency-check-maven.version>8.2.1</dependency-check-maven.version>
     <jacoco-maven-plugin.version>0.8.9</jacoco-maven-plugin.version>
+    <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+    <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+    <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
+    <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
   </properties>
 
   <modules>
@@ -132,46 +139,14 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>3.0.0</version>
-        <configuration>
-          <projectVersionPolicyId>SemVerVersionPolicy</projectVersionPolicyId>
-          <tagNameFormat>v@{project.version}</tagNameFormat>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.13</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.2.1</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>${maven-javadoc-plugin.version}</version>
         <executions>
           <execution>
-            <id>attach-javadocs</id>
+            <id>generate</id>
+            <phase>package</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>javadoc</goal>
             </goals>
           </execution>
         </executions>
@@ -186,8 +161,33 @@
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven-source-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.1.0</version>
+            <version>${maven-gpg-plugin.version}</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -202,6 +202,26 @@
                 <arg>--pinentry-mode</arg>
                 <arg>loopback</arg>
               </gpgArguments>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>${maven-release-plugin.version}</version>
+            <configuration>
+              <projectVersionPolicyId>SemVerVersionPolicy</projectVersionPolicyId>
+              <tagNameFormat>v@{project.version}</tagNameFormat>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>${nexus-staging-maven-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>
         </plugins>
