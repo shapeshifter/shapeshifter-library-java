@@ -10,8 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
+      releases: write
 
     steps:
     - uses: actions/checkout@v3
@@ -27,6 +28,14 @@ jobs:
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
     - name: Publish to Maven central
-      run: mvn -B release:prepare release:perform
+      run: |
+        mvn -B release:prepare
+        mvn -B release:perform -DdryRun
       env:
         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+    - name: Push tag and next development version
+      run: |
+        git config user.name Shapeshifter
+        git config user.email shapeshifter@lfenergy.org
+        git push --tags
