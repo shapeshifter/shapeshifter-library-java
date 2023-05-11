@@ -4,7 +4,7 @@
 
   <groupId>org.lfenergy.shapeshifter</groupId>
   <artifactId>shapeshifter-library</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Shapeshifter Library</name>
