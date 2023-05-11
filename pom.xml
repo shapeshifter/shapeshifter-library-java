@@ -4,7 +4,7 @@
 
   <groupId>org.lfenergy.shapeshifter</groupId>
   <artifactId>shapeshifter-library</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <packaging>pom</packaging>
 
   <name>Shapeshifter Library</name>
@@ -231,7 +231,7 @@
     <url>https://github.com/shapeshifter/shapeshifter-library</url>
     <connection>scm:git:https://github.com/shapeshifter/shapeshifter-library.git</connection>
     <developerConnection>scm:git:https://github.com/shapeshifter/shapeshifter-library.git</developerConnection>
-    <tag>shapeshifter-library-0.0.1</tag>
+    <tag>v0.0.1</tag>
   </scm>
 
   <distributionManagement>
