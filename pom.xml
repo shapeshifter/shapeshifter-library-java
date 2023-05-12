@@ -8,7 +8,21 @@
   <packaging>pom</packaging>
 
   <name>Shapeshifter Library</name>
+  <description>Library that implements the USEF Flex Trading Protocol</description>
   <url>https://www.lfenergy.org/projects/shapeshifter/</url>
+
+  <organization>
+    <name>LF Energy</name>
+    <url>https://lfenergy.org</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

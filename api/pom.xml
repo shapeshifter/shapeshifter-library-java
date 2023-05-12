@@ -12,6 +12,7 @@
   <artifactId>shapeshifter-api</artifactId>
 
   <name>Shapeshifter API</name>
+  <description>API module that contains the message classes and calculation functions.</description>
   <url>https://www.lfenergy.org/projects/shapeshifter/</url>
 
   <properties>
