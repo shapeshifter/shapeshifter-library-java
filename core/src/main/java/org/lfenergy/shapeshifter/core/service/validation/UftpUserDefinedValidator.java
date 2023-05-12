@@ -11,20 +11,20 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
  *
  * <pre>
  *
- * public class MyCustomValidator implements UftpUserDefinedValidator<FlexRequest> {
+ * public class MyCustomValidator implements UftpUserDefinedValidator&lt;FlexRequest&gt; {
  *
- *   @Override
- *   public boolean appliesTo(Class<? extends FlexRequest> clazz) {
+ *   &#064;Override
+ *   public boolean appliesTo(Class&lt;? extends FlexRequest&gt; clazz) {
  *     // here you can filter on the message type that you want to validate on
  *     return clazz.equals(FlexRequest.class);
  *   }
  *
- *   @Override
+ *   &#064;Override
  *   public boolean valid(UftpParticipant sender, FlexRequest flexRequest) {
  *     // implement your validation logic here; return true if valid, false otherwise
  *   }
  *
- *   @Override
+ *   &#064;Override
  *   public String getReason() {
  *     // this is the reason of the validation failure, this is returned to the sender if validation fails
  *     return "My custom validation failed";

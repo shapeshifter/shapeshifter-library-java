@@ -13,7 +13,7 @@ import org.lfenergy.shapeshifter.api.model.UftpParticipantInformation;
  * endpoint
  *
  * <pre>
- * @Service
+ * &#064;Service
  * public class MyUftpParticipantService implements UftpParticipantService {
  *   // ...
  * }

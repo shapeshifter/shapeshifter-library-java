@@ -1,5 +1,7 @@
 # Shapeshifter Library
 
+![build status](https://github.com/shapeshifter/shapeshifter-library/actions/workflows/build.yml/badge.svg)
+
 The Shapeshifter library is a library written in Java that implements
 the [Shapeshifter](https://www.lfenergy.org/projects/shapeshifter/) UFTP (USEF Flex Trading
 Protocol) protocol, and the UFTP protocol is part of a larger initiative called USEF, or Universal
