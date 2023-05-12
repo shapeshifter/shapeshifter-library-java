@@ -36,6 +36,7 @@
     <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
     <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+    <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
   </properties>
 
   <modules>
@@ -111,9 +112,16 @@
         <artifactId>dependency-check-maven</artifactId>
         <version>${dependency-check-maven.version}</version>
         <configuration>
-          <suppressionFile>suppress-cves.xml</suppressionFile>
-          <format>XML</format>
+          <failBuildOnCVSS>8</failBuildOnCVSS>
         </configuration>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>aggregate</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -156,6 +164,14 @@
         <configuration>
           <projectVersionPolicyId>SemVerVersionPolicy</projectVersionPolicyId>
           <tagNameFormat>v@{project.version}</tagNameFormat>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven-deploy-plugin.version}</version>
+        <configuration>
+          <deployAtEnd>true</deployAtEnd>
         </configuration>
       </plugin>
     </plugins>
