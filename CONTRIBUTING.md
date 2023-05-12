@@ -11,15 +11,45 @@ Thank you for investing your time in contributing to our project!
 
 ## Reporting bugs
 
-To be described.
+Please [create a new issue on GitHub](https://github.com/shapeshifter/shapeshifter-library/issues), pick type 'Bug report' and describe the bug in detail.
+If possible, please provide a minimal (code) example that reproduces the bug.
+
+Bug reports will be triaged and assigned a priority by the maintainers.
 
 ## Requesting features
 
-To be described.
+Please [create a new issue on GitHub](https://github.com/shapeshifter/shapeshifter-library/issues), pick type 'Feature request' and describe the feature in detail.
+
+Feature requests will be considered and assigned a priority by the maintainers.
 
 ## Contributing code
 
-To be described.
+### Prerequisites
+- JDK >=17
+- Maven >=3.8
+
+### Creating a fork
+To contribute code, you will need to create a fork of the repository on GitHub.
+
+1. Create a fork of the repository on GitHub.
+2. Clone your fork to your local machine.
+3. Create a new branch for your changes.
+4. Make and verify your changes.
+5. Commit and push your changes to your fork on GitHub.
+
+### Building the source code
+To build the source code, run the following command in the root directory of the project:
+```shell
+mvn install
+```
+This will build the source code and run all tests.
+
+### Opening a pull request
+When you are done making your changes, you can open a pull request on GitHub.
+
+If your pull request fixes an issue, please reference the issue in the pull request description.
+
+Pull requests will be reviewed by the maintainers.
 
 ## Releasing new versions
 
