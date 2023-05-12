@@ -24,6 +24,17 @@
     </license>
   </licenses>
 
+  <developers>
+    <developer>
+      <id>contributors</id>
+      <name>Shapeshifter Library Contributors</name>
+      <email>contributors@shapeshifter.lfenergy.org</email>
+      <url>https://github.com/shapeshifter/shapeshifter-library</url>
+      <organization>Shapeshifter</organization>
+      <organizationUrl>https://github.com/shapeshifter</organizationUrl>
+    </developer>
+  </developers>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
