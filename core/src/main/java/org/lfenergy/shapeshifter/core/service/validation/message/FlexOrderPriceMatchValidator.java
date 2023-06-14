@@ -43,7 +43,7 @@ public class FlexOrderPriceMatchValidator implements UftpValidator<FlexOrder> {
   }
 
   private boolean priceMatches(FlexOfferOptionType flexOfferOption, BigDecimal orderPrice) {
-    return flexOfferOption.getPrice().equals(orderPrice);
+    return flexOfferOption.getPrice().compareTo(orderPrice) == 0;
   }
 
   @Override
