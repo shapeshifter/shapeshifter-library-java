@@ -5,11 +5,7 @@
 package org.lfenergy.shapeshifter.core.service.validation.message;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOffer;
-import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOfferOption;
-import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOfferOptionIsps;
-import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOrder;
-import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.messageId;
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.*;
 import static org.mockito.BDDMockito.given;
 
 import java.math.BigDecimal;
@@ -86,5 +82,19 @@ class FlexOrderPriceMatchValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
     given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(messageId, FlexOffer.class))).willReturn(Optional.empty());
     assertThat(testSubject.isValid(uftpMessage)).isFalse();
+  }
+
+  @Test
+  void test_flex_order_price_should_allow_1_decimal_match() {
+    var flexMessageId = messageId();
+    var flexOrder = flexOrder(flexMessageId, BigDecimal.valueOf(50.0), DEFAULT_OPTION_REFERENCE);
+    var flexOffer = flexOffer(flexMessageId,
+            List.of(flexOfferOption(new BigDecimal("50.00"),
+                    flexOfferOptionIsps())));
+
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
+
+    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 }
