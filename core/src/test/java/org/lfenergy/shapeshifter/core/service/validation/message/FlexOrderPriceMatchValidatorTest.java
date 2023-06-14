@@ -5,7 +5,12 @@
 package org.lfenergy.shapeshifter.core.service.validation.message;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.*;
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOffer;
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOfferOption;
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOfferOptionIsps;
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOrder;
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.messageId;
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.DEFAULT_OPTION_REFERENCE;
 import static org.mockito.BDDMockito.given;
 
 import java.math.BigDecimal;
