@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.lfenergy.shapeshifter</groupId>
     <artifactId>shapeshifter-library</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>shapeshifter-core</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0-SNAPSHOT</version>
 
   <name>Shapeshifter Core</name>
   <url>https://www.lfenergy.org/projects/shapeshifter/</url>
