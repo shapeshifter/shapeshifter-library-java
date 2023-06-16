@@ -273,7 +273,7 @@
     <url>https://github.com/shapeshifter/shapeshifter-library</url>
     <connection>scm:git:https://github.com/shapeshifter/shapeshifter-library.git</connection>
     <developerConnection>scm:git:https://github.com/shapeshifter/shapeshifter-library.git</developerConnection>
-    <tag>v1.0.0</tag>
+    <tag>v1.0.1</tag>
   </scm>
 
   <distributionManagement>
