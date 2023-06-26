@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.core.service.validation.message;
 
 import org.junit.jupiter.api.Test;
@@ -54,7 +58,11 @@ class FlexOfferPriceValidatorTest {
                 Arguments.of("EUR ", BigDecimal.ZERO, false),
                 Arguments.of("EUR", BigDecimal.ZERO, false),
                 Arguments.of("EUR", BigDecimal.ZERO.setScale(1, RoundingMode.CEILING), false),
-                Arguments.of("EUR", BigDecimal.ZERO.setScale(2, RoundingMode.CEILING), true)
+                Arguments.of("EUR", BigDecimal.ZERO.setScale(2, RoundingMode.CEILING), true),
+                Arguments.of("EUR", BigDecimal.ZERO.setScale(3, RoundingMode.CEILING), false),
+                Arguments.of("JPY", BigDecimal.ZERO.setScale(2, RoundingMode.CEILING), false),
+                Arguments.of("JPY", BigDecimal.ZERO.setScale(1, RoundingMode.CEILING), false),
+                Arguments.of("JPY", BigDecimal.ZERO, true)
         );
     }
 

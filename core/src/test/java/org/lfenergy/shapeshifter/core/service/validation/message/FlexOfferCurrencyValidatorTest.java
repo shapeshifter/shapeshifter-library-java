@@ -1,3 +1,7 @@
+// Copyright 2023 Contributors to the Shapeshifter project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.lfenergy.shapeshifter.core.service.validation.message;
 
 import org.junit.jupiter.api.Test;
@@ -45,7 +49,8 @@ class FlexOfferCurrencyValidatorTest {
                 Arguments.of("EURR", false),
                 Arguments.of("123", false),
                 Arguments.of("EUR ", false),
-                Arguments.of("EUR", true)
+                Arguments.of("EUR", true),
+                Arguments.of("JPY", true)
         );
     }
 
