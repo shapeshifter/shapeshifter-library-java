@@ -28,6 +28,7 @@ public class FlexOfferPriceValidator implements UftpValidator<FlexOffer> {
 
     @Override
     public int order() {
+        // For a better rejection reason, it's best to first validate the currency and then the price
         return FlexOfferCurrencyValidator.ORDER + 1;
     }
 
@@ -47,8 +48,9 @@ public class FlexOfferPriceValidator implements UftpValidator<FlexOffer> {
             return false;
         }
 
-        return flexOffer.getOfferOptions().stream().allMatch(offerOption ->
-                offerOption.getPrice().scale() == currency.getDefaultFractionDigits());
+        return flexOffer.getOfferOptions().stream()
+                .filter(offerOption -> offerOption.getPrice() != null)
+                .allMatch(offerOption -> offerOption.getPrice().scale() == currency.getDefaultFractionDigits());
     }
 
     @Override
