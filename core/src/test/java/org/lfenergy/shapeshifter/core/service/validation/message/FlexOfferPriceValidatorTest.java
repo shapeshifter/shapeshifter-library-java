@@ -51,11 +51,13 @@ class FlexOfferPriceValidatorTest {
     private static Stream<Arguments> provideIsValidArguments() {
         return Stream.of(
                 Arguments.of(null, BigDecimal.ZERO, false),
+                Arguments.of(null, null, false),
                 Arguments.of("", BigDecimal.ZERO, false),
                 Arguments.of(" ", BigDecimal.ZERO, false),
                 Arguments.of("EURR", BigDecimal.ZERO, false),
                 Arguments.of("123", BigDecimal.ZERO, false),
                 Arguments.of("EUR ", BigDecimal.ZERO, false),
+                Arguments.of("EUR", null, true),
                 Arguments.of("EUR", BigDecimal.ZERO, false),
                 Arguments.of("EUR", BigDecimal.ZERO.setScale(1, RoundingMode.CEILING), false),
                 Arguments.of("EUR", BigDecimal.ZERO.setScale(2, RoundingMode.CEILING), true),
