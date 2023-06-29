@@ -5,6 +5,20 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        type: boolean
+        required: true
+        default: false
+        description: "If true, no Git changes will be made and no artifacts will be uploaded."
+      release_version:
+        type: string
+        required: false
+        description: "Set the release version. If not specified, the version in the pom.xml will be released."
+      development_version:
+        type: string
+        required: false
+        description: "Set the next development version. If not specified, the minor version will be incremented automatically."
 
 jobs:
   release:
@@ -30,7 +44,7 @@ jobs:
       run: |
         git config user.name Shapeshifter
         git config user.email shapeshifter@lfenergy.org
-        mvn -B release:prepare release:perform
+        mvn -B -DdryRun=${{inputs.dry_run}} -DreleaseVersion=${{inputs.release_version}} -DdevelopmentVersion=${{inputs.development_version}} release:prepare release:perform
       env:
         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
         OSSRH_USERNAME: ${{ vars.OSSRH_USERNAME }}

@@ -60,26 +60,32 @@ Given a version number MAJOR.MINOR.PATCH, increment the:
  - MINOR version when you add functionality in a backward compatible manner
  - PATCH version when you make backward compatible bug/security fixes
 
-### Major or minor release
+### Releasing a Major or minor release
 Whatever the version in the `pom.xml` is, that is the version that will be released.
+For example if the version in the pom.xml is `1.0.0-SNAPSHOT`, then the released version will be `1.0.0`.
 
-For example if the version in the pom.xml is `1.0.0-SNAPSHOT`, then the released version will be `1.0.0`:
-1. Trigger the `release` workflow on the `main` branch.
-2. This will build and upload version `1.0.0` to the Maven repository and will set the next development version on the branch to `1.1.0-SNAPSHOT`.
+1. Click `Run workflow` for the [Release workflow](https://github.com/shapeshifter/shapeshifter-library/actions/workflows/release.yml). Select the `main` branch.
+2. This will build and upload version `x.x.0` to the Maven repository and will set the next development version on the branch to `x.x.0-SNAPSHOT`.
 
-By default, the minor version will be incremented. If you want to release or start work on a new major version, you will have to update the `pom.xml` to the new major version (appending `-SNAPSHOT`) before triggering the workflow.
+By default, the minor version will be incremented. If you want to release or start work on a new major version, you will have to manually update the `pom.xml` to the new major version (appending `-SNAPSHOT`) before triggering the workflow.
+
+To manually update the `pom.xml`'s to a new major version, you can use the following command:
+```shell
+mvn versions:set -DnewVersion=x.0.0-SHAPSHOT
+```
 
 ### Security / bug fix release
 Let's assume the last release was `1.0.0` and you want to make a security or bug fix on it.
 
-1. Create a new branch from the tag `v1.0.0`, e.g. `v1.0.x` (name can be anything).
-2. Update the version in the pom.xml to `1.0.1-SNAPSHOT`.
-3. Make your changes and commit them.
-4. Trigger the `release` workflow on the `v1.0.x` branch.
+1. Create a new branch from the tag `v1.0.0`, name it `v1.0-maintenance`.
+2. Manually update the version in the `pom.xml`'s to `1.0.1-SNAPSHOT` using this command: `mvn versions:set -DnewVersion=1.0.1-SNAPSHOT`
+3. Commit the modified `pom.xml`'s.
+4. Make your security or bug fix changes on the `v1.0-maintenance`.
+5. Click `Run workflow` for the [Release workflow](https://github.com/shapeshifter/shapeshifter-library/actions/workflows/release.yml). Select the `v1.0-maintenance` branch. Set "Development Version" to `1.0.2-SNAPSHOT`.
 5. This will build and upload version `1.0.1` to the Maven repository and will set the next development version on the branch to `1.0.2-SNAPSHOT`.
-6. Merge the branch `v1.0.x` into `main`.
+6. Make sure to cherry pick your fixes to the `main` branch as well.
 
-You can keep the branch open to make more bug/security fixes and releases on the `v1.0.x` branch, or you can delete the branch when no longer needed.
+You can keep the `v1.0-maintenance` branch open to make more bug/security fixes, or you can delete the branch when no longer needed.
 
 This can be done for any previous release (including patch versions).
 
