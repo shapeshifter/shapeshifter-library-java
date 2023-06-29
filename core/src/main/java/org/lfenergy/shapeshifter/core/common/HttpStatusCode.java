@@ -103,8 +103,8 @@ public enum HttpStatusCode {
     throw new IllegalArgumentException("Invalid status code: " + value);
   }
 
-  public boolean isOk() {
-    return value < 400;
+  public boolean isSuccess() {
+    return value >= 200 && value < 300;
   }
 
   public boolean isClientError() {
