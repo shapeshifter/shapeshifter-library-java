@@ -4,7 +4,7 @@
 
   <groupId>org.lfenergy.shapeshifter</groupId>
   <artifactId>shapeshifter-library</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Shapeshifter Library</name>
@@ -187,6 +187,7 @@
         <artifactId>maven-release-plugin</artifactId>
         <version>${maven-release-plugin.version}</version>
         <configuration>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
           <releaseProfiles>release</releaseProfiles>
           <projectVersionPolicyId>SemVerVersionPolicy</projectVersionPolicyId>
           <tagNameFormat>v@{project.version}</tagNameFormat>
