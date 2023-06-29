@@ -46,7 +46,9 @@ class UftpSendMessageServiceTest {
   private static final String SIGNED_XML = "SIGNED_XML";
   private static final String DOMAIN = "DOMAIN";
   private static final String PATH_HAPPY_FLOW = "/happy-flow/";
+  private static final String PATH_204_NO_CONTENT = "/204-no-content/";
   private static final String PATH_BAD_REQUEST = "/bad-request/";
+  private static final String PATH_302_FOUND = "/302-found/";
   private static final String PATH_FORBIDDEN = "/forbidden/";
   private static final String PATH_INTERNAL_SERVER_ERROR = "/internal-server-error/";
 
@@ -134,6 +136,37 @@ class UftpSendMessageServiceTest {
     testSubject.attemptToSendMessage(flexRequest, details);
 
     verifySending();
+  }
+
+  @Test
+  void attemptToSendMessage_204_No_Content() {
+    mockSerialisation();
+    mockSending();
+    var endpoint = getEndpointURL(PATH_204_NO_CONTENT);
+    given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+
+    testSubject.attemptToSendMessage(flexRequest, details);
+
+    verifySending();
+  }
+
+  @Test
+  void attemptToSendMessage_302_Found() {
+    mockSerialisation();
+    mockSending();
+    var endpoint = getEndpointURL(PATH_302_FOUND);
+    given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+
+    var actual = assertThrows(UftpSendException.class, () ->
+        testSubject.attemptToSendMessage(flexRequest, details));
+
+    verifySending();
+
+    assertThat(actual)
+        .isInstanceOf(UftpSendException.class)
+        .hasMessage("Unexpected response status 302 received while sending UFTP message to " + endpoint + ": Found");
+    assertThat(actual.getHttpStatusCode()).isEqualTo(HttpStatusCode.FOUND);
+    verifyNoInteractions(uftpValidationService);
   }
 
   @Test
@@ -251,6 +284,8 @@ class UftpSendMessageServiceTest {
                                 .withStatus(200)
                                 .withHeader("Content-Type", "text/xml")
                                 .withBody("OK")));
+    stubFor(post(urlPathMatching(PATH_204_NO_CONTENT + ".*"))
+                .willReturn(aResponse().withStatus(204)));
     stubFor(post(urlPathMatching(PATH_BAD_REQUEST + ".*"))
                 .willReturn(aResponse()
                                 .withStatus(400)
@@ -266,5 +301,10 @@ class UftpSendMessageServiceTest {
                                 .withStatus(500)
                                 .withHeader("Content-Type", "text/xml")
                                 .withBody("Internal Server Error")));
+    stubFor(post(urlPathMatching(PATH_302_FOUND + ".*"))
+                .willReturn(aResponse()
+                                .withStatus(302)
+                                .withHeader("Location", "https://some/url")
+                                .withBody("Found")));
   }
 }
