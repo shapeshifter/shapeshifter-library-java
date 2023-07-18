@@ -4,11 +4,11 @@
 
 package org.lfenergy.shapeshifter.core.common.collection;
 
-public interface InstancePool<T> {
+interface InstancePool<T> {
 
-  public int size();
+  int size();
 
-  public T claim();
+  T claim();
 
-  public void release(final T instance);
+  void release(final T instance);
 }

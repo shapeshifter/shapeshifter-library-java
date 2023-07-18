@@ -13,10 +13,10 @@ import com.goterl.resourceloader.ResourceLoaderException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.core.common.collection.AbstractInstancePool;
 
-@Slf4j
+@CommonsLog
 public class LazySodiumBase64Pool extends AbstractInstancePool<LazySodiumJava> {
 
   private static String extractedBundledSodiumAbsolutePath;
@@ -50,7 +50,7 @@ public class LazySodiumBase64Pool extends AbstractInstancePool<LazySodiumJava> {
    */
   private static String extractBundledSodiumFromNestedJAR() {
     var path = '/' + LibraryLoader.getSodiumPathInResources();
-    log.debug("Extracting bundled Libsodium: {}", path);
+    log.debug(String.format("Extracting bundled Libsodium: %s", path));
 
     try (var is = LibraryLoader.class.getResourceAsStream(path)) {
       if (is == null) {

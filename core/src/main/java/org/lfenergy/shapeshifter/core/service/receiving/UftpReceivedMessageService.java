@@ -7,7 +7,7 @@ package org.lfenergy.shapeshifter.core.service.receiving;
 import static org.lfenergy.shapeshifter.core.model.UftpRoleInformation.getRecipientRoleBySenderRole;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
@@ -16,7 +16,7 @@ import org.lfenergy.shapeshifter.core.service.receiving.response.UftpValidationR
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidationService;
 import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
-@Slf4j
+@CommonsLog
 @RequiredArgsConstructor
 public class UftpReceivedMessageService {
 
@@ -56,7 +56,7 @@ public class UftpReceivedMessageService {
 
   private void processPayloadMessageResponse(PayloadMessageType response, ValidationResult validationResult) {
     if (!validationResult.valid()) {
-      log.warn("Received invalid {} with MessageID '{}': {}.", response.getClass().getSimpleName(), response.getMessageID(), validationResult.rejectionReason());
+      log.warn(String.format("Received invalid %s with MessageID '%s': %s.", response.getClass().getSimpleName(), response.getMessageID(), validationResult.rejectionReason()));
     }
   }
 
@@ -72,10 +72,6 @@ public class UftpReceivedMessageService {
       return validationService.validate(UftpMessage.createIncoming(from, payloadMessage));
     }
     return ValidationResult.ok();
-  }
-
-  public boolean getShouldPerformValidations() {
-    return shouldPerformValidations;
   }
 
   public void setShouldPerformValidations(boolean shouldPerformValidations) {

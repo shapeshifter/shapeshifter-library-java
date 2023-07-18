@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -19,15 +20,15 @@
   </description>
 
   <properties>
-    <jna.version>5.12.1</jna.version>
+    <jna.version>5.13.0</jna.version>
     <lazysodium-java.version>5.1.1</lazysodium-java.version>
-    <resource-loader.version>2.0.1</resource-loader.version>
-    <swagger-annotations.version>2.2.8</swagger-annotations.version>
-    <wiremock.version>2.33.2</wiremock.version>
+    <resource-loader.version>2.0.2</resource-loader.version>
+    <swagger-annotations.version>2.2.9</swagger-annotations.version>
+    <wiremock.version>2.35.0</wiremock.version>
     <xmlunit.verion>2.9.1</xmlunit.verion>
     <jaxb.version>4.0.0</jaxb.version>
     <lombok.version>1.18.26</lombok.version>
-    <slf4j.version>2.0.7</slf4j.version>
+    <commons-logging-version>1.2</commons-logging-version>
     <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
     <junit.version>5.9.2</junit.version>
     <mockito.version>4.9.0</mockito.version>
@@ -54,16 +55,17 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/commons-logging/commons-logging -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>${commons-logging-version}</version>
+    </dependency>
     <dependency>
       <!-- access to UFTP XSDs and generated classes -->
       <groupId>org.lfenergy.shapeshifter</groupId>
       <artifactId>shapeshifter-api</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>jakarta.annotation</groupId>
