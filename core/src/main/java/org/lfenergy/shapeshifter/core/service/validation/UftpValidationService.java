@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
@@ -16,7 +16,7 @@ import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 /**
  * Service to validate UFTP messages.
  */
-@Slf4j
+@CommonsLog
 public final class UftpValidationService {
 
   private final List<UftpValidator<? extends PayloadMessageType>> validators;
@@ -36,7 +36,7 @@ public final class UftpValidationService {
   }
 
   public ValidationResult validate(UftpMessage<? extends PayloadMessageType> uftpMessage) {
-    log.debug("Validating received {} message", uftpMessage.payloadMessage().getClass());
+    log.debug(String.format("Validating received %s message", uftpMessage.payloadMessage().getClass()));
     return validators.stream()
                      .map(validator -> validate(validator, uftpMessage))
                      .filter(validationResult -> !validationResult.valid())

@@ -7,11 +7,9 @@ package org.lfenergy.shapeshifter.core.service.validation.tools;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 
-@Slf4j
 public class PayloadMessagePropertyRetriever<T extends PayloadMessageType, R> {
 
   private final Map<Class<? extends PayloadMessageType>, Function<PayloadMessageType, R>> typePropertyGetterMap;

@@ -11,12 +11,10 @@ import javax.xml.XMLConstants;
 import javax.xml.validation.Schema;
 import javax.xml.validation.Validator;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
-@Slf4j
 @RequiredArgsConstructor
 public class XsdSchemaProvider {
 

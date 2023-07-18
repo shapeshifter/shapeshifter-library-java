@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.core.common.xml.XmlSerializer;
 import org.lfenergy.shapeshifter.core.common.xsd.XsdFactory;
 import org.lfenergy.shapeshifter.core.common.xsd.XsdSchemaFactoryPool;
@@ -20,11 +20,11 @@ import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.core.service.participant.ParticipantResolutionService;
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
 
-@Slf4j
+@CommonsLog
 public class UftpVerifySignedMessageTool {
 
   static void usage() {
-    log.info("Usage: " + UftpVerifySignedMessageTool.class.getSimpleName() + " <input file> <output file> <public key>");
+    log.info(String.format("Usage: %s <input file> <output file> <public key>", UftpVerifySignedMessageTool.class.getSimpleName()));
   }
 
   public static void main(String[] args) {
@@ -59,7 +59,7 @@ public class UftpVerifySignedMessageTool {
 
       Files.writeString(Paths.get(outputFileName), payloadXml);
     } catch (IOException e) {
-      log.error("Could not verify message: " + e.getMessage(), e);
+      log.error(String.format("Could not verify message: %s", e.getMessage()), e);
     }
   }
 }
