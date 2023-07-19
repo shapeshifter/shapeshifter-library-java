@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 import org.lfenergy.shapeshifter.core.service.UftpErrorProcessor;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Exposes an endpoint for sending a signed UFTP message to the receiving counterparty
  */
-@Slf4j
+@CommonsLog
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/shapeshifter/api/v3")
@@ -69,7 +69,7 @@ public class UftpInternalController {
     try {
       log.debug("Received UFTP message.");
       var signedMessage = deserializer.fromSignedXml(transportXml);
-      log.info("Received UFTP message from " + signedMessage.getSenderDomain());
+      log.info(String.format("Received UFTP message from %s", signedMessage.getSenderDomain()));
 
       var payloadXml = uftpCryptoService.verifySignedMessage(signedMessage);
       log.debug("Received UFTP message unsealed.");

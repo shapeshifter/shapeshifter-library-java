@@ -7,14 +7,14 @@ package org.lfenergy.shapeshifter.core.tools;
 import com.goterl.lazysodium.LazySodiumJava;
 import com.goterl.lazysodium.SodiumJava;
 import java.util.Base64;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.logging.LogFactory;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 
-@Slf4j
 public class UftpKeyPairTool {
 
   public static void main(String[] args) {
+    var log = LogFactory.getLog(UftpKeyPairTool.class);
     log.info("GOPACS UFTP Key Pair Tool");
     log.info("-------------------------");
     log.info("Generating key pair...");
