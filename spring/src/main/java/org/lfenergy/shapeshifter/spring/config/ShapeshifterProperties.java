@@ -34,7 +34,7 @@ public record ShapeshifterProperties(
         public static final String DEFAULT_TLS_VERSION = "TLSv1.3";
 
         public SSLContext createSSLContext() {
-            var keyManagers = new KeyManager[0];
+            KeyManager[] keyManagers = null;
 
             if (keyStore != null) {
                 try {
@@ -47,7 +47,7 @@ public record ShapeshifterProperties(
                 }
             }
 
-            var trustManagers = new TrustManager[0];
+            TrustManager[] trustManagers = null;
 
             if (trustStore != null) {
                 try {
