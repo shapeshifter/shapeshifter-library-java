@@ -12,6 +12,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.text.MessageFormat;
+
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
@@ -45,18 +47,24 @@ public class UftpSendMessageService {
   private final UftpValidationService uftpValidationService;
   private final HttpClient httpClient;
 
-  public UftpSendMessageService(UftpSerializer serializer,
-                                UftpCryptoService cryptoService,
-                                ParticipantResolutionService participantService,
-                                UftpValidationService uftpValidationService) {
+  /**
+   * Creates a new {@link UftpSendMessageService} with default HttpClient.
+   */
+  public UftpSendMessageService(@NonNull UftpSerializer serializer,
+                                @NonNull UftpCryptoService cryptoService,
+                                @NonNull ParticipantResolutionService participantService,
+                                @NonNull UftpValidationService uftpValidationService) {
     this(serializer, cryptoService, participantService, uftpValidationService, HttpClient.newHttpClient());
   }
 
-  public UftpSendMessageService(UftpSerializer serializer,
-                                UftpCryptoService cryptoService,
-                                ParticipantResolutionService participantService,
-                                UftpValidationService uftpValidationService,
-                                HttpClient httpClient) {
+  /**
+   * Creates a new {@link UftpSendMessageService} with a given {@link HttpClient}.
+   */
+  public UftpSendMessageService(@NonNull UftpSerializer serializer,
+                                @NonNull UftpCryptoService cryptoService,
+                                @NonNull ParticipantResolutionService participantService,
+                                @NonNull UftpValidationService uftpValidationService,
+                                @NonNull HttpClient httpClient) {
     this.serializer = serializer;
     this.cryptoService = cryptoService;
     this.participantService = participantService;
@@ -69,7 +77,7 @@ public class UftpSendMessageService {
    *
    * @throws UftpSendException if sending fails
    */
-  public void attemptToSendMessage(PayloadMessageType payloadMessage, SigningDetails details) throws UftpSendException {
+  public void attemptToSendMessage(@NonNull PayloadMessageType payloadMessage, @NonNull SigningDetails details) throws UftpSendException {
     doSend(payloadMessage, details);
   }
 
@@ -78,7 +86,7 @@ public class UftpSendMessageService {
    *
    * @throws UftpSendException if validation fails, or if sending fails
    */
-  public void attemptToValidateAndSendMessage(PayloadMessageType payloadMessage, SigningDetails details) throws UftpSendException {
+  public void attemptToValidateAndSendMessage(@NonNull PayloadMessageType payloadMessage, @NonNull SigningDetails details) throws UftpSendException {
     // We will validate outgoing messages, but we will not validate outgoing response messages.
     if (!(payloadMessage instanceof PayloadMessageResponseType)) {
       var uftpMessage = new UftpMessage<>(details.sender(), UftpMessageDirection.OUTGOING, payloadMessage);
