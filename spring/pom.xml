@@ -16,9 +16,8 @@
   <url>https://www.lfenergy.org/projects/shapeshifter/</url>
 
   <properties>
-    <spring-boot.version>3.0.6</spring-boot.version>
-    <swagger-annotations.version>2.2.8</swagger-annotations.version>
-    <wiremock.version>2.33.2</wiremock.version>
+    <spring-boot.version>3.1.2</spring-boot.version>
+    <swagger-annotations.version>2.2.15</swagger-annotations.version>
   </properties>
 
   <dependencyManagement>

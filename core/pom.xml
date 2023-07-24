@@ -19,18 +19,18 @@
   </description>
 
   <properties>
-    <jna.version>5.12.1</jna.version>
-    <lazysodium-java.version>5.1.1</lazysodium-java.version>
-    <resource-loader.version>2.0.1</resource-loader.version>
-    <swagger-annotations.version>2.2.8</swagger-annotations.version>
-    <wiremock.version>2.33.2</wiremock.version>
+    <jna.version>5.13.0</jna.version>
+    <lazysodium-java.version>5.1.4</lazysodium-java.version>
+    <resource-loader.version>2.0.2</resource-loader.version>
+    <swagger-annotations.version>2.2.15</swagger-annotations.version>
+    <wiremock.version>2.35.0</wiremock.version>
     <xmlunit.verion>2.9.1</xmlunit.verion>
     <jaxb.version>4.0.0</jaxb.version>
-    <lombok.version>1.18.26</lombok.version>
+    <lombok.version>1.18.28</lombok.version>
     <commons-logging.version>1.0.2</commons-logging.version>
     <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
-    <junit.version>5.9.2</junit.version>
-    <mockito.version>4.9.0</mockito.version>
+    <junit.version>5.9.3</junit.version>
+    <mockito.version>5.2.0</mockito.version>
     <awaitility.version>4.2.0</awaitility.version>
   </properties>
 
