@@ -57,4 +57,10 @@ public class DateTimeCalculation {
         .plus(toAdd)
         .toOffsetDateTime();
   }
+
+  public static long numberOfIspsOnDay(LocalDate onDay, Duration ispDuration, String ianaTimeZone) {
+    var durationOfDay = lengthOfDay(onDay, ianaTimeZone);
+    return durationOfDay.toSeconds() / ispDuration.toSeconds();
+  }
+
 }
