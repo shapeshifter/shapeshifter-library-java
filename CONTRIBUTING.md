@@ -80,10 +80,11 @@ Let's assume the last release was `1.0.0` and you want to make a security or bug
 1. Create a new branch from the tag `v1.0.0`, name it `v1.0-maintenance`.
 2. Manually update the version in the `pom.xml`'s to `1.0.1-SNAPSHOT` using this command: `mvn versions:set -DnewVersion=1.0.1-SNAPSHOT`
 3. Commit the modified `pom.xml`'s.
-4. Make your security or bug fix changes on the `v1.0-maintenance`.
-5. Click `Run workflow` for the [Release workflow](https://github.com/shapeshifter/shapeshifter-library/actions/workflows/release.yml). Select the `v1.0-maintenance` branch. Set "Development Version" to `1.0.2-SNAPSHOT`.
-5. This will build and upload version `1.0.1` to the Maven repository and will set the next development version on the branch to `1.0.2-SNAPSHOT`.
-6. Make sure to cherry pick your fixes to the `main` branch as well.
+4. Make your security or bug fix changes on your own (forked) branch.
+5. Create a pull request for your own branch into the `v1.0-maintenance` branch.
+6. After the pull request is merged, click `Run workflow` for the [Release workflow](https://github.com/shapeshifter/shapeshifter-library/actions/workflows/release.yml). Select the `v1.0-maintenance` branch. Set "Development Version" to `1.0.2-SNAPSHOT`.
+7. This will build and upload version `1.0.1` to the Maven repository and will set the next development version on the branch to `1.0.2-SNAPSHOT`.
+8. Make sure to cherry pick your fixes to the `main` branch as well.
 
 You can keep the `v1.0-maintenance` branch open to make more bug/security fixes, or you can delete the branch when no longer needed.
 
