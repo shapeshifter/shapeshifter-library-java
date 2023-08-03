@@ -4,8 +4,8 @@
 
 package org.lfenergy.shapeshifter.core.service.validation.base;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,19 +14,19 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.lfenergy.shapeshifter.api.*;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
-import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class IspListValidatorBaseTest {
@@ -38,38 +38,23 @@ class IspListValidatorBaseTest {
     private static final Duration DURATION_15_MINUTES = Duration.ofMinutes(15);
     private static final String TIME_ZONE_AMSTERDAM = "Europe/Amsterdam";
 
-    @RequiredArgsConstructor
-    private static class TestImplementation extends IspListValidatorBase {
-
-        private record CallData(Long maxNumberIsps, List<IspInfo> isps) {
-
-        }
-
-        private final boolean configuredResult;
-        private final List<CallData> calls = new ArrayList<>();
-
-        @Override
-        public int order() {
-            return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
-        }
-
-        @Override
-        public String getReason() {
-            return "TestImplementation reason";
-        }
-
-        @Override
-        protected boolean validateIsps(long maxNumberIsps, List<IspInfo> isps) {
-            calls.add(new CallData(maxNumberIsps, isps));
-
-            return configuredResult;
-        }
-    }
-
     @Mock
     private UftpParticipant sender;
+
     @Mock
     private List<IspInfo> listIsps;
+
+    @Captor
+    private ArgumentCaptor<List<IspInfo>> actualIsps;
+
+    private IspListValidatorBase testSubject;
+
+    @BeforeEach
+    void setUp() {
+        testSubject = mock(IspListValidatorBase.class, Mockito.withSettings()
+                .useConstructor()
+                .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+    }
 
     @AfterEach
     void noMore() {
@@ -81,7 +66,6 @@ class IspListValidatorBaseTest {
 
     @Test
     void appliesTo() {
-        TestImplementation testSubject = new TestImplementation(true);
         assertThat(testSubject.appliesTo(DPrognosis.class)).isTrue();
         assertThat(testSubject.appliesTo(FlexReservationUpdate.class)).isTrue();
         assertThat(testSubject.appliesTo(FlexRequest.class)).isTrue();
@@ -92,7 +76,6 @@ class IspListValidatorBaseTest {
 
     @Test
     void notAppliesTo() {
-        TestImplementation testSubject = new TestImplementation(true);
         assertThat(testSubject.appliesTo(TestMessage.class)).isFalse();
     }
 
@@ -254,16 +237,14 @@ class IspListValidatorBaseTest {
 
     @ParameterizedTest
     @MethodSource("withInvalidParameters")
-    <T extends PayloadMessageType> void invalid(T msg, List<List<IspInfo>> expectedIspsInCalls, int expectedMaxIsps) {
-        TestImplementation testSubject = new TestImplementation(false);
+    void invalid(PayloadMessageType msg, List<List<IspInfo>> expectedIspsInCalls, long expectedMaxIsps) {
+        when(testSubject.validateIsps(anyLong(), anyList())).thenReturn(false);
 
         assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, msg))).isFalse();
 
-        assertThat(testSubject.calls).hasSize(expectedIspsInCalls.size());
-        forEach(testSubject.calls, (call, i, n) -> {
-            assertThat(call.maxNumberIsps).isEqualTo(expectedMaxIsps);
-            assertThat(call.isps).containsExactlyElementsOf(expectedIspsInCalls.get(i));
-        });
+        verify(testSubject, times(expectedIspsInCalls.size())).validateIsps(eq(expectedMaxIsps), actualIsps.capture());
+
+        assertThat(actualIsps.getAllValues()).containsExactlyElementsOf(expectedIspsInCalls);
     }
 
     private static DPrognosisISPType setStartAndDuration(DPrognosisISPType instance, long start, long duration) {
@@ -271,7 +252,6 @@ class IspListValidatorBaseTest {
         instance.setDuration(duration);
         return instance;
     }
-
 
     private static FlexRequestISPType setStartAndDuration(FlexRequestISPType instance, long start, long duration) {
         instance.setStart(start);
@@ -298,51 +278,13 @@ class IspListValidatorBaseTest {
 
     @ParameterizedTest
     @MethodSource("withParameters")
-    <T extends PayloadMessageType> void valid(T msg, List<List<IspInfo>> expectedIspsInCalls, int expectedMaxIsps) {
-        TestImplementation testSubject = new TestImplementation(true);
+    void valid(PayloadMessageType msg, List<List<IspInfo>> expectedIspsInCalls, long expectedMaxIsps) {
+        when(testSubject.validateIsps(anyLong(), anyList())).thenReturn(true);
 
         assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, msg))).isTrue();
 
-        assertThat(testSubject.calls).hasSize(expectedIspsInCalls.size());
-        forEach(testSubject.calls, (call, i, n) -> {
-            assertThat(call.maxNumberIsps).isEqualTo(expectedMaxIsps);
-            assertThat(call.isps).containsExactlyElementsOf(expectedIspsInCalls.get(i));
-        });
-    }
+        verify(testSubject, times(expectedIspsInCalls.size())).validateIsps(eq(expectedMaxIsps), actualIsps.capture());
 
-    @Test
-    void validateIsps_true() {
-        TestImplementation testSubject = new TestImplementation(true);
-
-        assertThat(testSubject.validateIsps(100, listIsps)).isTrue();
-
-        assertThat(testSubject.calls).hasSize(1);
-        assertThat(testSubject.calls.get(0).maxNumberIsps).isEqualTo(100);
-        assertThat(testSubject.calls.get(0).isps).isSameAs(listIsps);
-    }
-
-    @Test
-    void validateIsps_false() {
-        TestImplementation testSubject = new TestImplementation(false);
-
-        assertThat(testSubject.validateIsps(100, listIsps)).isFalse();
-
-        assertThat(testSubject.calls).hasSize(1);
-        assertThat(testSubject.calls.get(0).maxNumberIsps).isEqualTo(100);
-        assertThat(testSubject.calls.get(0).isps).isSameAs(listIsps);
-    }
-
-    @FunctionalInterface
-    public interface LoopWithIndexAndSizeConsumer<T> {
-
-        void accept(T t, int i, int n);
-    }
-
-    public static <T> void forEach(Collection<T> collection,
-                                   LoopWithIndexAndSizeConsumer<T> consumer) {
-        int index = 0;
-        for (T object : collection) {
-            consumer.accept(object, index++, collection.size());
-        }
+        assertThat(actualIsps.getAllValues()).containsExactlyElementsOf(expectedIspsInCalls);
     }
 }
