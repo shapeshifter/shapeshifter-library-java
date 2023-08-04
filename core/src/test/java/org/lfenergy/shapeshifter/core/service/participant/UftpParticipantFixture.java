@@ -13,8 +13,11 @@ public class UftpParticipantFixture {
   public static final String AGR_DOMAIN = "arg.domain.eu";
   public static final String DSO_DOMAIN = "dso.domain.eu";
 
+  public static final UftpParticipant AGR = new UftpParticipant(AGR_DOMAIN, USEFRoleType.AGR);
+  public static final UftpParticipant DSO = new UftpParticipant(DSO_DOMAIN, USEFRoleType.DSO);
+
   public static UftpParticipant createTestAGRParticipant() {
-    return new UftpParticipant(AGR_DOMAIN, USEFRoleType.AGR);
+    return AGR;
   }
 
   public static UftpParticipantInformation createTestAGRParticipantInformation(String publicKey, String endpoint) {
@@ -22,7 +25,7 @@ public class UftpParticipantFixture {
   }
 
   public static UftpParticipant createTestDSOParticipant() {
-    return new UftpParticipant(DSO_DOMAIN, USEFRoleType.DSO);
+    return DSO;
   }
 
   public static UftpParticipantInformation createTestDSOParticipantInformation(String publicKey, String endpoint) {
