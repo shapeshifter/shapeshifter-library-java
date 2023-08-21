@@ -11,6 +11,9 @@ import org.springframework.core.io.Resource;
 import javax.net.ssl.*;
 import java.io.IOException;
 import java.security.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @ConfigurationProperties(prefix = "shapeshifter")
 public record ShapeshifterProperties(
@@ -28,7 +31,8 @@ public record ShapeshifterProperties(
             Resource keyStore,
             String keyStorePassword,
             Resource trustStore,
-            String trustStorePassword
+            String trustStorePassword,
+            Boolean useDefaultTrustStore
     ) {
 
         public static final String DEFAULT_TLS_VERSION = "TLSv1.3";
@@ -47,14 +51,19 @@ public record ShapeshifterProperties(
                 }
             }
 
-            TrustManager[] trustManagers = null;
+            List<TrustManager> trustManagers = null;
 
             if (trustStore != null) {
                 try {
+                    trustManagers = new ArrayList<>();
+                    if (useDefaultTrustStore == null || useDefaultTrustStore) {
+                        trustManagers.addAll(Arrays.asList(getDefaultTrustManagers()));
+                    }
+
                     var trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                     trustManagerFactory.init(loadTrustStore());
 
-                    trustManagers = trustManagerFactory.getTrustManagers();
+                    trustManagers.addAll(Arrays.asList(trustManagerFactory.getTrustManagers()));
                 } catch (NoSuchAlgorithmException | KeyStoreException e) {
                     throw new IllegalArgumentException("Unable to initialize trust manager factory: " + e.getMessage(), e);
                 }
@@ -65,7 +74,7 @@ public record ShapeshifterProperties(
 
                 log.info("Initializing SSL context with protocol: " + protocol);
                 var sslContext = SSLContext.getInstance(protocol);
-                sslContext.init(keyManagers, trustManagers, null);
+                sslContext.init(keyManagers, trustManagers != null ? trustManagers.toArray(TrustManager[]::new) : null, null);
 
                 return sslContext;
             } catch (NoSuchAlgorithmException | KeyManagementException e) {
@@ -73,7 +82,14 @@ public record ShapeshifterProperties(
             }
         }
 
-        public KeyStore loadKeyStore() {
+        private TrustManager[] getDefaultTrustManagers() throws NoSuchAlgorithmException, KeyStoreException {
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init((KeyStore) null); // null means use default trust store from JRE
+
+           return tmf.getTrustManagers();
+        }
+
+        private KeyStore loadKeyStore() {
             try {
                 log.info("Loading key store: " + keyStore.getDescription());
                 return KeyStore.getInstance(keyStore.getFile(), keyStorePassword.toCharArray());
@@ -82,7 +98,7 @@ public record ShapeshifterProperties(
             }
         }
 
-        public KeyStore loadTrustStore() {
+        private KeyStore loadTrustStore() {
             try {
                 log.info("Loading trust store: " + trustStore.getDescription());
                 return KeyStore.getInstance(trustStore.getFile(), trustStorePassword.toCharArray());
