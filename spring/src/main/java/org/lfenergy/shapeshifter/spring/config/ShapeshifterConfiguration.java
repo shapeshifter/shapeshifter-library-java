@@ -25,6 +25,7 @@ import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
 import org.lfenergy.shapeshifter.core.service.validation.*;
 import org.lfenergy.shapeshifter.core.service.validation.base.*;
 import org.lfenergy.shapeshifter.core.service.validation.message.*;
+import org.lfenergy.shapeshifter.spring.ssl.SSLContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -211,7 +212,7 @@ public class ShapeshifterConfiguration {
 
         if (properties.tls() != null) {
             log.info("Detected TLS configuration");
-            builder.sslContext(properties.tls().createSSLContext());
+            builder.sslContext(SSLContextFactory.createSSLContext(properties.tls()));
         }
 
         return builder.build();
