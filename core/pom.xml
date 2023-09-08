@@ -23,7 +23,7 @@
     <lazysodium-java.version>5.1.4</lazysodium-java.version>
     <resource-loader.version>2.0.2</resource-loader.version>
     <swagger-annotations.version>2.2.15</swagger-annotations.version>
-    <wiremock.version>2.35.0</wiremock.version>
+    <wiremock.version>2.35.1</wiremock.version>
     <xmlunit.verion>2.9.1</xmlunit.verion>
     <jaxb.version>4.0.0</jaxb.version>
     <lombok.version>1.18.28</lombok.version>
