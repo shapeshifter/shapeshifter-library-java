@@ -22,15 +22,12 @@
     <jna.version>5.13.0</jna.version>
     <lazysodium-java.version>5.1.4</lazysodium-java.version>
     <resource-loader.version>2.0.2</resource-loader.version>
-    <swagger-annotations.version>2.2.15</swagger-annotations.version>
-    <wiremock.version>2.35.0</wiremock.version>
+    <swagger-annotations.version>2.2.18</swagger-annotations.version>
+    <wiremock.version>3.2.0</wiremock.version>
     <xmlunit.verion>2.9.1</xmlunit.verion>
-    <jaxb.version>4.0.0</jaxb.version>
-    <lombok.version>1.18.28</lombok.version>
-    <commons-logging.version>1.0.2</commons-logging.version>
+    <lombok.version>1.18.30</lombok.version>
+    <commons-logging.version>1.2</commons-logging.version>
     <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
-    <junit.version>5.9.3</junit.version>
-    <mockito.version>5.2.0</mockito.version>
     <awaitility.version>4.2.0</awaitility.version>
   </properties>
 
@@ -118,12 +115,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-inline</artifactId>
-      <version>${mockito.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <version>${awaitility.version}</version>
@@ -136,8 +127,8 @@
     </dependency>
     <!-- Configure a test application without UftpConnector mapping test beans -->
     <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-jre8</artifactId>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock</artifactId>
       <version>${wiremock.version}</version>
       <scope>test</scope>
     </dependency>
