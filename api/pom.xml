@@ -16,7 +16,6 @@
   <url>https://www.lfenergy.org/projects/shapeshifter/</url>
 
   <properties>
-    <jaxb.version>4.0.0</jaxb.version>
     <jaxb40-maven-plugin.version>0.16.1</jaxb40-maven-plugin.version>
   </properties>
 
