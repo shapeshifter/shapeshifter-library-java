@@ -4,11 +4,14 @@
 
 package org.lfenergy.shapeshifter.core.service.validation.base;
 
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.conversationId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexMessageType;
@@ -29,7 +32,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ReferencedFlexOrderOptionReferenceValidatorTest {
 
-  private static final String FLEX_OFFER_ID = "FLEX_OFFER_ID";
+  private static final String FLEX_OFFER_ID = UUID.randomUUID().toString();
+  private static final String CONVERSATION_ID = conversationId();
   private static final String OPTION_REFERENCE = "OPTION_REFERENCE";
   private static final String AGR_DOMAIN = "agr.com";
   private static final String DSO_DOMAIN = "dso.com";
@@ -69,6 +73,7 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
     flexOrder.setRecipientDomain(AGR_DOMAIN);
     flexOrder.setOptionReference(OPTION_REFERENCE);
     flexOrder.setFlexOfferMessageID(FLEX_OFFER_ID);
+    flexOffer.setConversationID(CONVERSATION_ID);
 
     given(messageSupport.getPreviousMessage(any(UftpMessageReference.class))).willReturn(Optional.empty());
 
@@ -81,12 +86,14 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
     flexOrder.setRecipientDomain(AGR_DOMAIN);
     flexOrder.setOptionReference(OPTION_REFERENCE);
     flexOrder.setFlexOfferMessageID(FLEX_OFFER_ID);
+    flexOrder.setConversationID(CONVERSATION_ID);
 
     var offerOption = new FlexOfferOptionType();
     offerOption.setOptionReference(OPTION_REFERENCE);
     flexOffer.getOfferOptions().add(offerOption);
 
-    given(messageSupport.getPreviousMessage(new UftpMessageReference<>(FLEX_OFFER_ID, UftpMessageDirection.OUTGOING, AGR_DOMAIN, DSO_DOMAIN, FlexOffer.class))).willReturn(
+    given(messageSupport.getPreviousMessage(new UftpMessageReference<>(FLEX_OFFER_ID, CONVERSATION_ID,
+            UftpMessageDirection.OUTGOING, AGR_DOMAIN, DSO_DOMAIN, FlexOffer.class))).willReturn(
         Optional.of(flexOffer));
 
     assertThat(testSubject.isValid(UftpMessageFixture.createIncoming(sender, flexOrder))).isTrue();
@@ -98,12 +105,14 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
     flexOrder.setRecipientDomain(AGR_DOMAIN);
     flexOrder.setOptionReference(OPTION_REFERENCE);
     flexOrder.setFlexOfferMessageID(FLEX_OFFER_ID);
+    flexOrder.setConversationID(CONVERSATION_ID);
 
     var offerOption = new FlexOfferOptionType();
     offerOption.setOptionReference("AnotherOptionReference");
     flexOffer.getOfferOptions().add(offerOption);
 
-    given(messageSupport.getPreviousMessage(new UftpMessageReference<>(FLEX_OFFER_ID, UftpMessageDirection.OUTGOING, AGR_DOMAIN, DSO_DOMAIN, FlexOffer.class))).willReturn(
+    given(messageSupport.getPreviousMessage(new UftpMessageReference<>(FLEX_OFFER_ID, CONVERSATION_ID,
+            UftpMessageDirection.OUTGOING, AGR_DOMAIN, DSO_DOMAIN, FlexOffer.class))).willReturn(
         Optional.of(flexOffer));
 
     assertThat(testSubject.isValid(UftpMessageFixture.createIncoming(sender, flexOrder))).isFalse();

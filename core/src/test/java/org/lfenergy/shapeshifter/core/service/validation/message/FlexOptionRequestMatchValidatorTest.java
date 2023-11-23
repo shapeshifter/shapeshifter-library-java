@@ -5,6 +5,7 @@
 package org.lfenergy.shapeshifter.core.service.validation.message;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.conversationId;
 import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOffer;
 import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOfferOption;
 import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOfferOptions;
@@ -60,7 +61,8 @@ class FlexOptionRequestMatchValidatorTest {
   void test_happy_flow_1_request_isps_all_occur_in_flex_offer() {
     var flexMessageId = messageId();
     var flexRequest = flexRequest(flexMessageId, OffsetDateTime.now().plusDays(1));
-    var flexOffer = flexOffer(flexMessageId, flexOfferOptions(BigDecimal.valueOf(1.0)));
+    var conversationId = conversationId();
+    var flexOffer = flexOffer(flexMessageId, conversationId, flexOfferOptions(BigDecimal.valueOf(1.0)));
 
     flexRequest.getISPS().add(
         flexRequestIsp(AvailableRequestedType.REQUESTED, 12, 1, -5000000, 0)
@@ -68,14 +70,15 @@ class FlexOptionRequestMatchValidatorTest {
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexMessageId, conversationId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
   @Test
   void test_happy_flow_2_unsolicited_flex_offer() {
     var flexMessageId = messageId();
-    var flexOffer = flexOffer(flexMessageId, flexOfferOptions(BigDecimal.valueOf(1.0)));
+    var conversationId = conversationId();
+    var flexOffer = flexOffer(flexMessageId, conversationId, flexOfferOptions(BigDecimal.valueOf(1.0)));
     flexOffer.setFlexRequestMessageID(null);
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
 
@@ -87,11 +90,12 @@ class FlexOptionRequestMatchValidatorTest {
   @Test
   void test_happy_flow_2_flex_request_not_found() {
     var flexMessageId = messageId();
-    var flexOffer = flexOffer(flexMessageId, flexOfferOptions(BigDecimal.valueOf(1.0)));
+    var conversationId = conversationId();
+    var flexOffer = flexOffer(flexMessageId, conversationId, flexOfferOptions(BigDecimal.valueOf(1.0)));
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.empty());
+    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexMessageId, conversationId, FlexRequest.class))).willReturn(Optional.empty());
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
@@ -99,7 +103,8 @@ class FlexOptionRequestMatchValidatorTest {
   void test_offer_isps_have_disposition_available() {
     var flexMessageId = messageId();
     var flexRequest = flexRequest(flexMessageId, OffsetDateTime.now().plusDays(1));
-    var flexOffer = flexOffer(flexMessageId, flexOfferOptions(BigDecimal.valueOf(1.0)));
+    var conversationId = conversationId();
+    var flexOffer = flexOffer(flexMessageId, conversationId, flexOfferOptions(BigDecimal.valueOf(1.0)));
 
     flexRequest.getISPS().add(
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 12, 1, -5000000, 0)
@@ -107,7 +112,7 @@ class FlexOptionRequestMatchValidatorTest {
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexMessageId, conversationId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
     assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
@@ -115,7 +120,8 @@ class FlexOptionRequestMatchValidatorTest {
   void test_offer_isps_does_not_match_isp_in_request() {
     var flexMessageId = messageId();
     var flexRequest = flexRequest(flexMessageId, OffsetDateTime.now().plusDays(1));
-    var flexOffer = flexOffer(flexMessageId, flexOfferOptions(BigDecimal.valueOf(1.0)));
+    var conversationId = conversationId();
+    var flexOffer = flexOffer(flexMessageId, conversationId, flexOfferOptions(BigDecimal.valueOf(1.0)));
 
     flexRequest.getISPS().add(
         flexRequestIsp(AvailableRequestedType.REQUESTED, 23, 2, -5000000, 0)
@@ -123,7 +129,7 @@ class FlexOptionRequestMatchValidatorTest {
 
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexMessageId, conversationId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
     assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 }

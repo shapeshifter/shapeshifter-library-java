@@ -68,15 +68,16 @@ public class TestDataHelper {
   }
 
   public static FlexOffer flexOffer(BigDecimal minActivationFactor) {
-    return flexOffer(UUID.randomUUID().toString(), flexOfferOptions(minActivationFactor), TOMORROW);
+    return flexOffer(UUID.randomUUID().toString(), conversationId(), flexOfferOptions(minActivationFactor), TOMORROW);
   }
 
-  public static FlexOffer flexOffer(String flexRequestMessageId, List<FlexOfferOptionType> flexOfferOptions) {
-    return flexOffer(flexRequestMessageId, flexOfferOptions, TOMORROW);
+  public static FlexOffer flexOffer(String flexRequestMessageId, String conversationId, List<FlexOfferOptionType> flexOfferOptions) {
+    return flexOffer(flexRequestMessageId, conversationId, flexOfferOptions, TOMORROW);
   }
 
-  public static FlexOffer flexOffer(String flexRequestMessageId, List<FlexOfferOptionType> flexOfferOptions, OffsetDateTime expirationDate) {
+  public static FlexOffer flexOffer(String flexRequestMessageId, String conversationId, List<FlexOfferOptionType> flexOfferOptions, OffsetDateTime expirationDate) {
     var flexOffer = new FlexOffer();
+    flexOffer.setConversationID(conversationId);
     flexOffer.setContractID(DEFAULT_CONTRACT_ID);
     flexOffer.setBaselineReference(DEFAULT_BASE_LINE_REFERENCE);
     flexOffer.setExpirationDateTime(expirationDate);
@@ -155,11 +156,11 @@ public class TestDataHelper {
   /*********************************************************
    * FLEX ORDER
    **********************************************************/
-  public static FlexOrder flexOrder(String flexOfferMessageId) {
-    return flexOrder(flexOfferMessageId, DEFAULT_PRICE, DEFAULT_OPTION_REFERENCE);
+  public static FlexOrder flexOrder(String flexOfferMessageId, String conversationId) {
+    return flexOrder(flexOfferMessageId, conversationId, DEFAULT_PRICE, DEFAULT_OPTION_REFERENCE);
   }
 
-  public static FlexOrder flexOrder(String flexOfferMessageId, BigDecimal price, String optionReference) {
+  public static FlexOrder flexOrder(String flexOfferMessageId, String conversationId, BigDecimal price, String optionReference) {
     var flexOrder = new FlexOrder();
     flexOrder.setContractID(DEFAULT_CONTRACT_ID);
     flexOrder.setBaselineReference(DEFAULT_BASE_LINE_REFERENCE);
@@ -167,6 +168,7 @@ public class TestDataHelper {
     flexOrder.setFlexOfferMessageID(flexOfferMessageId);
     flexOrder.setPrice(price);
     flexOrder.setOptionReference(optionReference);
+    flexOrder.setConversationID(conversationId);
     return flexOrder;
   }
 
@@ -183,19 +185,22 @@ public class TestDataHelper {
   }
 
   public static ArrayList<FlexOrderISPType> flexOrderIsps() {
-    return new ArrayList<FlexOrderISPType>(List.of(
-        flexOrderIsp(12, 1, 2000000),
-        flexOrderIsp(13, 1, 2500000),
-        flexOrderIsp(14, 1, 2500000),
-        flexOrderIsp(15, 1, 2000000),
-        flexOrderIsp(16, 1, 2000000),
-        flexOrderIsp(17, 1, 2500000),
-        flexOrderIsp(18, 1, 1000000),
-        flexOrderIsp(19, 1, 1500000)
+    return new ArrayList<>(List.of(
+            flexOrderIsp(12, 1, 2000000),
+            flexOrderIsp(13, 1, 2500000),
+            flexOrderIsp(14, 1, 2500000),
+            flexOrderIsp(15, 1, 2000000),
+            flexOrderIsp(16, 1, 2000000),
+            flexOrderIsp(17, 1, 2500000),
+            flexOrderIsp(18, 1, 1000000),
+            flexOrderIsp(19, 1, 1500000)
     ));
   }
 
   public static String messageId() {
+    return UUID.randomUUID().toString();
+  }
+  public static String conversationId() {
     return UUID.randomUUID().toString();
   }
 }

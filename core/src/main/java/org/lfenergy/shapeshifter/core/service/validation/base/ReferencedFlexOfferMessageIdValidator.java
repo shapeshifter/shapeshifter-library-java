@@ -41,7 +41,8 @@ public class ReferencedFlexOfferMessageIdValidator implements UftpValidator<Payl
   @Override
   public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
     var value = retriever.getOptionalProperty(uftpMessage.payloadMessage());
-    return value.isEmpty() || messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(value.get(), FlexOffer.class)).isPresent();
+    return value.isEmpty() || messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(value.get(), uftpMessage.payloadMessage().getConversationID(),
+            FlexOffer.class)).isPresent();
   }
 
   @Override

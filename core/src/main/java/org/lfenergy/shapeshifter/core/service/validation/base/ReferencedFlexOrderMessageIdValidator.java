@@ -37,7 +37,8 @@ public class ReferencedFlexOrderMessageIdValidator implements UftpValidator<DPro
   public boolean isValid(UftpMessage<DPrognosisResponse> uftpMessage) {
     var value = collectFlexOrderMessageIDs(uftpMessage.payloadMessage());
     return value.isEmpty() || value.stream().allMatch(
-        msgId -> messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(msgId, FlexOrder.class)).isPresent()
+        msgId -> messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(msgId,
+                uftpMessage.payloadMessage().getConversationID(), FlexOrder.class)).isPresent()
     );
   }
 

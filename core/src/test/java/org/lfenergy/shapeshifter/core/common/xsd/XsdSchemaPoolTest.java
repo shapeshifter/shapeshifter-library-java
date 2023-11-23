@@ -92,7 +92,7 @@ class XsdSchemaPoolTest {
   }
 
   @Test
-  void create_violate_xxe_ssrf_then_fail() throws Exception {
+  void create_violate_xxe_ssrf_then_fail() {
     doTestXXE(XXE_ATTACK_SSRF, "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.");
   }
 
@@ -106,7 +106,7 @@ class XsdSchemaPoolTest {
         testSubject.create()))
         .isInstanceOf(UftpConnectorException.class)
         .hasRootCauseInstanceOf(SAXParseException.class)
-        .getRootCause()
+        .rootCause()
         .hasMessageContaining(errorMessage);
   }
 }

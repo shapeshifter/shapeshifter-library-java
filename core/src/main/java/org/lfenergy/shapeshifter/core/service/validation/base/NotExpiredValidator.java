@@ -52,12 +52,12 @@ public class NotExpiredValidator implements UftpValidator<PayloadMessageType> {
   }
 
   private boolean validateFlexRequestNotExpired(UftpMessage<PayloadMessageType> uftpMessage, FlexOffer msg) {
-    var messageId = Optional.ofNullable(msg.getFlexRequestMessageID());
-    if (messageId.isEmpty()) {
+    var flexRequestMessageID = Optional.ofNullable(msg.getFlexRequestMessageID());
+    if (flexRequestMessageID.isEmpty()) {
       return true;
     }
 
-    var request = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(messageId.get(), FlexRequest.class));
+    var request = messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexRequestMessageID.get(), msg.getConversationID(), FlexRequest.class));
     return request.map(flexRequest -> validate(flexRequest.getExpirationDateTime())).orElse(true);
   }
 
@@ -67,7 +67,7 @@ public class NotExpiredValidator implements UftpValidator<PayloadMessageType> {
       return true;
     }
 
-    var offer = messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(messageId.get(), FlexOffer.class));
+    var offer = messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(messageId.get(), msg.getConversationID(), FlexOffer.class));
     return offer.map(flexOffer -> validate(flexOffer.getExpirationDateTime())).orElse(true);
   }
 

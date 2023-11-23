@@ -16,6 +16,7 @@ class UftpMessageTest {
   private static final String DSO_DOMAIN = "DSO_DOMAIN";
   private static final String AGR_DOMAIN = "AGR_DOMAIN";
   private static final String FLEX_REQUEST_MESSAGE_ID = "FLEX_REQUEST_MESSAGE_ID";
+  private static final String CONVERSATION_ID = "CONVERSATION_ID";
 
   @Test
   void createIncoming() {
@@ -51,7 +52,7 @@ class UftpMessageTest {
 
     var uftpMessage = UftpMessage.createOutgoing(sender, payloadMessage);
 
-    var referenceToPreviousMessage = uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, FlexRequest.class);
+    var referenceToPreviousMessage = uftpMessage.findReferenceMessageInConversation(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID, FlexRequest.class);
 
     assertThat(referenceToPreviousMessage.messageID()).isEqualTo(FLEX_REQUEST_MESSAGE_ID);
     assertThat(referenceToPreviousMessage.senderDomain()).isEqualTo(DSO_DOMAIN);

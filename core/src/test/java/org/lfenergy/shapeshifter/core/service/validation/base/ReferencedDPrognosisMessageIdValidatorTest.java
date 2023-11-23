@@ -4,6 +4,7 @@
 
 package org.lfenergy.shapeshifter.core.service.validation.base;
 
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.conversationId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -36,6 +37,8 @@ class ReferencedDPrognosisMessageIdValidatorTest {
 
   private static final String DPROGNOSIS_MESSAGE_ID1 = "DPROGNOSIS_MESSAGE_ID1";
   private static final String DPROGNOSIS_MESSAGE_ID2 = "DPROGNOSIS_MESSAGE_ID2";
+  private static final String CONVERSATION_ID = conversationId();
+
 
   @Mock
   private UftpMessageSupport messageSupport;
@@ -89,10 +92,11 @@ class ReferencedDPrognosisMessageIdValidatorTest {
 
     FlexOffer flexOffer = new FlexOffer();
     flexOffer.setDPrognosisMessageID(DPROGNOSIS_MESSAGE_ID1);
-
+    flexOffer.setConversationID(CONVERSATION_ID);
     FlexOrder flexOrder = new FlexOrder();
     flexOrder.setDPrognosisMessageID(DPROGNOSIS_MESSAGE_ID1);
-
+    flexOffer.setConversationID(CONVERSATION_ID);
+    flexOrder.setConversationID(CONVERSATION_ID);
     FlexOrderSettlementType os1 = new FlexOrderSettlementType();
     os1.setDPrognosisMessageID(DPROGNOSIS_MESSAGE_ID1);
     FlexOrderSettlementType os2 = new FlexOrderSettlementType();
@@ -101,6 +105,7 @@ class ReferencedDPrognosisMessageIdValidatorTest {
 
     FlexSettlement flexSettlement = new FlexSettlement();
     flexSettlement.getFlexOrderSettlements().addAll(List.of(os1, os2, os3WithoutDPorgMsgId));
+    flexSettlement.setConversationID(CONVERSATION_ID);
 
     return Stream.of(
         Arguments.of(flexOffer, List.of(DPROGNOSIS_MESSAGE_ID1)),
@@ -120,11 +125,13 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   void valid_true_whenFoundMessageIdIsOfKnownMessage(PayloadMessageType payloadMessage, List<String> baselineRefs) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
-    if (baselineRefs.size() >= 1) {
-      given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, DPrognosis.class))).willReturn(Optional.of(dPrognosisType1));
+    if (!baselineRefs.isEmpty()) {
+      given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(DPROGNOSIS_MESSAGE_ID1, CONVERSATION_ID,
+              DPrognosis.class))).willReturn(Optional.of(dPrognosisType1));
     }
     if (baselineRefs.size() == 2) {
-      given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID2, DPrognosis.class))).willReturn(Optional.of(dPrognosisType2));
+      given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(DPROGNOSIS_MESSAGE_ID2, CONVERSATION_ID,
+              DPrognosis.class))).willReturn(Optional.of(dPrognosisType2));
     }
 
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
@@ -135,7 +142,8 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   void valid_false_whenFoundMessageIdIsOfUnknownMessage(PayloadMessageType payloadMessage, List<String> baselineRefs) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, DPrognosis.class))).willReturn(Optional.empty());
+    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(DPROGNOSIS_MESSAGE_ID1, CONVERSATION_ID,
+            DPrognosis.class))).willReturn(Optional.empty());
 
     assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }

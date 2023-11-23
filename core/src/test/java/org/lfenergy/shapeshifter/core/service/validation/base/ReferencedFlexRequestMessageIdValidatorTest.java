@@ -25,7 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ReferencedFlexRequestMessageIdValidatorTest {
 
   private static final String FLEX_REQUEST_MESSAGE_ID = "FLEX_REQUEST_MESSAGE_ID";
-
+  private static final String CONVERSATION_ID = "CONVERSATION_ID";
   @Mock
   private UftpMessageSupport messageSupport;
 
@@ -58,7 +58,9 @@ class ReferencedFlexRequestMessageIdValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
 
     flexOffer.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, FlexRequest.class))).willReturn(Optional.of(flexRequest));
+    flexOffer.setConversationID(CONVERSATION_ID);
+    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
+            FlexRequest.class))).willReturn(Optional.of(flexRequest));
 
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
@@ -68,7 +70,9 @@ class ReferencedFlexRequestMessageIdValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
 
     flexOffer.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, FlexRequest.class))).willReturn(Optional.empty());
+    flexOffer.setConversationID(CONVERSATION_ID);
+    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
+            FlexRequest.class))).willReturn(Optional.empty());
 
     assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }

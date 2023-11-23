@@ -7,7 +7,7 @@ package org.lfenergy.shapeshifter.core.service.validation.base;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.conversationId;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -38,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PeriodReferenceValidatorTest {
 
   private static final String MATCHING_MESSAGE_ID = "MATCHING_MESSAGE_ID";
+  private static final String CONVERSATION_ID = conversationId();
   private static final LocalDate PERIOD = LocalDate.of(2022, 11, 22);
   private static final LocalDate OTHER = LocalDate.of(2023, 12, 28);
 
@@ -75,18 +76,22 @@ class PeriodReferenceValidatorTest {
 
     AGRPortfolioQueryResponse agrQueryResp = new AGRPortfolioQueryResponse();
     agrQueryResp.setAGRPortfolioQueryMessageID(MATCHING_MESSAGE_ID);
+    agrQueryResp.setConversationID(CONVERSATION_ID);
     agrQueryResp.setPeriod(PERIOD);
 
     DSOPortfolioQueryResponse dsoQueryResp = new DSOPortfolioQueryResponse();
     dsoQueryResp.setDSOPortfolioQueryMessageID(MATCHING_MESSAGE_ID);
+    dsoQueryResp.setConversationID(CONVERSATION_ID);
     dsoQueryResp.setPeriod(PERIOD);
 
     FlexOffer flexOffer = new FlexOffer();
     flexOffer.setFlexRequestMessageID(MATCHING_MESSAGE_ID);
+    flexOffer.setConversationID(CONVERSATION_ID);
     flexOffer.setPeriod(PERIOD);
 
     FlexOrder flexOrder = new FlexOrder();
     flexOrder.setFlexOfferMessageID(MATCHING_MESSAGE_ID);
+    flexOrder.setConversationID(CONVERSATION_ID);
     flexOrder.setPeriod(PERIOD);
 
     return Stream.of(
@@ -114,7 +119,8 @@ class PeriodReferenceValidatorTest {
   ) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.empty());
+    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+            matchingMessageType))).willReturn(Optional.empty());
 
     // Matching message may not be found, although it should be there. This returns valid() == true
     // because that is not the purpose of this validation. It is checked in Referenced******MessageIdValidation classes.
@@ -129,7 +135,8 @@ class PeriodReferenceValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
     setPeriod(matchingMessageType, matchingMessage, PERIOD);
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
+    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+            matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
@@ -142,13 +149,14 @@ class PeriodReferenceValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
     setPeriod(matchingMessageType, matchingMessage, OTHER);
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, matchingMessageType))).willReturn(Optional.of(matchingMessage));
+    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+            matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
     assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
   private <T extends PayloadMessageType> void setPeriod(Class<T> matchingMessageType, T matchingMessage, LocalDate value) throws Exception {
-    Method setter = null;
+    Method setter;
     try {
       setter = matchingMessageType.getDeclaredMethod("setPeriod", LocalDate.class);
     } catch (NoSuchMethodException e) {
