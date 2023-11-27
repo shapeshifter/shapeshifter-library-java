@@ -162,7 +162,7 @@ class ShapeshifterSpringIntegrationTest {
 
     var flexRequest = createTestFlexRequest(MESSAGE_ID, DSO_DOMAIN, AGR_DOMAIN);
 
-    given(uftpMessageSupport.getPreviousMessage(flexRequest.getMessageID(), flexRequest.getRecipientDomain())).willReturn(Optional.of(flexRequest));
+    given(uftpMessageSupport.getPreviousMessage(flexRequest.getMessageID(), flexRequest.getConversationID(), flexRequest.getRecipientDomain())).willReturn(Optional.of(flexRequest));
 
     mockMvc.perform(post(APPLICATION_ENDPOINT_PATH)
                         .contentType(MediaType.TEXT_XML)
