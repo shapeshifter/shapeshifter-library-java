@@ -117,7 +117,7 @@ class NotExpiredValidatorTest {
         flexOffer.setConversationID(CONVERSATION_ID);
         var uftpMessage = UftpMessageFixture.<PayloadMessageType>createOutgoing(sender, flexOffer);
 
-        given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+        given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
                 FlexRequest.class))).willReturn(Optional.of(flexRequest));
 
         assertThat(testSubject.isValid(uftpMessage)).isTrue();
@@ -138,7 +138,7 @@ class NotExpiredValidatorTest {
 
         var uftpMessage = UftpMessageFixture.<PayloadMessageType>createOutgoing(sender, flexOrder);
 
-        given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+        given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
                 FlexOffer.class))).willReturn(Optional.of(flexOffer));
 
         assertThat(testSubject.isValid(uftpMessage)).isTrue();
@@ -150,7 +150,7 @@ class NotExpiredValidatorTest {
             PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
     ) {
         var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-        given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+        given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
                 matchingMessageType))).willReturn(Optional.empty());
 
         // Matching message may not be found, although it should be there. This returns valid() == true
@@ -165,7 +165,7 @@ class NotExpiredValidatorTest {
     ) throws Exception {
         var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
         setExpirationDateTime(matchingMessageType, matchingMessage, OffsetDateTime.now().plusHours(1));
-        given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+        given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
                 matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
         assertThat(testSubject.isValid(uftpMessage)).isTrue();
@@ -178,7 +178,7 @@ class NotExpiredValidatorTest {
     ) throws Exception {
         var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
         setExpirationDateTime(matchingMessageType, matchingMessage, OffsetDateTime.now().minusHours(1));
-        given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+        given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
                 matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
         assertThat(testSubject.isValid(uftpMessage)).isFalse();

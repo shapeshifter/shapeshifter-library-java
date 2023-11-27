@@ -66,7 +66,7 @@ class FlexOrderPriceMatchValidatorTest {
                               List.of(TestDataHelper.flexOfferOption(flexOfferOptionIsps())));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    given(messageSupport.getPreviousMessage(conversationId, uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 
@@ -81,7 +81,7 @@ class FlexOrderPriceMatchValidatorTest {
                                                       flexOfferOptionIsps())));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    given(messageSupport.getPreviousMessage(conversationId, uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
     assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
@@ -91,7 +91,7 @@ class FlexOrderPriceMatchValidatorTest {
     var conversationId = conversationId();
     var flexOrder = flexOrder(messageId, conversationId);
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(messageId, conversationId, FlexOffer.class))).willReturn(Optional.empty());
+    given(messageSupport.getPreviousMessage(conversationId, uftpMessage.referenceToPreviousMessage(messageId, conversationId, FlexOffer.class))).willReturn(Optional.empty());
     assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }
 
@@ -106,7 +106,7 @@ class FlexOrderPriceMatchValidatorTest {
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    given(messageSupport.getPreviousMessage(conversationId, uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
 }

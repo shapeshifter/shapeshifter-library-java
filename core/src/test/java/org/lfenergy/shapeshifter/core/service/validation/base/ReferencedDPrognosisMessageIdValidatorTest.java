@@ -126,11 +126,11 @@ class ReferencedDPrognosisMessageIdValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
     if (!baselineRefs.isEmpty()) {
-      given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(DPROGNOSIS_MESSAGE_ID1, CONVERSATION_ID,
+      given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, CONVERSATION_ID,
               DPrognosis.class))).willReturn(Optional.of(dPrognosisType1));
     }
     if (baselineRefs.size() == 2) {
-      given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(DPROGNOSIS_MESSAGE_ID2, CONVERSATION_ID,
+      given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID2, CONVERSATION_ID,
               DPrognosis.class))).willReturn(Optional.of(dPrognosisType2));
     }
 
@@ -142,7 +142,7 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   void valid_false_whenFoundMessageIdIsOfUnknownMessage(PayloadMessageType payloadMessage, List<String> baselineRefs) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(DPROGNOSIS_MESSAGE_ID1, CONVERSATION_ID,
+    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, CONVERSATION_ID,
             DPrognosis.class))).willReturn(Optional.empty());
 
     assertThat(testSubject.isValid(uftpMessage)).isFalse();

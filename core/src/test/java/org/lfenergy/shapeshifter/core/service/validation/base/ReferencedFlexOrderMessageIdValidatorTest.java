@@ -76,9 +76,9 @@ class ReferencedFlexOrderMessageIdValidatorTest {
     prognosisResponse.setConversationID(CONVERSATION_ID);
     status1.setFlexOrderMessageID(FLEX_ORDER_MESSAGE_ID1);
     status2.setFlexOrderMessageID(FLEX_ORDER_MESSAGE_ID2);
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(FLEX_ORDER_MESSAGE_ID1, CONVERSATION_ID,
+    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(FLEX_ORDER_MESSAGE_ID1, CONVERSATION_ID,
             FlexOrder.class))).willReturn(Optional.of(flexOrder1));
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(FLEX_ORDER_MESSAGE_ID2, CONVERSATION_ID,
+    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(FLEX_ORDER_MESSAGE_ID2, CONVERSATION_ID,
             FlexOrder.class))).willReturn(Optional.of(flexOrder2));
 
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
@@ -92,9 +92,9 @@ class ReferencedFlexOrderMessageIdValidatorTest {
     prognosisResponse.setConversationID(CONVERSATION_ID);
     status1.setFlexOrderMessageID(FLEX_ORDER_MESSAGE_ID1);
     status2.setFlexOrderMessageID(FLEX_ORDER_MESSAGE_ID2);
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(FLEX_ORDER_MESSAGE_ID1, CONVERSATION_ID,
+    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(FLEX_ORDER_MESSAGE_ID1, CONVERSATION_ID,
             FlexOrder.class))).willReturn(Optional.of(flexOrder1));
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(FLEX_ORDER_MESSAGE_ID2, CONVERSATION_ID,
+    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(FLEX_ORDER_MESSAGE_ID2, CONVERSATION_ID,
             FlexOrder.class))).willReturn(Optional.empty());
 
     assertThat(testSubject.isValid(uftpMessage)).isFalse();

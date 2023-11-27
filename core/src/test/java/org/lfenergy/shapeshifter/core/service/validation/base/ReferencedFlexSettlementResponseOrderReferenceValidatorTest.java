@@ -4,6 +4,7 @@
 
 package org.lfenergy.shapeshifter.core.service.validation.base;
 
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.conversationId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -28,7 +29,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
   private static final String ORDER_REFERENCE1 = "ORDER_REFERENCE1";
   private static final String ORDER_REFERENCE2 = "ORDER_REFERENCE2";
   private static final String RECIPIENT_DOMAIN = "RECIPIENT_DOMAIN";
-
+  private static final String CONVERSATION_ID = conversationId();
   @Mock
   private UftpMessageSupport messageSupport;
 
@@ -75,10 +76,11 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
     given(settlementResponse.getFlexOrderSettlementStatuses()).willReturn(List.of(
         status1, status2
     ));
+    given(settlementResponse.getConversationID()).willReturn(CONVERSATION_ID);
     given(status1.getOrderReference()).willReturn(ORDER_REFERENCE1);
     given(status2.getOrderReference()).willReturn(ORDER_REFERENCE2);
-    given(messageSupport.isValidOrderReference(ORDER_REFERENCE1, RECIPIENT_DOMAIN)).willReturn(true);
-    given(messageSupport.isValidOrderReference(ORDER_REFERENCE2, RECIPIENT_DOMAIN)).willReturn(true);
+    given(messageSupport.isValidOrderReference(ORDER_REFERENCE1, CONVERSATION_ID, RECIPIENT_DOMAIN)).willReturn(true);
+    given(messageSupport.isValidOrderReference(ORDER_REFERENCE2, CONVERSATION_ID, RECIPIENT_DOMAIN)).willReturn(true);
 
     assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isTrue();
   }
@@ -89,10 +91,11 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
     given(settlementResponse.getFlexOrderSettlementStatuses()).willReturn(List.of(
         status1, status2
     ));
+    given(settlementResponse.getConversationID()).willReturn(CONVERSATION_ID);
     given(status1.getOrderReference()).willReturn(ORDER_REFERENCE1);
     given(status2.getOrderReference()).willReturn(ORDER_REFERENCE2);
-    given(messageSupport.isValidOrderReference(ORDER_REFERENCE1, RECIPIENT_DOMAIN)).willReturn(true);
-    given(messageSupport.isValidOrderReference(ORDER_REFERENCE2, RECIPIENT_DOMAIN)).willReturn(false);
+    given(messageSupport.isValidOrderReference(ORDER_REFERENCE1, CONVERSATION_ID, RECIPIENT_DOMAIN)).willReturn(true);
+    given(messageSupport.isValidOrderReference(ORDER_REFERENCE2, CONVERSATION_ID, RECIPIENT_DOMAIN)).willReturn(false);
 
     assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isFalse();
   }

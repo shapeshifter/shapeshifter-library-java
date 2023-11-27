@@ -59,7 +59,7 @@ class ReferencedFlexRequestMessageIdValidatorTest {
 
     flexOffer.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
     flexOffer.setConversationID(CONVERSATION_ID);
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
+    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
             FlexRequest.class))).willReturn(Optional.of(flexRequest));
 
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
@@ -71,7 +71,7 @@ class ReferencedFlexRequestMessageIdValidatorTest {
 
     flexOffer.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
     flexOffer.setConversationID(CONVERSATION_ID);
-    given(messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
+    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
             FlexRequest.class))).willReturn(Optional.empty());
 
     assertThat(testSubject.isValid(uftpMessage)).isFalse();

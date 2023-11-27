@@ -29,7 +29,8 @@ public class FlexOrderOfferIsNotRevokedValidator implements UftpValidator<FlexOr
 
   @Override
   public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
-    return !messageSupport.existsFlexRevocation(uftpMessage.payloadMessage().getFlexOfferMessageID(), uftpMessage.payloadMessage().getRecipientDomain());
+    return !messageSupport.existsFlexRevocation(uftpMessage.payloadMessage().getConversationID(),
+            uftpMessage.payloadMessage().getFlexOfferMessageID(), uftpMessage.payloadMessage().getRecipientDomain());
   }
 
   @Override

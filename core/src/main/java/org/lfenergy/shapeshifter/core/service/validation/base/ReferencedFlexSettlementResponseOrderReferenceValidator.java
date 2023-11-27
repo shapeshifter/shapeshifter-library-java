@@ -37,7 +37,8 @@ public class ReferencedFlexSettlementResponseOrderReferenceValidator implements 
     var flexSettlementResponse = uftpMessage.payloadMessage();
     var orderReferences = collectOrderReferences(flexSettlementResponse);
     return orderReferences.isEmpty() || orderReferences.stream().allMatch(
-        orderReference -> messageSupport.isValidOrderReference(orderReference, flexSettlementResponse.getRecipientDomain()));
+        orderReference -> messageSupport.isValidOrderReference(orderReference, flexSettlementResponse.getConversationID(),
+                flexSettlementResponse.getRecipientDomain()));
   }
 
   @Override

@@ -49,7 +49,8 @@ public class ReferencedDPrognosisMessageIdValidator implements UftpValidator<Pay
   public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
     var value = retriever.getProperty(uftpMessage.payloadMessage());
     return value.isEmpty() || value.stream().allMatch(
-        msgId -> messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(msgId, uftpMessage.payloadMessage().getConversationID(),
+        msgId -> messageSupport.getPreviousMessage(uftpMessage.payloadMessage().getConversationID(),
+                uftpMessage.referenceToPreviousMessage(msgId, uftpMessage.payloadMessage().getConversationID(),
                 DPrognosis.class)).isPresent()
     );
   }

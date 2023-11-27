@@ -52,7 +52,7 @@ class UftpMessageTest {
 
     var uftpMessage = UftpMessage.createOutgoing(sender, payloadMessage);
 
-    var referenceToPreviousMessage = uftpMessage.findReferenceMessageInConversation(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID, FlexRequest.class);
+    var referenceToPreviousMessage = uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID, FlexRequest.class);
 
     assertThat(referenceToPreviousMessage.messageID()).isEqualTo(FLEX_REQUEST_MESSAGE_ID);
     assertThat(referenceToPreviousMessage.senderDomain()).isEqualTo(DSO_DOMAIN);

@@ -25,38 +25,42 @@ import org.lfenergy.shapeshifter.core.model.UftpMessageReference;
 public interface UftpMessageSupport {
 
   /**
-   * Gets a previously received message by messageID (if any).
+   * Gets a previously received message by messageID (if any) and conversation ID.
    *
    * @param messageID The message ID.
+   * @param conversationId The conversation ID
    * @param recipientDomain The recipient domain.
    * @return The message that was received previously.
    */
-  Optional<PayloadMessageType> getPreviousMessage(String messageID, String recipientDomain);
+  Optional<PayloadMessageType> getPreviousMessage(String messageID, String conversationId, String recipientDomain);
 
   /**
-   * Gets a previously sent or received message by reference (usually for validation).
+   * Gets a previously sent or received message by conversation ID and reference (usually for validation).
    *
+   * @param conversationId The conversation ID
    * @param <T> The type of message.
    * @param reference The reference to the previous message.
    * @return The message that was either sent or received previously.
    */
-  <T extends PayloadMessageType> Optional<T> getPreviousMessage(UftpMessageReference<T> reference);
+  <T extends PayloadMessageType> Optional<T> getPreviousMessage(String conversationId, UftpMessageReference<T> reference);
 
   /**
-   * Checks whether a given order reference is present for a given recipient domain
+   * Checks whether a given order reference is present for a given conversation ID and recipient domain
    *
    * @param orderReference The order reference to be checked
+   * @param conversationId The conversation ID
    * @param recipientDomain The recipient domain for which the order reference should be checked
    * @return Whether the given order reference is present
    */
-  boolean isValidOrderReference(String orderReference, String recipientDomain);
+  boolean isValidOrderReference(String orderReference, String conversationId, String recipientDomain);
 
   /**
-   * Checks whether a flex revocation is present for a given flexOffer message and a recipient domain
+   * Checks whether a flex revocation is present for a conversation ID and given flexOffer message and recipient domain
    *
+   * @param conversationId The conversation ID
    * @param flexOfferMessageId The flexOffer message ID
    * @param recipientDomain The recipient domain
    * @return Whether a flex revocation is present
    */
-  boolean existsFlexRevocation(String flexOfferMessageId, String recipientDomain);
+  boolean existsFlexRevocation(String conversationId, String flexOfferMessageId, String recipientDomain);
 }

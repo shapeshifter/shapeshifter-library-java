@@ -38,7 +38,8 @@ public class ReferencedFlexOrderOptionReferenceValidator implements UftpValidato
       return true;
     }
 
-    return messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexOrder.getFlexOfferMessageID(),
+    return messageSupport.getPreviousMessage(uftpMessage.payloadMessage().getConversationID(),
+                    uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(),
                     uftpMessage.payloadMessage().getConversationID(), FlexOffer.class))
                          .map(flexOffer -> flexOffer.getOfferOptions()
                                                     .stream()

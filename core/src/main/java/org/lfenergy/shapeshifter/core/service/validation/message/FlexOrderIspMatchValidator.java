@@ -41,7 +41,8 @@ public class FlexOrderIspMatchValidator implements UftpValidator<FlexOrder> {
   public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
     var flexOrder = uftpMessage.payloadMessage();
 
-    var flexOffer = messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexOrder.getFlexOfferMessageID(),
+    var flexOffer = messageSupport.getPreviousMessage(uftpMessage.payloadMessage().getConversationID(),
+            uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(),
             flexOrder.getConversationID(), FlexOffer.class));
     // if there is no flex offer => return false
     if (flexOffer.isEmpty()) {

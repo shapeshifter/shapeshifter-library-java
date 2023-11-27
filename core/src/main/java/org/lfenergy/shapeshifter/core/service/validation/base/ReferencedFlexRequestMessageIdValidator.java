@@ -33,7 +33,8 @@ public class ReferencedFlexRequestMessageIdValidator implements UftpValidator<Fl
   @Override
   public boolean isValid(UftpMessage<FlexOffer> uftpMessage) {
     var flexRequestMessageID = Optional.ofNullable(uftpMessage.payloadMessage().getFlexRequestMessageID());
-    return flexRequestMessageID.isEmpty() || messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexRequestMessageID.get(),
+    return flexRequestMessageID.isEmpty() || messageSupport.getPreviousMessage(uftpMessage.payloadMessage().getConversationID(),
+            uftpMessage.referenceToPreviousMessage(flexRequestMessageID.get(),
             uftpMessage.payloadMessage().getConversationID(), FlexRequest.class)).isPresent();
   }
 

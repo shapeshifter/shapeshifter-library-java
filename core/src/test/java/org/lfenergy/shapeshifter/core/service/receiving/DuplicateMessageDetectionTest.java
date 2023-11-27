@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.lfenergy.shapeshifter.core.service.receiving.DuplicateMessageDetection.DuplicateMessageResult.DUPLICATE_MESSAGE;
 import static org.lfenergy.shapeshifter.core.service.receiving.DuplicateMessageDetection.DuplicateMessageResult.NEW_MESSAGE;
 import static org.lfenergy.shapeshifter.core.service.receiving.DuplicateMessageDetection.DuplicateMessageResult.REUSED_ID_DIFFERENT_CONTENT;
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.conversationId;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -28,6 +29,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class DuplicateMessageDetectionTest {
 
   private static final String MESSAGE_ID = "MESSAGE_ID";
+
+  private static final String CONVERSATION_ID = conversationId();
   private static final String RECIPIENT_DOMAIN = "test.nl";
   private static final String CONTENT_NEW_MESSAGE = "CONTENT_NEW_MESSAGE";
   private static final String CONTENT_PREVIOUS_MESSAGE = "CONTENT_PREVIOUS_MESSAGE";
@@ -50,8 +53,8 @@ class DuplicateMessageDetectionTest {
   @BeforeEach
   void setup() {
     given(newMessage.getMessageID()).willReturn(MESSAGE_ID);
+    given(newMessage.getConversationID()).willReturn(CONVERSATION_ID);
     given(newMessage.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
-
   }
 
   @AfterEach
@@ -67,21 +70,21 @@ class DuplicateMessageDetectionTest {
 
   @Test
   void isDuplicate_resultNewMessage_whenUnknownMessageId() {
-    given(support.getPreviousMessage(MESSAGE_ID, RECIPIENT_DOMAIN)).willReturn(Optional.empty());
+    given(support.getPreviousMessage(MESSAGE_ID,CONVERSATION_ID,  RECIPIENT_DOMAIN)).willReturn(Optional.empty());
 
     assertThat(testSubject.isDuplicate(newMessage)).isEqualTo(NEW_MESSAGE);
   }
 
   @Test
   void isDuplicate_resultReusedIdDiffContent_whenKownMessageWithOtherType() {
-    given(support.getPreviousMessage(MESSAGE_ID, RECIPIENT_DOMAIN)).willReturn(Optional.of(previousFlexOffer));
+    given(support.getPreviousMessage(MESSAGE_ID, CONVERSATION_ID, RECIPIENT_DOMAIN)).willReturn(Optional.of(previousFlexOffer));
 
     assertThat(testSubject.isDuplicate(newMessage)).isEqualTo(REUSED_ID_DIFFERENT_CONTENT);
   }
 
   @Test
   void isDuplicate_resultReusedIdDiffContent_whenKownMessageWithSameTypeDiffContent() {
-    given(support.getPreviousMessage(MESSAGE_ID, RECIPIENT_DOMAIN)).willReturn(Optional.of(previousFlexRequest));
+    given(support.getPreviousMessage(MESSAGE_ID, CONVERSATION_ID, RECIPIENT_DOMAIN)).willReturn(Optional.of(previousFlexRequest));
     given(serializer.toXml(newMessage)).willReturn(CONTENT_NEW_MESSAGE);
     given(serializer.toXml(previousFlexRequest)).willReturn(CONTENT_PREVIOUS_MESSAGE);
 
@@ -90,7 +93,7 @@ class DuplicateMessageDetectionTest {
 
   @Test
   void isDuplicate_resultDuplicateMessage_whenKownMessageWithSameTypeSameContent() {
-    given(support.getPreviousMessage(MESSAGE_ID, RECIPIENT_DOMAIN)).willReturn(Optional.of(previousFlexRequest));
+    given(support.getPreviousMessage(MESSAGE_ID, CONVERSATION_ID, RECIPIENT_DOMAIN)).willReturn(Optional.of(previousFlexRequest));
     given(serializer.toXml(newMessage)).willReturn(CONTENT_PREVIOUS_MESSAGE);
     given(serializer.toXml(previousFlexRequest)).willReturn(CONTENT_PREVIOUS_MESSAGE);
 

@@ -65,7 +65,8 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
 
   private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, AGRPortfolioQueryResponse msg) {
     var period = msg.getPeriod();
-    var request = messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(msg.getAGRPortfolioQueryMessageID(), msg.getConversationID(), AGRPortfolioQuery.class));
+    var request = messageSupport.getPreviousMessage(uftpMessage.payloadMessage().getConversationID(),
+            uftpMessage.referenceToPreviousMessage(msg.getAGRPortfolioQueryMessageID(), msg.getConversationID(), AGRPortfolioQuery.class));
     if (request.isEmpty()) {
       return true; // validated in ReferencedRequestMessageIdValidation
     }
@@ -75,7 +76,8 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
 
   private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, DSOPortfolioQueryResponse msg) {
     var period = msg.getPeriod();
-    var request = messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(msg.getDSOPortfolioQueryMessageID(), msg.getConversationID(), DSOPortfolioQuery.class));
+    var request = messageSupport.getPreviousMessage(uftpMessage.payloadMessage().getConversationID(),
+            uftpMessage.referenceToPreviousMessage(msg.getDSOPortfolioQueryMessageID(), msg.getConversationID(), DSOPortfolioQuery.class));
     if (request.isEmpty()) {
       return true; // validated in ReferencedRequestMessageIdValidation
     }
@@ -90,7 +92,8 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
       return true; // Unsolicited FlexOffer, thus no matching with FlexRequest period.
     }
 
-    var request = messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(flexRequestMessageID.get(),
+    var request = messageSupport.getPreviousMessage(uftpMessage.payloadMessage().getConversationID(),
+            uftpMessage.referenceToPreviousMessage(flexRequestMessageID.get(),
             msg.getConversationID(), FlexRequest.class));
     if (request.isEmpty()) {
       return true; // validated in ReferencedFlexRequestMessageIdValidation
@@ -101,7 +104,8 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
 
   private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, FlexOrder msg) {
     var period = msg.getPeriod();
-    var offer = messageSupport.getPreviousMessage(uftpMessage.findReferenceMessageInConversation(msg.getFlexOfferMessageID(),
+    var offer = messageSupport.getPreviousMessage(uftpMessage.payloadMessage().getConversationID(),
+            uftpMessage.referenceToPreviousMessage(msg.getFlexOfferMessageID(),
             msg.getConversationID(), FlexOffer.class));
     if (offer.isEmpty()) {
       return true; // validated in ReferencedFlexOfferMessageIdValidation
