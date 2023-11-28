@@ -119,7 +119,7 @@ class PeriodReferenceValidatorTest {
   ) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
-    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+    given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
             matchingMessageType))).willReturn(Optional.empty());
 
     // Matching message may not be found, although it should be there. This returns valid() == true
@@ -135,7 +135,7 @@ class PeriodReferenceValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
     setPeriod(matchingMessageType, matchingMessage, PERIOD);
-    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+    given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
             matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
@@ -149,7 +149,7 @@ class PeriodReferenceValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
 
     setPeriod(matchingMessageType, matchingMessage, OTHER);
-    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+    given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
             matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
     assertThat(testSubject.isValid(uftpMessage)).isFalse();

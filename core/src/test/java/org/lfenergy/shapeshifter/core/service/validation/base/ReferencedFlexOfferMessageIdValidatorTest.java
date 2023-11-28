@@ -100,7 +100,7 @@ class ReferencedFlexOfferMessageIdValidatorTest {
   @MethodSource("withParameter")
   void valid_true_whenFoundMessageIdIsOfKnownMessage(PayloadMessageType payloadMessage) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, CONVERSATION_ID,
+    given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, CONVERSATION_ID,
             FlexOffer.class))).willReturn(Optional.of(flexOffer));
 
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
@@ -110,7 +110,7 @@ class ReferencedFlexOfferMessageIdValidatorTest {
   @MethodSource("withParameter")
   void valid_false_whenFoundMessageIdIsOfUnknownMessage(PayloadMessageType payloadMessage) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-    given(messageSupport.getPreviousMessage(CONVERSATION_ID, uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, CONVERSATION_ID,
+    given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, CONVERSATION_ID,
             FlexOffer.class))).willReturn(Optional.empty());
 
     assertThat(testSubject.isValid(uftpMessage)).isFalse();

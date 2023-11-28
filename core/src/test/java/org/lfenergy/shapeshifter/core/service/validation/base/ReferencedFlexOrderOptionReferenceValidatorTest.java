@@ -27,7 +27,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.conversationId;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,7 +75,7 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
         flexOrder.setFlexOfferMessageID(FLEX_OFFER_ID);
         flexOrder.setConversationID(CONVERSATION_ID);
 
-        given(messageSupport.getPreviousMessage(eq(CONVERSATION_ID), any(UftpMessageReference.class))).willReturn(Optional.empty());
+        given(messageSupport.findReferencedMessage(any(UftpMessageReference.class))).willReturn(Optional.empty());
 
         assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
     }
@@ -93,7 +92,7 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
         offerOption.setOptionReference(OPTION_REFERENCE);
         flexOffer.getOfferOptions().add(offerOption);
 
-        given(messageSupport.getPreviousMessage(CONVERSATION_ID, new UftpMessageReference<>(FLEX_OFFER_ID, CONVERSATION_ID,
+        given(messageSupport.findReferencedMessage(new UftpMessageReference<>(FLEX_OFFER_ID, CONVERSATION_ID,
                 UftpMessageDirection.OUTGOING, AGR_DOMAIN, DSO_DOMAIN, FlexOffer.class))).willReturn(
                 Optional.of(flexOffer));
 
@@ -112,7 +111,7 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
         offerOption.setOptionReference("AnotherOptionReference");
         flexOffer.getOfferOptions().add(offerOption);
 
-        given(messageSupport.getPreviousMessage(CONVERSATION_ID, new UftpMessageReference<>(FLEX_OFFER_ID, CONVERSATION_ID,
+        given(messageSupport.findReferencedMessage(new UftpMessageReference<>(FLEX_OFFER_ID, CONVERSATION_ID,
                 UftpMessageDirection.OUTGOING, AGR_DOMAIN, DSO_DOMAIN, FlexOffer.class))).willReturn(
                 Optional.of(flexOffer));
 

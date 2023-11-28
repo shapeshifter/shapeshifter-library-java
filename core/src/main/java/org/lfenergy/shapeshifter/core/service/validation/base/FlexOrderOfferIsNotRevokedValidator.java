@@ -15,26 +15,27 @@ import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 @RequiredArgsConstructor
 public class FlexOrderOfferIsNotRevokedValidator implements UftpValidator<FlexOrder> {
 
-  private final UftpMessageSupport messageSupport;
+    private final UftpMessageSupport messageSupport;
 
-  @Override
-  public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
-    return FlexOrder.class.isAssignableFrom(clazz);
-  }
+    @Override
+    public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
+        return FlexOrder.class.isAssignableFrom(clazz);
+    }
 
-  @Override
-  public int order() {
-    return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
-  }
+    @Override
+    public int order() {
+        return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
+    }
 
-  @Override
-  public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
-    return !messageSupport.existsFlexRevocation(uftpMessage.payloadMessage().getConversationID(),
-            uftpMessage.payloadMessage().getFlexOfferMessageID(), uftpMessage.payloadMessage().getRecipientDomain());
-  }
+    @Override
+    public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
+        var msg = uftpMessage.payloadMessage();
+        return messageSupport.findFlexRevocation(msg.getConversationID(),
+                msg.getFlexOfferMessageID(), msg.getSenderDomain(), msg.getRecipientDomain()).isEmpty();
+    }
 
-  @Override
-  public String getReason() {
-    return "Reference message revoked";
-  }
+    @Override
+    public String getReason() {
+        return "Reference message revoked";
+    }
 }

@@ -46,7 +46,7 @@ public class FlexOptionRequestMatchValidator implements UftpValidator<FlexOffer>
       return true;
     }
 
-    var flexRequest = messageSupport.getPreviousMessage(flexOffer.getConversationID(), uftpMessage.referenceToPreviousMessage(flexOffer.getFlexRequestMessageID(),
+    var flexRequest = messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexOffer.getFlexRequestMessageID(),
             flexOffer.getConversationID(), FlexRequest.class));
     // if there is no flex request, then this is an unsolicited flex offer, which is perfectly fine
     if (flexRequest.isEmpty()) {

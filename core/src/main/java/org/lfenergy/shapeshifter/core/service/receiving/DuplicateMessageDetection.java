@@ -23,7 +23,7 @@ public class DuplicateMessageDetection {
   private final XmlSerializer serializer;
 
   public DuplicateMessageResult isDuplicate(PayloadMessageType newMessage) {
-    var previousMessage = support.getPreviousMessage(newMessage.getMessageID(), newMessage.getConversationID(), newMessage.getRecipientDomain());
+    var previousMessage = support.findDuplicateMessage(newMessage.getMessageID(), newMessage.getSenderDomain(), newMessage.getRecipientDomain());
     if (previousMessage.isEmpty()) {
       return DuplicateMessageResult.NEW_MESSAGE;
     }
