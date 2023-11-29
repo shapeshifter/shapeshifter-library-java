@@ -30,8 +30,11 @@ public record UftpMessage<T extends PayloadMessageType>(
    * @param <U> The type of message that is being referenced (e.g. FlexRequest).
    * @return Reference to the referenced message.
    */
-  public <U extends PayloadMessageType> UftpMessageReference<U> referenceToPreviousMessage(String referencedMessageID, Class<U> referencedType) {
+  public <U extends PayloadMessageType> UftpMessageReference<U> referenceToPreviousMessage(String referencedMessageID,
+                                                                                           String conversationID,
+                                                                                           Class<U> referencedType) {
     return new UftpMessageReference<>(referencedMessageID,
+                                      conversationID,
                                       // Having the correct direction is crucial for distinguishing between sender and recipient domain
                                       direction.inverse(),
                                       // Flip domains as the referencing message is sent by the recipient of the referenced message

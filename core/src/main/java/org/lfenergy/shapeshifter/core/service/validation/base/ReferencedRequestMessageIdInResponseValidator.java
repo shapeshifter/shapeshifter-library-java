@@ -28,7 +28,8 @@ public class ReferencedRequestMessageIdInResponseValidator implements UftpValida
   @Override
   public boolean isValid(UftpMessage<PayloadMessageResponseType> message) {
     var value = UftpRequestResponseMapping.getReferencedRequestMessageId(message.payloadMessage());
-    return value.isEmpty() || support.getPreviousMessage(value.get(), message.payloadMessage().getRecipientDomain()).isPresent();
+    return value.isEmpty() || support.findDuplicateMessage(value.get(), message.payloadMessage().getSenderDomain() ,
+            message.payloadMessage().getRecipientDomain()).isPresent();
   }
 
   @Override

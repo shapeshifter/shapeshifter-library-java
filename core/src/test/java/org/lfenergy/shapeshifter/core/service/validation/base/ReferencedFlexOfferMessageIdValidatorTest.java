@@ -4,6 +4,7 @@
 
 package org.lfenergy.shapeshifter.core.service.validation.base;
 
+import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.conversationId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -32,6 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ReferencedFlexOfferMessageIdValidatorTest {
 
   private static final String FLEX_OFFER_MESSAGE_ID = "FLEX_OFFER_MESSAGE_ID";
+  private static final String CONVERSATION_ID = conversationId();
 
   @Mock
   private UftpMessageSupport messageSupport;
@@ -76,9 +78,11 @@ class ReferencedFlexOfferMessageIdValidatorTest {
 
     FlexOfferRevocation revocation = new FlexOfferRevocation();
     revocation.setFlexOfferMessageID(FLEX_OFFER_MESSAGE_ID);
+    revocation.setConversationID(CONVERSATION_ID);
 
     FlexOrder flexOrder = new FlexOrder();
     flexOrder.setFlexOfferMessageID(FLEX_OFFER_MESSAGE_ID);
+    flexOrder.setConversationID(CONVERSATION_ID);
 
     return Stream.of(
         Arguments.of(revocation),
@@ -96,7 +100,8 @@ class ReferencedFlexOfferMessageIdValidatorTest {
   @MethodSource("withParameter")
   void valid_true_whenFoundMessageIdIsOfKnownMessage(PayloadMessageType payloadMessage) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, FlexOffer.class))).willReturn(Optional.of(flexOffer));
+    given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, CONVERSATION_ID,
+            FlexOffer.class))).willReturn(Optional.of(flexOffer));
 
     assertThat(testSubject.isValid(uftpMessage)).isTrue();
   }
@@ -105,7 +110,8 @@ class ReferencedFlexOfferMessageIdValidatorTest {
   @MethodSource("withParameter")
   void valid_false_whenFoundMessageIdIsOfUnknownMessage(PayloadMessageType payloadMessage) {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-    given(messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, FlexOffer.class))).willReturn(Optional.empty());
+    given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, CONVERSATION_ID,
+            FlexOffer.class))).willReturn(Optional.empty());
 
     assertThat(testSubject.isValid(uftpMessage)).isFalse();
   }

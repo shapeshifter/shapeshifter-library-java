@@ -5,11 +5,9 @@
 package org.lfenergy.shapeshifter.core.service.validation.message;
 
 import lombok.RequiredArgsConstructor;
-import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
-import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 

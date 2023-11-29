@@ -6,24 +6,20 @@ package org.lfenergy.shapeshifter.core.service.validation.base;
 
 import lombok.RequiredArgsConstructor;
 import org.lfenergy.shapeshifter.api.FlexOffer;
-import org.lfenergy.shapeshifter.api.FlexRequest;
+import org.lfenergy.shapeshifter.api.FlexOfferRevocation;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 
-import java.util.Optional;
-
-
 @RequiredArgsConstructor
-public class ReferencedFlexRequestMessageIdValidator implements UftpValidator<FlexOffer> {
-
-    private final UftpMessageSupport messageSupport;
+public class FlexOfferRevocationSenderDomainValidator implements UftpValidator<FlexOfferRevocation> {
+    private UftpMessageSupport uftpMessageSupport;
 
     @Override
     public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
-        return FlexOffer.class.isAssignableFrom(clazz);
+        return FlexOfferRevocation.class.isAssignableFrom(clazz);
     }
 
     @Override
@@ -32,14 +28,15 @@ public class ReferencedFlexRequestMessageIdValidator implements UftpValidator<Fl
     }
 
     @Override
-    public boolean isValid(UftpMessage<FlexOffer> uftpMessage) {
-        var flexRequestMessageID = Optional.ofNullable(uftpMessage.payloadMessage().getFlexRequestMessageID());
-        return flexRequestMessageID.isEmpty() || messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexRequestMessageID.get(),
-                uftpMessage.payloadMessage().getConversationID(), FlexRequest.class)).isPresent();
+    public boolean isValid(UftpMessage<FlexOfferRevocation> uftpMessage) {
+        var msg = uftpMessage.payloadMessage();
+        var originalFlexOffer = uftpMessageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(msg.getConversationID(),
+                msg.getFlexOfferMessageID(), FlexOffer.class));
+        return originalFlexOffer.isPresent() && msg.getSenderDomain().equals(originalFlexOffer.get().getSenderDomain());
     }
 
     @Override
     public String getReason() {
-        return "Unknown reference FlexRequestMessageID";
+        return "Flex Offer revocation can only be sent by the same Sender Domain that sent the Flex Offer";
     }
 }

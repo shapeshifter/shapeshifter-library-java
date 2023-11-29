@@ -5,8 +5,7 @@
 package org.lfenergy.shapeshifter.core.service.validation.base;
 
 import lombok.RequiredArgsConstructor;
-import org.lfenergy.shapeshifter.api.FlexOrder;
-import org.lfenergy.shapeshifter.api.FlexOrderSettlementStatusType;
+import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.FlexSettlementResponse;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
@@ -14,13 +13,9 @@ import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 
-import java.util.Set;
-
-import static org.lfenergy.shapeshifter.core.service.validation.tools.NullablesToLinkedSet.toSetIgnoreNulls;
-
 
 @RequiredArgsConstructor
-public class ReferencedFlexSettlementResponseOrderReferenceValidator implements UftpValidator<FlexSettlementResponse> {
+public class ReferencedFlexSettlementReferenceValidator implements UftpValidator<FlexSettlementResponse> {
 
     private final UftpMessageSupport messageSupport;
 
@@ -37,20 +32,13 @@ public class ReferencedFlexSettlementResponseOrderReferenceValidator implements 
     @Override
     public boolean isValid(UftpMessage<FlexSettlementResponse> uftpMessage) {
         var flexSettlementResponse = uftpMessage.payloadMessage();
-        var orderReferences = collectOrderReferences(flexSettlementResponse);
-        return orderReferences.isEmpty() || orderReferences.stream().allMatch(
-                orderReference -> messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(orderReference, flexSettlementResponse.getConversationID(),
-                        FlexOrder.class)).isPresent());
+        return messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexSettlementResponse.getFlexSettlementMessageID(),
+                uftpMessage.payloadMessage().getConversationID(),
+                FlexSettlement.class)).isPresent();
     }
 
     @Override
     public String getReason() {
-        return "Unknown reference OrderReference in FlexSettlementResponse";
-    }
-
-    private Set<String> collectOrderReferences(FlexSettlementResponse m) {
-        return m.getFlexOrderSettlementStatuses().stream()
-                .map(FlexOrderSettlementStatusType::getOrderReference)
-                .collect(toSetIgnoreNulls());
+        return "Flex Settlement Response refers to unknown Flex Settlement";
     }
 }

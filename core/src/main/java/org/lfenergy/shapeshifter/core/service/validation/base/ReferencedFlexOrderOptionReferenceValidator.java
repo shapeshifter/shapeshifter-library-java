@@ -17,36 +17,37 @@ import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 @RequiredArgsConstructor
 public class ReferencedFlexOrderOptionReferenceValidator implements UftpValidator<FlexOrder> {
 
-  private final UftpMessageSupport messageSupport;
+    private final UftpMessageSupport messageSupport;
 
-  @Override
-  public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
-    return FlexOrder.class.equals(clazz);
-  }
-
-  @Override
-  public int order() {
-    return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
-  }
-
-  @Override
-  public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
-    var flexOrder = uftpMessage.payloadMessage();
-
-    var optionReference = flexOrder.getOptionReference();
-    if (optionReference == null || optionReference.isEmpty()) {
-      return true;
+    @Override
+    public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
+        return FlexOrder.class.equals(clazz);
     }
 
-    return messageSupport.getPreviousMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(), FlexOffer.class))
-                         .map(flexOffer -> flexOffer.getOfferOptions()
-                                                    .stream()
-                                                    .anyMatch(option -> optionReference.equals(option.getOptionReference())))
-                         .orElse(true); // Missing FlexOffer is validated in a separate validator
-  }
+    @Override
+    public int order() {
+        return ValidationOrder.SPEC_MESSAGE_SPECIFIC;
+    }
 
-  @Override
-  public String getReason() {
-    return "Unknown reference OptionReference in FlexOrder";
-  }
+    @Override
+    public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
+        var flexOrder = uftpMessage.payloadMessage();
+
+        var optionReference = flexOrder.getOptionReference();
+        if (optionReference == null || optionReference.isEmpty()) {
+            return true;
+        }
+
+        return messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(),
+                        uftpMessage.payloadMessage().getConversationID(), FlexOffer.class))
+                .map(flexOffer -> flexOffer.getOfferOptions()
+                        .stream()
+                        .anyMatch(option -> optionReference.equals(option.getOptionReference())))
+                .orElse(true); // Missing FlexOffer is validated in a separate validator
+    }
+
+    @Override
+    public String getReason() {
+        return "Unknown reference OptionReference in FlexOrder";
+    }
 }
