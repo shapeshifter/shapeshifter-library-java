@@ -5,6 +5,7 @@
 package org.lfenergy.shapeshifter.core.service.validation.base;
 
 import lombok.RequiredArgsConstructor;
+import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexOrderSettlementStatusType;
 import org.lfenergy.shapeshifter.api.FlexSettlementResponse;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
@@ -38,8 +39,8 @@ public class ReferencedFlexSettlementResponseOrderReferenceValidator implements 
         var flexSettlementResponse = uftpMessage.payloadMessage();
         var orderReferences = collectOrderReferences(flexSettlementResponse);
         return orderReferences.isEmpty() || orderReferences.stream().allMatch(
-                orderReference -> messageSupport.isValidOrderReference(orderReference, flexSettlementResponse.getConversationID(),
-                        flexSettlementResponse.getRecipientDomain()));
+                orderReference -> messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(orderReference, flexSettlementResponse.getConversationID(),
+                        FlexOrder.class)).isPresent());
     }
 
     @Override
