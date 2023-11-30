@@ -67,9 +67,17 @@ For example if the version in the pom.xml is `1.0.0-SNAPSHOT`, then the released
 1. Click `Run workflow` for the [Release workflow](https://github.com/shapeshifter/shapeshifter-library/actions/workflows/release.yml). Select the `main` branch.
 2. This will build and upload version `x.x.0` to the Maven repository and will set the next development version on the branch to `x.x.0-SNAPSHOT`.
 
-By default, the minor version will be incremented. If you want to release or start work on a new major version, you will have to manually update the `pom.xml` to the new major version (appending `-SNAPSHOT`) before triggering the workflow.
+By default, the minor version will be incremented. 
 
-To manually update the `pom.xml`'s to a new major version, you can use the following command:
+If you want to release or start work on a new major version, you can do the following :
+1. Select the `Actions` tab in the `shapeshifter-library-java` project.
+2. Click the `Release` workflow in the left hand menu.
+3. Click on the `Run workflow` button
+4. This will open a small popup window; first select the branch from which you want to create a release; usually this will be the `main` branch.
+5. In the popup enter the release version, and the next development version
+6. Click the `Run workflow` button; this will create the artefacts, update the `pom.xml` with the new development version, and upload it all to Maven central.
+
+Alternatively, you can manually update the `pom.xml` to a new major version with the following command:
 ```shell
 mvn versions:set -DnewVersion=x.0.0-SHAPSHOT
 ```
