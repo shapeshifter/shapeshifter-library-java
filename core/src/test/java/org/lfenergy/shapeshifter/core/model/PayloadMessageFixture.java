@@ -4,7 +4,11 @@
 
 package org.lfenergy.shapeshifter.core.model;
 
-import org.lfenergy.shapeshifter.api.*;
+import org.lfenergy.shapeshifter.api.AvailableRequestedType;
+import org.lfenergy.shapeshifter.api.FlexRequest;
+import org.lfenergy.shapeshifter.api.FlexRequestISPType;
+import org.lfenergy.shapeshifter.api.FlexRequestResponse;
+import org.lfenergy.shapeshifter.api.TestMessage;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -47,6 +51,16 @@ public class PayloadMessageFixture {
         flexRequest.getISPS().add(isp);
 
         return flexRequest;
+    }
+
+    public static FlexRequestResponse createTestFlexRequestResponse(String messageId, String senderDomain, String recipientDomain) {
+        var flexRequestResponse = new FlexRequestResponse();
+        flexRequestResponse.setMessageID(messageId);
+        flexRequestResponse.setConversationID(CONVERSATION_ID);
+        flexRequestResponse.setSenderDomain(senderDomain);
+        flexRequestResponse.setRecipientDomain(recipientDomain);
+        flexRequestResponse.setTimeStamp(NOW);
+        return flexRequestResponse;
     }
 
     public static TestMessage createTestMessage(String messageId, String senderDomain, String recipientDomain) {

@@ -139,7 +139,7 @@ public class ShapeshifterConfiguration {
                 new ReferencedFlexOrderOptionReferenceValidator(uftpMessageSupport),
                 new ReferencedFlexRequestMessageIdValidator(uftpMessageSupport),
                 new ReferencedFlexSettlementResponseOrderReferenceValidator(uftpMessageSupport),
-                new ReferencedRequestMessageIdInResponseValidator(uftpMessageSupport),
+                new ReferencedFlexRequestMessageIdInResponseValidator(uftpMessageSupport),
                 new SenderMatchesEnvelopeValidator(),
                 new SenderRoleMatchesContentTypeValidator(),
                 new TimeZoneSupportedValidator(uftpValidatorSupport),
