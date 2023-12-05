@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestResponse;
+import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.TestMessageResponse;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
@@ -30,7 +31,7 @@ class ReferencedFlexRequestMessageIdInResponseValidatorTest {
     private ReferencedFlexRequestMessageIdInResponseValidator testSubject;
 
     private final UftpParticipant sender = new UftpParticipant("example.com", USEFRoleType.DSO);
-    private final FlexRequestResponse flexRequestResponse = new FlexRequestResponse();
+    private final PayloadMessageResponseType flexRequestResponse = new FlexRequestResponse();
     private final FlexRequest flexRequest = new FlexRequest();
 
     @Test
@@ -45,7 +46,7 @@ class ReferencedFlexRequestMessageIdInResponseValidatorTest {
 
     @Test
     void valid_whenNoFlexRequestReferenceInResponse() {
-        flexRequestResponse.setFlexRequestMessageID(null);
+        ((FlexRequestResponse) flexRequestResponse).setFlexRequestMessageID(null);
 
         assertThat(testSubject.isValid(UftpMessageFixture.createIncomingResponse(sender, flexRequestResponse))).isFalse();
     }
@@ -54,7 +55,7 @@ class ReferencedFlexRequestMessageIdInResponseValidatorTest {
     void valid_whenFlexRequestReferenceInResponseIsKnown() {
         var uftpMessage = UftpMessageFixture.createIncomingResponse(sender, flexRequestResponse);
 
-        flexRequestResponse.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
+        ((FlexRequestResponse) flexRequestResponse).setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
         flexRequestResponse.setConversationID(CONVERSATION_ID);
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
                 FlexRequest.class))).willReturn(Optional.of(flexRequest));
@@ -66,7 +67,7 @@ class ReferencedFlexRequestMessageIdInResponseValidatorTest {
     void invalid_whenReferenceInResponseIsNotKnown() {
         var uftpMessage = UftpMessageFixture.createIncomingResponse(sender, flexRequestResponse);
 
-        flexRequestResponse.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
+        ((FlexRequestResponse) flexRequestResponse).setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
         flexRequestResponse.setConversationID(CONVERSATION_ID);
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
                 FlexRequest.class))).willReturn(Optional.empty());

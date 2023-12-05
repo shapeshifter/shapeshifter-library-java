@@ -3,7 +3,7 @@ package org.lfenergy.shapeshifter.core.service.validation.base;
 
 import lombok.RequiredArgsConstructor;
 import org.lfenergy.shapeshifter.api.FlexRequest;
-import org.lfenergy.shapeshifter.api.FlexRequestResponse;
+import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpRequestResponseMapping;
@@ -12,7 +12,7 @@ import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 
 
 @RequiredArgsConstructor
-public class ReferencedFlexRequestMessageIdInResponseValidator implements UftpValidator<FlexRequestResponse> {
+public class ReferencedFlexRequestMessageIdInResponseValidator implements UftpValidator<PayloadMessageResponseType> {
 
     private final UftpMessageSupport support;
 
@@ -27,9 +27,9 @@ public class ReferencedFlexRequestMessageIdInResponseValidator implements UftpVa
     }
 
     @Override
-    public boolean isValid(UftpMessage<FlexRequestResponse> message) {
-        var value = message.payloadMessage().getFlexRequestMessageID();
-        return value != null && support.findReferencedMessage(message.referenceToPreviousMessage(value, message.payloadMessage().getConversationID(),
+    public boolean isValid(UftpMessage<PayloadMessageResponseType> message) {
+        var value = UftpRequestResponseMapping.getReferencedRequestMessageId(message.payloadMessage());
+        return value.isPresent() && support.findReferencedMessage(message.referenceToPreviousMessage(value.get(), message.payloadMessage().getConversationID(),
                 FlexRequest.class)).isPresent();
     }
 
