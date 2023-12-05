@@ -12,7 +12,7 @@ import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 
 
 @RequiredArgsConstructor
-public class ReferencedFlexRequestMessageIdInResponseValidator implements UftpValidator<PayloadMessageResponseType> {
+public class ReferencedRequestMessageIdInResponseValidator implements UftpValidator<PayloadMessageResponseType> {
 
     private final UftpMessageSupport support;
 

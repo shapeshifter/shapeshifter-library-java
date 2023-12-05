@@ -21,14 +21,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class ReferencedFlexRequestMessageIdInResponseValidatorTest {
+class ReferencedRequestMessageIdInResponseValidatorTest {
     private static final String FLEX_REQUEST_MESSAGE_ID = UUID.randomUUID().toString();
     private static final String CONVERSATION_ID = UUID.randomUUID().toString();
     @Mock
     private UftpMessageSupport messageSupport;
 
     @InjectMocks
-    private ReferencedFlexRequestMessageIdInResponseValidator testSubject;
+    private ReferencedRequestMessageIdInResponseValidator testSubject;
 
     private final UftpParticipant sender = new UftpParticipant("example.com", USEFRoleType.DSO);
     private final PayloadMessageResponseType flexRequestResponse = new FlexRequestResponse();
