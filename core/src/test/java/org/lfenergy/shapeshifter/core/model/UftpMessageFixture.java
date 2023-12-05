@@ -4,6 +4,7 @@
 
 package org.lfenergy.shapeshifter.core.model;
 
+import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 
 public final class UftpMessageFixture {
@@ -13,6 +14,9 @@ public final class UftpMessageFixture {
   }
 
   public static <T extends PayloadMessageType> UftpMessage<T> createIncoming(UftpParticipant sender, T payloadMessage) {
+    return new UftpMessage<>(sender, UftpMessageDirection.INCOMING, payloadMessage);
+  }
+  public static <T extends PayloadMessageResponseType> UftpMessage<T> createIncomingResponse(UftpParticipant sender, T payloadMessage) {
     return new UftpMessage<>(sender, UftpMessageDirection.INCOMING, payloadMessage);
   }
 

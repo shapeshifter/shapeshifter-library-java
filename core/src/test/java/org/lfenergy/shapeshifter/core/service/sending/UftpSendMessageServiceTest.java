@@ -65,7 +65,6 @@ class UftpSendMessageServiceTest {
   @Mock
   private UftpValidationService uftpValidationService;
 
-
   private UftpSendMessageService testSubject;
 
   @Mock
