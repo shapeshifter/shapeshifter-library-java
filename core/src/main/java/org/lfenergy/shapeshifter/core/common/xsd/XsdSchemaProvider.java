@@ -5,11 +5,13 @@
 package org.lfenergy.shapeshifter.core.common.xsd;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.XMLConstants;
 import javax.xml.validation.Schema;
 import javax.xml.validation.Validator;
+
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -19,11 +21,11 @@ import org.xml.sax.SAXNotSupportedException;
 public class XsdSchemaProvider {
 
   // Not using java.net.URL as key is deliberate since URL#equals() is known for its dependency on DNS resolution
-  private static final Map<String, XsdSchemaPool> cache = new HashMap<>();
+  private static final Map<String, XsdSchemaPool> CACHE = new ConcurrentHashMap<>();
 
   private final XsdFactory xsdFactory;
 
-  public Validator getValidator(final URL xsd) {
+  public Validator getValidator(@NonNull final URL xsd) {
     Schema schema = null;
     try {
       schema = claim(xsd);
@@ -46,11 +48,11 @@ public class XsdSchemaProvider {
   }
 
   private Schema claim(final URL xsd) {
-    return cache.computeIfAbsent(xsd.toString(), key -> xsdFactory.newXsdSchemaPool(xsd))
+    return CACHE.computeIfAbsent(xsd.toString(), key -> xsdFactory.newXsdSchemaPool(xsd))
                 .claim();
   }
 
   private void release(final URL xsd, Schema schema) {
-    cache.get(xsd.toString()).release(schema);
+    CACHE.get(xsd.toString()).release(schema);
   }
 }
