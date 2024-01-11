@@ -37,8 +37,12 @@ public class UftpSendMessageService {
 
     private static final int MAX_FOLLOW_REDIRECTS = 2;
     private static final Set<HttpStatusCode> FOLLOW_REDIRECT_STATUS_CODES = EnumSet.of(
-            HttpStatusCode.MOVED_PERMANENTLY,
-            HttpStatusCode.FOUND,
+            // These redirect status codes are not followed:
+            // - 300 Multiple Choices: not applicable to Shapeshifter
+            // - 301 Moved Permanently: only for GET and HEAD
+            // - 303 See Other: the redirect Location will always use GET
+            // - 304 Not Modified: only for GET and HEAD (with If-None-Match or If-Modified-Since header)
+            // - 305 Use Proxy: deprecated
             HttpStatusCode.TEMPORARY_REDIRECT,
             HttpStatusCode.PERMANENT_REDIRECT
     );
@@ -142,6 +146,7 @@ public class UftpSendMessageService {
             var httpStatusCode = HttpStatusCode.getByValue(response.statusCode());
 
             if (!httpStatusCode.isSuccess()) {
+                // According to the specification: redirects (responses with status code 3xx) should be honored in order to support load balancing
                 if (httpStatusCode.isRedirect() && FOLLOW_REDIRECT_STATUS_CODES.contains(httpStatusCode)) {
                     if (maxFollowRedirects <= 0) {
                         throw new UftpSendException(MessageFormat.format(MSG_TOO_MANY_REDIRECTS, url));
