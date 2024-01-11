@@ -115,4 +115,7 @@ public enum HttpStatusCode {
     return value >= 500;
   }
 
+  public boolean isRedirect() {
+    return value >= 300 && value < 400;
+  }
 }
