@@ -8,23 +8,27 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.util.JAXBResult;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 
 public class JAXBTools {
 
-  private static final Map<Class<?>, JAXBContext> jaxbContexts = new HashMap<>();
+  private static final Map<Class<?>, JAXBContext> JAXB_CONTEXTS = new ConcurrentHashMap<>();
 
   public JAXBContext getJAXBContext(final Class<?> type) {
-    if (!jaxbContexts.containsKey(type)) {
-      try {
-        jaxbContexts.put(type, JAXBContext.newInstance(type));
-      } catch (final Exception cause) {
-        throw new UftpConnectorException("Failed to create JAXBContext for class: " + type, cause);
+      if (type == null) {
+          throw new UftpConnectorException("Type to (de)serialize must be specified");
       }
-    }
-    return jaxbContexts.get(type);
+      return JAXB_CONTEXTS.computeIfAbsent(type, key -> createJAXBContext(type));
+  }
+
+  private static JAXBContext createJAXBContext(Class<?> type) {
+      try {
+          return JAXBContext.newInstance(type);
+      } catch (final Exception cause) {
+          throw new UftpConnectorException("Failed to create JAXBContext for class: " + type, cause);
+      }
   }
 
   public Marshaller createMarshaller(final Class<?> type) {

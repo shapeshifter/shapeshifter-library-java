@@ -17,6 +17,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -78,8 +79,9 @@ class UftpSendMessageServiceTest {
 
   @BeforeAll
   public static void setupWireMockServer() {
-    wireMockServer = new WireMockServer();
+    wireMockServer = new WireMockServer(0);
     wireMockServer.start();
+    WireMock.configureFor(wireMockServer.port());
     setupWiremockStubs();
   }
 

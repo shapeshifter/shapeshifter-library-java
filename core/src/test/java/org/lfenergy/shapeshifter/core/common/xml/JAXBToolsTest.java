@@ -6,6 +6,7 @@ package org.lfenergy.shapeshifter.core.common.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.lfenergy.shapeshifter.core.UftpTestSupport.assertException;
 import static org.lfenergy.shapeshifter.core.UftpTestSupport.assertExceptionCauseNotNull;
 
 import jakarta.xml.bind.JAXBContext;
@@ -44,7 +45,7 @@ class JAXBToolsTest {
   void getContextThrowsOnNull() {
     UftpConnectorException actual = assertThrows(UftpConnectorException.class, () -> jaxbTools.getJAXBContext(null));
 
-    assertExceptionCauseNotNull(actual, "Failed to create JAXBContext for class: null");
+    assertException(actual, "Type to (de)serialize must be specified");
   }
 
   @Test
