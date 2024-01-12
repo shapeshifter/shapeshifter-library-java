@@ -154,7 +154,7 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"MOVED_PERMANENTLY", "FOUND", "TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
+    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
     void attemptToSendMessage_3xx_followRedirect(HttpStatusCode statusCode) {
         mockSerialisation();
         mockSending();
@@ -173,7 +173,7 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"MOVED_PERMANENTLY", "FOUND", "TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
+    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
     void attemptToSendMessage_3xx_followRedirect_thenError(HttpStatusCode statusCode) {
         mockSerialisation();
         mockSending();
@@ -199,7 +199,7 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"MOVED_PERMANENTLY", "FOUND", "TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
+    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
     void attemptToSendMessage_3xx_followRedirect_locationHeaderMissing(HttpStatusCode statusCode) {
         mockSerialisation();
         mockSending();
@@ -224,7 +224,7 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"MOVED_PERMANENTLY", "FOUND", "TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
+    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
     void attemptToSendMessage_3xx_followRedirect_tooManyRedirects(HttpStatusCode statusCode) {
         mockSerialisation();
         mockSending();
@@ -249,8 +249,8 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"SEE_OTHER", "MULTIPLE_CHOICES", "USE_PROXY", "NOT_MODIFIED"})
-    void attemptToSendMessage_3xx_noRedirect(HttpStatusCode statusCode) {
+    @EnumSource(value = HttpStatusCode.class, names = {"MOVED_PERMANENTLY", "FOUND", "SEE_OTHER", "MULTIPLE_CHOICES", "USE_PROXY", "NOT_MODIFIED"})
+    void attemptToSendMessage_3xx_doNotFollowRedirect(HttpStatusCode statusCode) {
         mockSerialisation();
         mockSending();
 
