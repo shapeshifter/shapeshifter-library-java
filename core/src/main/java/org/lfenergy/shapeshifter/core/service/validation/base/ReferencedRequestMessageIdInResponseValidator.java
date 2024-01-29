@@ -2,7 +2,6 @@ package org.lfenergy.shapeshifter.core.service.validation.base;
 
 
 import lombok.RequiredArgsConstructor;
-import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
@@ -29,8 +28,13 @@ public class ReferencedRequestMessageIdInResponseValidator implements UftpValida
     @Override
     public boolean isValid(UftpMessage<PayloadMessageResponseType> message) {
         var value = UftpRequestResponseMapping.getReferencedRequestMessageId(message.payloadMessage());
-        return value.isPresent() && support.findReferencedMessage(message.referenceToPreviousMessage(value.get(), message.payloadMessage().getConversationID(),
-                FlexRequest.class)).isPresent();
+        return value.isPresent() && support.findReferencedMessage(
+                message.referenceToPreviousMessage(
+                        value.get(),
+                        message.payloadMessage().getConversationID(),
+                        UftpRequestResponseMapping.getRequestTypeFor(message.payloadMessage())
+                )
+        ).isPresent();
     }
 
     @Override
