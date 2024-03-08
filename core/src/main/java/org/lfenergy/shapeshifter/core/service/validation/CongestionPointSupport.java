@@ -30,8 +30,8 @@ public interface CongestionPointSupport {
   /**
    * Checks whether every congestion point in a given list is a known congestion point
    *
-   * @param connectionPoints The list of congestion points to be checked
+   * @param congestionPoints The list of congestion points to be checked
    * @return Whether all given congestion points are a known congestion point
    */
-  boolean areKnownCongestionPoints(Collection<EntityAddress> connectionPoints);
+  boolean areKnownCongestionPoints(Collection<EntityAddress> congestionPoints);
 }

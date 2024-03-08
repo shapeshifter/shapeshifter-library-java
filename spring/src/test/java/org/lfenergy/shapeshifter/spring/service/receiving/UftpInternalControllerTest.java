@@ -15,8 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.SignedMessage;
+import org.lfenergy.shapeshifter.api.USEFRoleType;
 import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
+import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
 import org.lfenergy.shapeshifter.core.service.UftpErrorProcessor;
 import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.core.service.receiving.ReceivedMessageProcessor;
@@ -58,6 +60,8 @@ class UftpInternalControllerTest {
   private RuntimeException runtimeException;
   @Captor
   private ArgumentCaptor<UftpConnectorException> uftpExceptionCaptor;
+  @Captor
+  private ArgumentCaptor<IncomingUftpMessage<? extends PayloadMessageType>> incomingUftpMessageCaptor;
 
   @AfterEach
   void noMore() {
@@ -108,6 +112,7 @@ class UftpInternalControllerTest {
   void receiveUftpMessageOk() {
     given(deserializer.fromSignedXml(TRANSPORT_XML)).willReturn(signedMessage);
     given(signedMessage.getSenderDomain()).willReturn(SENDER_DOMAIN);
+    given(signedMessage.getSenderRole()).willReturn(USEFRoleType.DSO);
     given(uftpCryptoService.verifySignedMessage(signedMessage)).willReturn(PAYLOAD_XML);
     given(deserializer.fromPayloadXml(PAYLOAD_XML)).willReturn(payloadMessage);
 
@@ -115,6 +120,13 @@ class UftpInternalControllerTest {
 
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(result.getBody()).isNull();
-    verify(processor).onReceivedMessage(signedMessage, payloadMessage);
+    verify(processor).onReceivedMessage(incomingUftpMessageCaptor.capture());
+
+    var incomingUftpMessage = incomingUftpMessageCaptor.getValue();
+    assertThat(incomingUftpMessage.sender().domain()).isEqualTo(SENDER_DOMAIN);
+    assertThat(incomingUftpMessage.sender().role()).isEqualTo(USEFRoleType.DSO);
+    assertThat(incomingUftpMessage.payloadMessage()).isSameAs(payloadMessage);
+    assertThat(incomingUftpMessage.signedMessageXml()).isEqualTo(TRANSPORT_XML);
+    assertThat(incomingUftpMessage.payloadMessageXml()).isEqualTo(PAYLOAD_XML);
   }
 }

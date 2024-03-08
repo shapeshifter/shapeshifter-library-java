@@ -4,46 +4,19 @@
 
 package org.lfenergy.shapeshifter.spring;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.lfenergy.shapeshifter.api.USEFRoleType.AGR;
-import static org.lfenergy.shapeshifter.api.USEFRoleType.DSO;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.TimeZone;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.lfenergy.shapeshifter.api.AcceptedRejectedType;
-import org.lfenergy.shapeshifter.api.AvailableRequestedType;
-import org.lfenergy.shapeshifter.api.FlexRequest;
-import org.lfenergy.shapeshifter.api.FlexRequestISPType;
-import org.lfenergy.shapeshifter.api.FlexRequestResponse;
-import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.api.TestMessage;
-import org.lfenergy.shapeshifter.api.TestMessageResponse;
-import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.api.*;
 import org.lfenergy.shapeshifter.api.model.UftpParticipantInformation;
+import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
+import org.lfenergy.shapeshifter.core.model.OutgoingUftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.UftpErrorProcessor;
 import org.lfenergy.shapeshifter.core.service.UftpParticipantService;
 import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.core.service.receiving.UftpReceivedMessageService;
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
-import org.lfenergy.shapeshifter.core.service.validation.CongestionPointSupport;
-import org.lfenergy.shapeshifter.core.service.validation.ContractSupport;
-import org.lfenergy.shapeshifter.core.service.validation.ParticipantSupport;
-import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
-import org.lfenergy.shapeshifter.core.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.core.service.validation.*;
 import org.lfenergy.shapeshifter.spring.ShapeshifterSpringIntegrationTest.TestConfig;
 import org.lfenergy.shapeshifter.spring.config.EnableShapeshifter;
 import org.lfenergy.shapeshifter.spring.service.handler.UftpIncomingHandler;
@@ -58,6 +31,23 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.TimeZone;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.lfenergy.shapeshifter.api.USEFRoleType.AGR;
+import static org.lfenergy.shapeshifter.api.USEFRoleType.DSO;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UftpInternalController.class)
 @ContextConfiguration(classes = TestConfig.class)
@@ -116,9 +106,9 @@ class ShapeshifterSpringIntegrationTest {
   private MockMvc mockMvc;
 
   @Captor
-  private ArgumentCaptor<PayloadMessageType> requestCaptor;
+  private ArgumentCaptor<IncomingUftpMessage<PayloadMessageType>> incomingUftpMessageCaptor;
   @Captor
-  private ArgumentCaptor<PayloadMessageType> responseCaptor;
+  private ArgumentCaptor<OutgoingUftpMessage<PayloadMessageType>> outgoingUftpMessageCaptor;
 
   @BeforeEach
   void setUp() {
@@ -138,16 +128,21 @@ class ShapeshifterSpringIntegrationTest {
                         .content(createSignedMessageXml(DSO_PARTICIPANT, flexRequest)))
            .andExpect(status().isOk());
 
-    verify(uftpIncomingHandler).handle(eq(DSO_PARTICIPANT), requestCaptor.capture());
+    verify(uftpIncomingHandler).handle(incomingUftpMessageCaptor.capture());
 
-    var request = (FlexRequest) requestCaptor.getValue();
+    var incomingUftpMessage = incomingUftpMessageCaptor.getValue();
+    assertThat(incomingUftpMessage.sender()).isEqualTo(DSO_PARTICIPANT);
+
+    var request = (FlexRequest) incomingUftpMessage.payloadMessage();
     assertThat(request).usingRecursiveComparison().isEqualTo(flexRequest);
 
-    uftpReceivedMessageService.process(DSO_PARTICIPANT, requestCaptor.getValue());
+    uftpReceivedMessageService.process(incomingUftpMessage);
 
-    verify(uftpOutgoingHandler).handle(eq(AGR_PARTICIPANT), responseCaptor.capture());
+    verify(uftpOutgoingHandler).handle(outgoingUftpMessageCaptor.capture());
 
-    var response = (FlexRequestResponse) responseCaptor.getValue();
+    var outgoingUftpMessage = outgoingUftpMessageCaptor.getValue();
+    assertThat(outgoingUftpMessage.sender()).isEqualTo(AGR_PARTICIPANT);
+    var response = (FlexRequestResponse) outgoingUftpMessage.payloadMessage();
     assertThat(response.getFlexRequestMessageID()).isEqualTo(flexRequest.getMessageID());
     assertThat(response.getResult()).isEqualTo(AcceptedRejectedType.ACCEPTED);
     assertThat(response.getRejectionReason()).isBlank();
@@ -185,16 +180,20 @@ class ShapeshifterSpringIntegrationTest {
                         .content(createSignedMessageXml(DSO_PARTICIPANT, flexRequest)))
            .andExpect(status().isOk());
 
-    verify(uftpIncomingHandler).handle(eq(DSO_PARTICIPANT), requestCaptor.capture());
+    verify(uftpIncomingHandler).handle(incomingUftpMessageCaptor.capture());
 
-    var request = (FlexRequest) requestCaptor.getValue();
+    var incomingUftpMessage = incomingUftpMessageCaptor.getValue();
+    assertThat(incomingUftpMessage.sender()).isEqualTo(DSO_PARTICIPANT);
+    var request = (FlexRequest) incomingUftpMessage.payloadMessage();
     assertThat(request).usingRecursiveComparison().isEqualTo(flexRequest);
 
-    uftpReceivedMessageService.process(DSO_PARTICIPANT, requestCaptor.getValue());
+    uftpReceivedMessageService.process(incomingUftpMessage);
 
-    verify(uftpOutgoingHandler).handle(eq(AGR_PARTICIPANT), responseCaptor.capture());
+    verify(uftpOutgoingHandler).handle(outgoingUftpMessageCaptor.capture());
 
-    var response = (FlexRequestResponse) responseCaptor.getValue();
+    var outgoingUftpMessage = outgoingUftpMessageCaptor.getValue();
+    assertThat(outgoingUftpMessage.sender()).isEqualTo(AGR_PARTICIPANT);
+    var response = (FlexRequestResponse) outgoingUftpMessage.payloadMessage();
     assertThat(response.getFlexRequestMessageID()).isEqualTo(flexRequest.getMessageID());
     assertThat(response.getResult()).isEqualTo(AcceptedRejectedType.REJECTED);
     assertThat(response.getRejectionReason()).isEqualTo("ISP duration rejected");
@@ -214,16 +213,20 @@ class ShapeshifterSpringIntegrationTest {
                         .content(createSignedMessageXml(DSO_PARTICIPANT, testMessage)))
            .andExpect(status().isOk());
 
-    verify(uftpIncomingHandler).handle(eq(DSO_PARTICIPANT), requestCaptor.capture());
+    verify(uftpIncomingHandler).handle(incomingUftpMessageCaptor.capture());
 
-    var request = (TestMessage) requestCaptor.getValue();
+    var incomingUftpMessage = incomingUftpMessageCaptor.getValue();
+    assertThat(incomingUftpMessage.sender()).isEqualTo(DSO_PARTICIPANT);
+    var request = (TestMessage) incomingUftpMessage.payloadMessage();
     assertThat(request).usingRecursiveComparison().isEqualTo(testMessage);
 
-    uftpReceivedMessageService.process(DSO_PARTICIPANT, requestCaptor.getValue());
+    uftpReceivedMessageService.process(incomingUftpMessage);
 
-    verify(uftpOutgoingHandler).handle(eq(AGR_PARTICIPANT), responseCaptor.capture());
+    verify(uftpOutgoingHandler).handle(outgoingUftpMessageCaptor.capture());
 
-    var response = (TestMessageResponse) responseCaptor.getValue();
+    var outgoingUftpMessage = outgoingUftpMessageCaptor.getValue();
+    assertThat(outgoingUftpMessage.sender()).isEqualTo(AGR_PARTICIPANT);
+    var response = (TestMessageResponse) outgoingUftpMessage.payloadMessage();
     assertThat(response.getSenderDomain()).isEqualTo(AGR_DOMAIN);
     assertThat(response.getRecipientDomain()).isEqualTo(DSO_DOMAIN);
     assertThat(response.getConversationID()).isEqualTo(testMessage.getConversationID());

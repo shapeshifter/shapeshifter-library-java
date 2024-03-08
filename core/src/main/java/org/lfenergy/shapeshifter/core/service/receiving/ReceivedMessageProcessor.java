@@ -7,12 +7,15 @@ package org.lfenergy.shapeshifter.core.service.receiving;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.api.SignedMessage;
+import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.UftpErrorProcessor;
 import org.lfenergy.shapeshifter.core.service.handler.UftpPayloadHandler;
 import org.lfenergy.shapeshifter.core.service.receiving.DuplicateMessageDetection.DuplicateMessageResult;
 
+/**
+ * This is an internal API and should not be used by applications. It may change or be removed in a future release.
+ */
 @CommonsLog
 @RequiredArgsConstructor
 public class ReceivedMessageProcessor {
@@ -21,8 +24,9 @@ public class ReceivedMessageProcessor {
   private final DuplicateMessageDetection duplicateDetection;
   private final UftpErrorProcessor errorProcessor;
 
-  public void onReceivedMessage(SignedMessage signedMessage, PayloadMessageType request) {
-    var sender = new UftpParticipant(signedMessage);
+  public void onReceivedMessage(IncomingUftpMessage<? extends PayloadMessageType> message) {
+    var request = message.payloadMessage();
+    var sender = message.sender();
     log.debug(String.format("Processing of received %s message from %s", request.getClass().getSimpleName(), sender));
 
     if (isDuplicateMessage(sender, request)) {
@@ -30,7 +34,7 @@ public class ReceivedMessageProcessor {
           "Received " + request.getClass().getSimpleName() + " with MessageID '" + request.getMessageID() + "' from " + sender + " is a duplicate and has already been received.");
     }
 
-    payloadHandler.notifyNewIncomingMessage(sender, request);
+    payloadHandler.notifyNewIncomingMessage(message);
   }
 
   private boolean isDuplicateMessage(UftpParticipant sender, PayloadMessageType payloadMessage) {

@@ -4,12 +4,12 @@
 
 package org.lfenergy.shapeshifter.core.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class UftpMessageTest {
 
@@ -22,12 +22,16 @@ class UftpMessageTest {
   void createIncoming() {
     var sender = new UftpParticipant(DSO_DOMAIN, USEFRoleType.DSO);
     var payloadMessage = new FlexRequest();
+    var signedMessageXml = "<SignedMessage/>";
+    var payloadMessageXml = "<FlexRequest/>";
 
-    var uftpMessage = UftpMessage.createIncoming(sender, payloadMessage);
+    var uftpMessage = UftpMessage.createIncoming(sender, payloadMessage, signedMessageXml, payloadMessageXml);
 
     assertThat(uftpMessage.direction()).isEqualTo(UftpMessageDirection.INCOMING);
     assertThat(uftpMessage.payloadMessage()).isSameAs(payloadMessage);
     assertThat(uftpMessage.sender()).isSameAs(sender);
+    assertThat(uftpMessage.signedMessageXml()).isEqualTo(signedMessageXml);
+    assertThat(uftpMessage.payloadMessageXml()).isEqualTo(payloadMessageXml);
   }
 
   @Test

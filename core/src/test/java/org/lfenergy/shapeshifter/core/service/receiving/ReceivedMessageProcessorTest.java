@@ -21,6 +21,7 @@ import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestResponse;
 import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.UftpErrorProcessor;
 import org.lfenergy.shapeshifter.core.service.handler.UftpPayloadHandler;
@@ -36,6 +37,8 @@ class ReceivedMessageProcessorTest {
   private static final String SENDER_DOMAIN = "SENDER_DOMAIN";
   private static final USEFRoleType SENDER_ROLE = USEFRoleType.AGR;
   private static final String MESSAGE_ID = "MESSAGE_ID";
+  private static final String SIGNED_MESSAGE_XML = "TRANSPORT_XML";
+  private static final String PAYLOAD_MESSAGE_XML = "PAYLOAD_XML";
 
   @Mock
   private UftpPayloadHandler payloadHandler;
@@ -84,14 +87,10 @@ class ReceivedMessageProcessorTest {
 
     given(duplicateDetection.isDuplicate(businessMsg)).willReturn(NEW_MESSAGE);
 
-    testSubject.onReceivedMessage(signedMessage, businessMsg);
+    var incomingUftpMessage = IncomingUftpMessage.create(new UftpParticipant(signedMessage), businessMsg, SIGNED_MESSAGE_XML, PAYLOAD_MESSAGE_XML);
+    testSubject.onReceivedMessage(incomingUftpMessage);
 
-    verify(payloadHandler, times(1)).notifyNewIncomingMessage(senderCaptor.capture(), eq(businessMsg));
-
-    assertThat(senderCaptor.getAllValues()).hasSize(1);
-    UftpParticipant sender = senderCaptor.getValue();
-    assertThat(sender.domain()).isEqualTo(SENDER_DOMAIN);
-    assertThat(sender.role()).isEqualTo(SENDER_ROLE);
+    verify(payloadHandler, times(1)).notifyNewIncomingMessage(incomingUftpMessage);
 
     noMoreErrorInteractionProcessor();
   }
@@ -103,7 +102,8 @@ class ReceivedMessageProcessorTest {
     var exception = new RuntimeException("Simulated error during duplicate detection");
     given(duplicateDetection.isDuplicate(businessMsg)).willThrow(exception);
 
-    assertThatThrownBy(() -> testSubject.onReceivedMessage(signedMessage, businessMsg))
+    var incomingUftpMessage = IncomingUftpMessage.create(new UftpParticipant(signedMessage), businessMsg, SIGNED_MESSAGE_XML, PAYLOAD_MESSAGE_XML);
+    assertThatThrownBy(() -> testSubject.onReceivedMessage(incomingUftpMessage))
         .isSameAs(exception);
   }
 
@@ -113,7 +113,8 @@ class ReceivedMessageProcessorTest {
     given(duplicateDetection.isDuplicate(businessMsg)).willReturn(DUPLICATE_MESSAGE);
     given(businessMsg.getMessageID()).willReturn(MESSAGE_ID);
 
-    assertThatThrownBy(() -> testSubject.onReceivedMessage(signedMessage, businessMsg))
+    var incomingUftpMessage = IncomingUftpMessage.create(new UftpParticipant(signedMessage), businessMsg, SIGNED_MESSAGE_XML, PAYLOAD_MESSAGE_XML);
+    assertThatThrownBy(() -> testSubject.onReceivedMessage(incomingUftpMessage))
         .isInstanceOf(DuplicateMessageException.class);
 
     verify(errorProcessor).onDuplicateReceived(senderCaptor.capture(), eq(businessMsg));
@@ -129,14 +130,10 @@ class ReceivedMessageProcessorTest {
 
     given(duplicateDetection.isDuplicate(responseMsg)).willReturn(NEW_MESSAGE);
 
-    testSubject.onReceivedMessage(signedMessage, responseMsg);
+    var incomingUftpMessage = IncomingUftpMessage.create(new UftpParticipant(signedMessage), responseMsg, SIGNED_MESSAGE_XML, PAYLOAD_MESSAGE_XML);
+    testSubject.onReceivedMessage(incomingUftpMessage);
 
-    verify(payloadHandler, times(1)).notifyNewIncomingMessage(senderCaptor.capture(), eq(responseMsg));
-
-    assertThat(senderCaptor.getAllValues()).hasSize(1);
-    UftpParticipant sender = senderCaptor.getValue();
-    assertThat(sender.domain()).isEqualTo(SENDER_DOMAIN);
-    assertThat(sender.role()).isEqualTo(SENDER_ROLE);
+    verify(payloadHandler, times(1)).notifyNewIncomingMessage(incomingUftpMessage);
 
     noMoreErrorInteractionProcessor();
   }
