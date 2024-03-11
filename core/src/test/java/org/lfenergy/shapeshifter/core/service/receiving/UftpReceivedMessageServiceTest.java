@@ -1,22 +1,9 @@
 package org.lfenergy.shapeshifter.core.service.receiving;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lfenergy.shapeshifter.api.AcceptedRejectedType;
-import org.lfenergy.shapeshifter.api.FlexRequest;
-import org.lfenergy.shapeshifter.api.FlexRequestResponse;
-import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.api.TestMessage;
-import org.lfenergy.shapeshifter.api.TestMessageResponse;
-import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.api.*;
+import org.lfenergy.shapeshifter.core.model.OutgoingUftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.handler.UftpPayloadHandler;
@@ -28,297 +15,265 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 @ExtendWith(MockitoExtension.class)
 class UftpReceivedMessageServiceTest {
 
-  private static final String REQUEST_MESSAGE_ID = UUID.randomUUID().toString();
-  private static final String RESPONSE_MESSAGE_ID = UUID.randomUUID().toString();
-  private static final String SENDER_DOMAIN = "SENDER_DOMAIN";
-  private static final USEFRoleType SENDER_ROLE = USEFRoleType.DSO;
-  private static final String RECIPIENT_DOMAIN = "RECIPIENT_DOMAIN";
-  private static final USEFRoleType RECIPIENT_ROLE = USEFRoleType.AGR;
-  private static final String REJECTION_REASON = "Reason for rejection";
-  private static final String CONVERSATION_ID = UUID.randomUUID().toString();
+    private static final String REQUEST_MESSAGE_ID = UUID.randomUUID().toString();
+    private static final String RESPONSE_MESSAGE_ID = UUID.randomUUID().toString();
+    private static final String SENDER_DOMAIN = "SENDER_DOMAIN";
+    private static final USEFRoleType SENDER_ROLE = USEFRoleType.DSO;
+    private static final String RECIPIENT_DOMAIN = "RECIPIENT_DOMAIN";
+    private static final USEFRoleType RECIPIENT_ROLE = USEFRoleType.AGR;
+    private static final String REJECTION_REASON = "Reason for rejection";
+    private static final String CONVERSATION_ID = UUID.randomUUID().toString();
 
-  @Mock
-  private UftpValidationService validator;
+    @Mock
+    private UftpValidationService validator;
 
-  @Mock
-  private UftpPayloadHandler payloadHandler;
+    @Mock
+    private UftpPayloadHandler payloadHandler;
 
-  @InjectMocks
-  private UftpReceivedMessageService testSubject;
+    @InjectMocks
+    private UftpReceivedMessageService testSubject;
 
-  @Mock
-  private FlexRequest request;
+    private final String signedMessageXml = "<SignedMessage/>";
 
-  @Mock
-  private FlexRequestResponse response;
+    private final FlexRequest request = new FlexRequest();
+    private final String requestXml = "<FlexRequest/>";
 
-  @Mock
-  private TestMessage testMessage;
+    private final FlexRequestResponse response = new FlexRequestResponse();
+    private final String responseXml = "<FlexRequestResponse/>";
 
-  @Mock
-  private TestMessageResponse testMessageResponse;
+    private final TestMessage testMessage = new TestMessage();
+    private final String testMessageXml = "<TestMessage/>";
 
-  private UftpParticipant sender;
+    private final TestMessageResponse testMessageResponse = new TestMessageResponse();
+    private final String testMessageResponseXml = "<TestMessageResponse/>";
 
-  private UftpParticipant recipient;
+    private final UftpParticipant sender = new UftpParticipant(SENDER_DOMAIN, SENDER_ROLE);
 
-  @Captor
-  private ArgumentCaptor<UftpParticipant> recipientCaptor;
+    private final UftpParticipant recipient = new UftpParticipant(RECIPIENT_DOMAIN, RECIPIENT_ROLE);
 
-  @Captor
-  private ArgumentCaptor<UftpParticipant> senderCaptor;
+    @Captor
+    private ArgumentCaptor<OutgoingUftpMessage<PayloadMessageType>> outgoingUftpMessageCaptor;
 
-  @Captor
-  private ArgumentCaptor<UftpMessage<PayloadMessageType>> uftpMessageCaptor;
+    @Test
+    void createAndSendResponseForUftpMessage_valid_request_validationsEnabled() {
+        setupRequest();
+        testSubject.setShouldPerformValidations(true);
 
-  @Captor
-  private ArgumentCaptor<PayloadMessageType> responseCaptor;
+        var incomingUftpMessage = UftpMessage.createIncoming(sender, request, signedMessageXml, requestXml);
+        given(validator.validate(incomingUftpMessage)).willReturn(ValidationResult.ok());
 
-  @Captor
-  private ArgumentCaptor<TestMessageResponse> testMessageResponseCaptor;
+        testSubject.process(incomingUftpMessage);
 
-  @BeforeEach
-  void setUp() {
-    this.sender = new UftpParticipant(SENDER_DOMAIN, SENDER_ROLE);
-    this.recipient = new UftpParticipant(RECIPIENT_DOMAIN, RECIPIENT_ROLE);
-  }
+        verify(validator).validate(incomingUftpMessage);
+        verify(payloadHandler).notifyNewOutgoingMessage(outgoingUftpMessageCaptor.capture());
 
-  @Test
-  void createAndSendResponseForUftpMessage_valid_request_validationsEnabled() {
-    setupRequest();
-    testSubject.setShouldPerformValidations(true);
+        var outgoingUftpMessage = outgoingUftpMessageCaptor.getValue();
+        validateUftpParticipant(outgoingUftpMessage.sender(), recipient);
 
-    given(validator.validate(uftpMessageCaptor.capture())).willReturn(ValidationResult.ok());
+        var actualResponse = (FlexRequestResponse) outgoingUftpMessage.payloadMessage();
 
-    testSubject.process(sender, request);
+        assertThat(actualResponse.getFlexRequestMessageID()).isEqualTo(REQUEST_MESSAGE_ID);
+        assertThat(actualResponse.getResult()).isEqualTo(AcceptedRejectedType.ACCEPTED);
+    }
 
-    verify(payloadHandler).notifyNewOutgoingMessage(recipientCaptor.capture(), responseCaptor.capture());
+    @Test
+    void createAndSendResponseForUftpMessage_invalid_request_validationsEnabled() {
+        setupRequest();
+        testSubject.setShouldPerformValidations(true);
 
-    assertThat(uftpMessageCaptor.getAllValues().get(0).sender()).isNotNull();
-    var actualSender = uftpMessageCaptor.getAllValues().get(0).sender();
-    validateUftpParticipant(actualSender, sender);
+        var incomingUftpMessage = UftpMessage.createIncoming(sender, request, signedMessageXml, requestXml);
+        given(validator.validate(incomingUftpMessage)).willReturn(ValidationResult.rejection(REJECTION_REASON));
 
-    assertThat(recipientCaptor.getAllValues()).hasSize(1);
-    var actualRecipient = recipientCaptor.getValue();
-    validateUftpParticipant(actualRecipient, recipient);
+        testSubject.process(incomingUftpMessage);
 
-    var uftpMessages = uftpMessageCaptor.getAllValues();
-    assertThat(uftpMessages).hasSize(1);
-    var actualRequest = uftpMessages.get(0).payloadMessage();
+        verify(validator).validate(incomingUftpMessage);
+        verify(payloadHandler).notifyNewOutgoingMessage(outgoingUftpMessageCaptor.capture());
 
-    assertThat(responseCaptor.getAllValues()).hasSize(1);
-    var actualResponse = (FlexRequestResponse) responseCaptor.getValue();
+        var outgoingUftpMessage = outgoingUftpMessageCaptor.getValue();
+        validateUftpParticipant(outgoingUftpMessage.sender(), recipient);
 
-    assertThat(actualRequest.getMessageID()).isEqualTo(REQUEST_MESSAGE_ID);
-    assertThat(actualResponse.getFlexRequestMessageID()).isEqualTo(REQUEST_MESSAGE_ID);
-    assertThat(actualResponse.getResult()).isEqualTo(AcceptedRejectedType.ACCEPTED);
-  }
+        var actualResponse = (FlexRequestResponse) outgoingUftpMessage.payloadMessage();
 
-  @Test
-  void createAndSendResponseForUftpMessage_invalid_request_validationsEnabled() {
-    setupRequest();
-    testSubject.setShouldPerformValidations(true);
+        assertThat(actualResponse.getFlexRequestMessageID()).isEqualTo(REQUEST_MESSAGE_ID);
+        assertThat(actualResponse.getResult()).isEqualTo(AcceptedRejectedType.REJECTED);
+        assertThat(actualResponse.getRejectionReason()).isEqualTo(REJECTION_REASON);
+    }
 
-    given(validator.validate(uftpMessageCaptor.capture())).willReturn(ValidationResult.rejection(REJECTION_REASON));
+    @Test
+    void createAndSendResponseForUftpMessage_valid_request_validationsDisabled() {
+        setupRequest();
+        testSubject.setShouldPerformValidations(false);
 
-    testSubject.process(sender, request);
+        testSubject.process(UftpMessage.createIncoming(sender, request, signedMessageXml, requestXml));
 
-    verify(payloadHandler).notifyNewOutgoingMessage(recipientCaptor.capture(), responseCaptor.capture());
+        verify(payloadHandler).notifyNewOutgoingMessage(outgoingUftpMessageCaptor.capture());
 
-    var uftpMessages = uftpMessageCaptor.getAllValues();
-    assertThat(uftpMessages.get(0).sender()).isNotNull();
-    var actualSender = uftpMessages.get(0).sender();
-    validateUftpParticipant(actualSender, sender);
+        var outgoingUftpMessage = outgoingUftpMessageCaptor.getValue();
+        validateUftpParticipant(outgoingUftpMessage.sender(), recipient);
 
-    assertThat(recipientCaptor.getAllValues()).hasSize(1);
-    var actualRecipient = recipientCaptor.getValue();
-    validateUftpParticipant(actualRecipient, recipient);
+        var actualResponse = (FlexRequestResponse) outgoingUftpMessage.payloadMessage();
 
-    var actualRequest = uftpMessages.get(0).payloadMessage();
+        assertThat(actualResponse.getFlexRequestMessageID()).isEqualTo(REQUEST_MESSAGE_ID);
+        assertThat(actualResponse.getResult()).isEqualTo(AcceptedRejectedType.ACCEPTED);
+    }
 
-    assertThat(responseCaptor.getAllValues()).hasSize(1);
-    var actualResponse = (FlexRequestResponse) responseCaptor.getValue();
+    @Test
+    void createAndSendResponseForUftpMessage_invalid_request_validationsDisabled() {
+        setupRequest();
+        testSubject.setShouldPerformValidations(false);
 
-    assertThat(actualRequest.getMessageID()).isEqualTo(REQUEST_MESSAGE_ID);
-    assertThat(actualResponse.getFlexRequestMessageID()).isEqualTo(REQUEST_MESSAGE_ID);
-    assertThat(actualResponse.getResult()).isEqualTo(AcceptedRejectedType.REJECTED);
-    assertThat(actualResponse.getRejectionReason()).isEqualTo(REJECTION_REASON);
-  }
+        testSubject.process(UftpMessage.createIncoming(sender, request, signedMessageXml, requestXml));
 
-  @Test
-  void createAndSendResponseForUftpMessage_valid_request_validationsDisabled() {
-    setupRequest();
-    testSubject.setShouldPerformValidations(false);
+        verify(payloadHandler).notifyNewOutgoingMessage(outgoingUftpMessageCaptor.capture());
 
-    testSubject.process(sender, request);
+        var outgoingUftpMessage = outgoingUftpMessageCaptor.getValue();
+        validateUftpParticipant(outgoingUftpMessage.sender(), recipient);
 
-    verify(payloadHandler).notifyNewOutgoingMessage(recipientCaptor.capture(), responseCaptor.capture());
+        var actualResponse = (FlexRequestResponse) outgoingUftpMessage.payloadMessage();
 
-    assertThat(recipientCaptor.getAllValues()).hasSize(1);
-    var actualRecipient = recipientCaptor.getValue();
-    validateUftpParticipant(actualRecipient, recipient);
+        assertThat(actualResponse.getFlexRequestMessageID()).isEqualTo(REQUEST_MESSAGE_ID);
+        assertThat(actualResponse.getResult()).isEqualTo(AcceptedRejectedType.ACCEPTED);
+    }
 
-    assertThat(responseCaptor.getAllValues()).hasSize(1);
-    var actualResponse = (FlexRequestResponse) responseCaptor.getValue();
+    @Test
+    void createAndSendResponseForUftpMessage_valid_response_validationsEnabled() {
+        setupResponse();
+        testSubject.setShouldPerformValidations(true);
 
-    assertThat(actualResponse.getFlexRequestMessageID()).isEqualTo(REQUEST_MESSAGE_ID);
-    assertThat(actualResponse.getResult()).isEqualTo(AcceptedRejectedType.ACCEPTED);
-  }
+        var incomingUftpMessage = UftpMessage.createIncoming(sender, response, signedMessageXml, responseXml);
+        given(validator.validate(any())).willReturn(ValidationResult.ok());
 
-  @Test
-  void createAndSendResponseForUftpMessage_invalid_request_validationsDisabled() {
-    setupRequest();
-    testSubject.setShouldPerformValidations(false);
+        testSubject.process(incomingUftpMessage);
 
-    testSubject.process(sender, request);
+        verify(validator).validate(incomingUftpMessage);
+        verify(payloadHandler, never()).notifyNewOutgoingMessage(any(OutgoingUftpMessage.class));
+    }
 
-    verify(payloadHandler).notifyNewOutgoingMessage(recipientCaptor.capture(), responseCaptor.capture());
+    @Test
+    void createAndSendResponseForUftpMessage_invalid_response_validationsEnabled() {
+        setupResponse();
+        testSubject.setShouldPerformValidations(true);
 
-    assertThat(recipientCaptor.getAllValues()).hasSize(1);
-    var actualRecipient = recipientCaptor.getValue();
-    validateUftpParticipant(actualRecipient, recipient);
+        var incomingUftpMessage = UftpMessage.createIncoming(sender, response, signedMessageXml, responseXml);
+        given(validator.validate(incomingUftpMessage)).willReturn(ValidationResult.rejection(REJECTION_REASON));
 
-    assertThat(responseCaptor.getAllValues()).hasSize(1);
-    var actualResponse = (FlexRequestResponse) responseCaptor.getValue();
+        testSubject.process(incomingUftpMessage);
 
-    assertThat(actualResponse.getFlexRequestMessageID()).isEqualTo(REQUEST_MESSAGE_ID);
-    assertThat(actualResponse.getResult()).isEqualTo(AcceptedRejectedType.ACCEPTED);
-  }
+        verify(validator).validate(incomingUftpMessage);
+        verify(payloadHandler, never()).notifyNewOutgoingMessage(any(OutgoingUftpMessage.class));
+    }
 
-  @Test
-  void createAndSendResponseForUftpMessage_valid_response_validationsEnabled() {
-    setupResponse();
-    testSubject.setShouldPerformValidations(true);
+    @Test
+    void createAndSendResponseForUftpMessage_response_validationsDisabled() {
+        testSubject.setShouldPerformValidations(false);
 
-    given(validator.validate(uftpMessageCaptor.capture())).willReturn(ValidationResult.ok());
+        testSubject.process(UftpMessage.createIncoming(sender, response, signedMessageXml, responseXml));
 
-    testSubject.process(recipient, response);
+        verify(validator, never()).validate(any(UftpMessage.class));
+        verify(payloadHandler, never()).notifyNewOutgoingMessage(any(OutgoingUftpMessage.class));
+    }
 
-    var uftpMessages = uftpMessageCaptor.getAllValues();
-    var actualSender = uftpMessages.get(0).sender();
-    assertThat(actualSender).isNotNull();
-    validateUftpParticipant(actualSender, recipient);
-    var actualRequest = uftpMessages.get(0).payloadMessage();
+    @Test
+    void process_valid_testMessage() {
+        setupTestMessage();
+        testSubject.setShouldPerformValidations(true);
 
-    assertThat(actualRequest.getMessageID()).isEqualTo(RESPONSE_MESSAGE_ID);
-  }
+        var incomingUftpMessage = UftpMessage.createIncoming(sender, testMessage, signedMessageXml, testMessageXml);
+        given(validator.validate(incomingUftpMessage)).willReturn(ValidationResult.ok());
 
-  @Test
-  void createAndSendResponseForUftpMessage_invalid_response_validationsEnabled() {
-    setupResponse();
-    testSubject.setShouldPerformValidations(true);
+        var result = testSubject.process(incomingUftpMessage);
+        assertThat(result.valid()).isTrue();
 
-    given(validator.validate(uftpMessageCaptor.capture())).willReturn(ValidationResult.rejection(REJECTION_REASON));
+        verify(payloadHandler).notifyNewOutgoingMessage(outgoingUftpMessageCaptor.capture());
 
-    testSubject.process(recipient, response);
+        var outgoingUftpMessage = outgoingUftpMessageCaptor.getValue();
+        var participant = outgoingUftpMessage.sender();
+        assertThat(participant.domain()).isEqualTo(RECIPIENT_DOMAIN);
+        assertThat(participant.role()).isEqualTo(USEFRoleType.AGR);
 
-    assertThat(uftpMessageCaptor.getAllValues().get(0).sender()).isNotNull();
-    var actualSender = uftpMessageCaptor.getAllValues().get(0).sender();
-    validateUftpParticipant(actualSender, recipient);
+        var response = (TestMessageResponse) outgoingUftpMessage.payloadMessage();
+        assertThat(response.getSenderDomain()).isEqualTo(RECIPIENT_DOMAIN);
+        assertThat(response.getConversationID()).isEqualTo(CONVERSATION_ID);
+    }
 
-    assertThat(uftpMessageCaptor.getAllValues().get(0).payloadMessage()).isNotNull();
-    var actualRequest = uftpMessageCaptor.getAllValues().get(0).payloadMessage();
+    @Test
+    void process_invalid_testMessage() {
+        setupTestMessage();
+        testSubject.setShouldPerformValidations(true);
 
-    assertThat(actualRequest.getMessageID()).isEqualTo(RESPONSE_MESSAGE_ID);
-  }
+        var incomingUftpMessage = UftpMessage.createIncoming(sender, testMessage, signedMessageXml, testMessageXml);
+        given(validator.validate(incomingUftpMessage)).willReturn(ValidationResult.rejection(REJECTION_REASON));
 
-  @Test
-  void createAndSendResponseForUftpMessage_response_validationsDisabled() {
-    testSubject.setShouldPerformValidations(false);
+        var result = testSubject.process(incomingUftpMessage);
+        assertThat(result.valid()).isFalse();
 
-    testSubject.process(recipient, response);
+        verify(payloadHandler).notifyNewOutgoingMessage(outgoingUftpMessageCaptor.capture());
 
-    verify(validator, never()).validate(any(UftpMessage.class));
-    verify(payloadHandler, never()).notifyNewOutgoingMessage(any(UftpParticipant.class), any(PayloadMessageType.class));
-  }
+        var outgoingUftpMessage = outgoingUftpMessageCaptor.getValue();
+        var participant = outgoingUftpMessage.sender();
+        assertThat(participant.domain()).isEqualTo(RECIPIENT_DOMAIN);
+        assertThat(participant.role()).isEqualTo(USEFRoleType.AGR);
 
-  @Test
-  void process_valid_testMessage() {
-    setupTestMessage();
-    testSubject.setShouldPerformValidations(true);
+        var response = (TestMessageResponse) outgoingUftpMessage.payloadMessage();
+        assertThat(response.getSenderDomain()).isEqualTo(RECIPIENT_DOMAIN);
+        assertThat(response.getConversationID()).isEqualTo(CONVERSATION_ID);
+    }
 
-    given(validator.validate(UftpMessage.createIncoming(sender, testMessage))).willReturn(ValidationResult.ok());
+    @Test
+    void process_testMessageResponse() {
+        testSubject.setShouldPerformValidations(true);
 
-    var result = testSubject.process(sender, testMessage);
-    assertThat(result.valid()).isTrue();
+        var incomingUftpMessage = UftpMessage.createIncoming(sender, testMessageResponse, signedMessageXml, testMessageResponseXml);
+        given(validator.validate(incomingUftpMessage)).willReturn(ValidationResult.ok());
 
-    verify(payloadHandler).notifyNewOutgoingMessage(senderCaptor.capture(), testMessageResponseCaptor.capture());
+        var result = testSubject.process(incomingUftpMessage);
+        assertThat(result.valid()).isTrue();
 
-    var participant = senderCaptor.getValue();
-    assertThat(participant.domain()).isEqualTo(RECIPIENT_DOMAIN);
-    assertThat(participant.role()).isEqualTo(USEFRoleType.AGR);
+        verify(payloadHandler, never()).notifyNewOutgoingMessage(any(OutgoingUftpMessage.class));
+    }
 
-    var response = testMessageResponseCaptor.getValue();
-    assertThat(response.getSenderDomain()).isEqualTo(RECIPIENT_DOMAIN);
-    assertThat(response.getConversationID()).isEqualTo(CONVERSATION_ID);
-  }
+    @Test
+    void process_invalid_testMessageResponse() {
+        testSubject.setShouldPerformValidations(true);
 
-  @Test
-  void process_invalid_testMessage() {
-    setupTestMessage();
-    testSubject.setShouldPerformValidations(true);
+        var incomingUftpMessage = UftpMessage.createIncoming(sender, testMessageResponse, signedMessageXml, testMessageResponseXml);
+        given(validator.validate(incomingUftpMessage)).willReturn(ValidationResult.rejection("test reason"));
 
-    given(validator.validate(UftpMessage.createIncoming(sender, testMessage))).willReturn(ValidationResult.rejection(REJECTION_REASON));
+        var result = testSubject.process(incomingUftpMessage);
+        assertThat(result.valid()).isFalse();
 
-    var result = testSubject.process(sender, testMessage);
-    assertThat(result.valid()).isFalse();
+        verify(payloadHandler, never()).notifyNewOutgoingMessage(any(OutgoingUftpMessage.class));
+    }
 
-    verify(payloadHandler).notifyNewOutgoingMessage(senderCaptor.capture(), testMessageResponseCaptor.capture());
+    private void setupRequest() {
+        request.setMessageID(REQUEST_MESSAGE_ID);
+        request.setSenderDomain(SENDER_DOMAIN);
+        request.setRecipientDomain(RECIPIENT_DOMAIN);
+    }
 
-    var participant = senderCaptor.getValue();
-    assertThat(participant.domain()).isEqualTo(RECIPIENT_DOMAIN);
-    assertThat(participant.role()).isEqualTo(USEFRoleType.AGR);
+    private void setupResponse() {
+        response.setMessageID(RESPONSE_MESSAGE_ID);
+    }
 
-    var response = testMessageResponseCaptor.getValue();
-    assertThat(response.getSenderDomain()).isEqualTo(RECIPIENT_DOMAIN);
-    assertThat(response.getConversationID()).isEqualTo(CONVERSATION_ID);
-  }
+    private void validateUftpParticipant(UftpParticipant actual, UftpParticipant expected) {
+        assertThat(actual.domain()).isEqualTo(expected.domain());
+        assertThat(actual.role()).isEqualTo(expected.role());
+    }
 
-  @Test
-  void process_testMessageResponse() {
-    testSubject.setShouldPerformValidations(true);
-
-    given(validator.validate(UftpMessage.createIncoming(sender, testMessageResponse))).willReturn(ValidationResult.ok());
-
-    var result = testSubject.process(sender, testMessageResponse);
-    assertThat(result.valid()).isTrue();
-
-    verify(payloadHandler, never()).notifyNewOutgoingMessage(any(), any());
-  }
-
-  @Test
-  void process_invalid_testMessageResponse() {
-    testSubject.setShouldPerformValidations(true);
-
-    given(validator.validate(UftpMessage.createIncoming(sender, testMessageResponse))).willReturn(ValidationResult.rejection("test reason"));
-
-    var result = testSubject.process(sender, testMessageResponse);
-    assertThat(result.valid()).isFalse();
-
-    verify(payloadHandler, never()).notifyNewOutgoingMessage(any(), any());
-  }
-
-  private void setupRequest() {
-    given(request.getMessageID()).willReturn(REQUEST_MESSAGE_ID);
-    given(request.getSenderDomain()).willReturn(SENDER_DOMAIN);
-    given(request.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
-  }
-
-  private void setupResponse() {
-    given(response.getMessageID()).willReturn(RESPONSE_MESSAGE_ID);
-  }
-
-  private void validateUftpParticipant(UftpParticipant actual, UftpParticipant expected) {
-    assertThat(actual.domain()).isEqualTo(expected.domain());
-    assertThat(actual.role()).isEqualTo(expected.role());
-  }
-
-  private void setupTestMessage() {
-    given(testMessage.getConversationID()).willReturn(CONVERSATION_ID);
-    given(testMessage.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
-  }
+    private void setupTestMessage() {
+        testMessage.setConversationID(CONVERSATION_ID);
+        testMessage.setRecipientDomain(RECIPIENT_DOMAIN);
+    }
 
 }

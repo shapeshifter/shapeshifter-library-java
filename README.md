@@ -207,7 +207,7 @@ public class IncomingMessageHandler implements UftpIncomingHandler<FlexRequest> 
   }
 
   @Override
-  public void handle(UftpParticipant sender, FlexRequest message) {
+  public void handle(IncomingUftpMessage<FlexRequest> message) {
     // call UftpReceivedMessageService immediately or queue for later processing
   }
 }
@@ -222,7 +222,7 @@ To process a message (asynchronously) you can use the `UftpReceivedMessageServic
 @Autowired 
 UftpReceivedMessageService uftpReceivedMessageService;
 
-    uftpReceivedMessageService.process(sender,message);
+    uftpReceivedMessageService.process(message);
 ```
 
 To verify an incoming message, the connector must know the sender's public key. For this you must
@@ -262,9 +262,19 @@ public class MyUftpMessageSupport implements UftpMessageSupport {
 
   // ...
   @Override
-  public Optional<PayloadMessageType> getPreviousMessage(String messageID, String recipientDomain) {
+  public Optional<PayloadMessageType> findDuplicateMessage(String messageID, String senderDomain, String recipientDomain) {
     // Add the retrieval of the previous message here....
   }
+  
+  @Override
+  public <T extends PayloadMessageType> Optional<T> findReferencedMessage(UftpMessageReference<T> reference) {
+    // Add the retrieval of the referenced message here....
+  }  
+  
+  @Override
+  public Optional<FlexOfferRevocation> findFlexRevocation(String conversationID, String flexOfferMessageID, String senderDomain, String recipientDomain) {
+    // Add the retrieval of the revocation message here....
+  }  
 }
 ```
 
@@ -276,7 +286,7 @@ interface;
 public class MyCongestionPointSupport implements CongestionPointSupport {
 
   @Override
-  public boolean areKnownCongestionPoints(Collection<String> connectionPoints) {
+  public boolean areKnownCongestionPoints(Collection<EntityAddress> congestionPoints) {
     // connect this to your local administration of congestion points
   }
 }
@@ -307,7 +317,7 @@ public class MyCustomValidator implements UftpUserDefinedValidator<FlexRequest> 
   }
 
   @Override
-  public boolean valid(UftpParticipant sender, FlexRequest flexRequest) {
+  public boolean valid(UftpMessage<T> uftpMessage) {
     // implement your validation logic here; return true if valid, false otherwise
   }
 
@@ -341,7 +351,7 @@ public class OutgoingMessageHandler implements UftpOutgoingHandler<FlexRequest> 
   }
 
   @Override
-  public void handle(UftpParticipant sender, FlexRequest message) {
+  public void handle(OutgoingUftpMessage<T> message) {
     // call UftpSendMessageService immediately or queue message for sending later 
   }
 

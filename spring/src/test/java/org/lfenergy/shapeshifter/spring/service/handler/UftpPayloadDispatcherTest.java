@@ -4,13 +4,6 @@
 
 package org.lfenergy.shapeshifter.spring.service.handler;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,14 +11,24 @@ import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
+import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
+import org.lfenergy.shapeshifter.core.model.OutgoingUftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class UftpPayloadDispatcherTest {
 
+  public static final String SIGNED_MESSAGE_XML = "<SignedMessage/>";
+  public static final String PAYLOAD_MESSAGE_XML = "<FlexRequest/>";
   @Mock
   private UftpIncomingHandler<PayloadMessageType> incomingHandler;
 
@@ -49,10 +52,11 @@ class UftpPayloadDispatcherTest {
 
     given(incomingHandler.isSupported(FlexRequest.class)).willReturn(true);
 
-    testSubject.notifyNewIncomingMessage(sender, message);
+    var incomingUftpMessage = IncomingUftpMessage.<PayloadMessageType>create(sender, message, SIGNED_MESSAGE_XML, PAYLOAD_MESSAGE_XML);
+    testSubject.notifyNewIncomingMessage(incomingUftpMessage);
 
     verify(incomingHandler).isSupported(FlexRequest.class);
-    verify(incomingHandler).handle(sender, message);
+    verify(incomingHandler).handle(incomingUftpMessage);
   }
 
   @Test
@@ -60,7 +64,8 @@ class UftpPayloadDispatcherTest {
     var sender = new UftpParticipant("domain", USEFRoleType.DSO);
     var message = new FlexRequest();
 
-    assertThatThrownBy(() -> testSubject.notifyNewIncomingMessage(sender, message))
+    var incomingUftpMessage = IncomingUftpMessage.<PayloadMessageType>create(sender, message, SIGNED_MESSAGE_XML, PAYLOAD_MESSAGE_XML);
+    assertThatThrownBy(() -> testSubject.notifyNewIncomingMessage(incomingUftpMessage))
         .isInstanceOf(UftpConnectorException.class)
         .hasMessage("No incoming handler for message type: FlexRequest");
 
@@ -83,13 +88,14 @@ class UftpPayloadDispatcherTest {
     given(incomingHandler.isSupported(FlexRequest.class)).willReturn(true);
     given(incomingHandler2.isSupported(FlexRequest.class)).willReturn(true);
 
-    testSubject.notifyNewIncomingMessage(sender, message);
+    var incomingUftpMessage = IncomingUftpMessage.<PayloadMessageType>create(sender, message, SIGNED_MESSAGE_XML, PAYLOAD_MESSAGE_XML);
+    testSubject.notifyNewIncomingMessage(incomingUftpMessage);
 
     verify(incomingHandler).isSupported(FlexRequest.class);
-    verify(incomingHandler).handle(sender, message);
+    verify(incomingHandler).handle(incomingUftpMessage);
 
     verify(incomingHandler2).isSupported(FlexRequest.class);
-    verify(incomingHandler2).handle(sender, message);
+    verify(incomingHandler2).handle(incomingUftpMessage);
   }
 
   @Test
@@ -97,12 +103,13 @@ class UftpPayloadDispatcherTest {
     var sender = new UftpParticipant("domain", USEFRoleType.DSO);
     var message = new FlexRequest();
 
+    OutgoingUftpMessage<PayloadMessageType> outgoingUftpMessage = OutgoingUftpMessage.create(sender, message);
     given(outgoingHandler.isSupported(FlexRequest.class)).willReturn(true);
 
-    testSubject.notifyNewOutgoingMessage(sender, message);
+    testSubject.notifyNewOutgoingMessage(outgoingUftpMessage);
 
     verify(outgoingHandler).isSupported(FlexRequest.class);
-    verify(outgoingHandler).handle(sender, message);
+    verify(outgoingHandler).handle(outgoingUftpMessage);
   }
 
   @Test
@@ -110,7 +117,8 @@ class UftpPayloadDispatcherTest {
     var sender = new UftpParticipant("domain", USEFRoleType.DSO);
     var message = new FlexRequest();
 
-    assertThatThrownBy(() -> testSubject.notifyNewOutgoingMessage(sender, message))
+    var outgoingUftpMessage = OutgoingUftpMessage.create(sender, message);
+    assertThatThrownBy(() -> testSubject.notifyNewOutgoingMessage(outgoingUftpMessage))
         .isInstanceOf(UftpConnectorException.class)
         .hasMessage("No outgoing handler for message type: FlexRequest");
 
@@ -133,13 +141,14 @@ class UftpPayloadDispatcherTest {
     given(outgoingHandler.isSupported(FlexRequest.class)).willReturn(true);
     given(outgoingHandler2.isSupported(FlexRequest.class)).willReturn(true);
 
-    testSubject.notifyNewOutgoingMessage(sender, message);
+    OutgoingUftpMessage<PayloadMessageType> outgoingUftpMessage = OutgoingUftpMessage.create(sender, message);
+    testSubject.notifyNewOutgoingMessage(outgoingUftpMessage);
 
     verify(outgoingHandler).isSupported(FlexRequest.class);
-    verify(outgoingHandler).handle(sender, message);
+    verify(outgoingHandler).handle(outgoingUftpMessage);
 
     verify(outgoingHandler2).isSupported(FlexRequest.class);
-    verify(outgoingHandler2).handle(sender, message);
+    verify(outgoingHandler2).handle(outgoingUftpMessage);
   }
 
 }

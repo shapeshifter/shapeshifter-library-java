@@ -22,7 +22,6 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.model.SigningDetails;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
-import org.lfenergy.shapeshifter.core.model.UftpMessageDirection;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.core.service.participant.ParticipantResolutionService;
@@ -106,7 +105,7 @@ public class UftpSendMessageService {
     public void attemptToValidateAndSendMessage(@NonNull PayloadMessageType payloadMessage, @NonNull SigningDetails details) throws UftpSendException {
         // We will validate outgoing messages, but we will not validate outgoing response messages.
         if (!(payloadMessage instanceof PayloadMessageResponseType)) {
-            var uftpMessage = new UftpMessage<>(details.sender(), UftpMessageDirection.OUTGOING, payloadMessage);
+            var uftpMessage = UftpMessage.createOutgoing(details.sender(), payloadMessage);
             var validationResult = uftpValidationService.validate(uftpMessage);
             if (!validationResult.valid()) {
                 throw new UftpSendException(MessageFormat.format(MSG_VALIDATION_FAILED, payloadMessage.getClass().getSimpleName(), validationResult.rejectionReason()));

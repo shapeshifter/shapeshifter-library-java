@@ -17,7 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.lfenergy.shapeshifter.core.model.PayloadMessageFixture.DURATION_15_MINUTES;
 import static org.lfenergy.shapeshifter.core.model.UftpMessage.createIncoming;
 import static org.lfenergy.shapeshifter.core.service.participant.UftpParticipantFixture.DSO;
-import static org.lfenergy.shapeshifter.core.service.validation.base.IspInfoFixture.*;
+import static org.lfenergy.shapeshifter.core.service.validation.base.IspInfoFixture.flexOfferOption;
+import static org.lfenergy.shapeshifter.core.service.validation.base.IspInfoFixture.meteringProfile;
 
 class IspConflictsValidatorTest {
 
@@ -36,7 +37,7 @@ class IspConflictsValidatorTest {
     void isValid(PayloadMessageType msg, List<IspInfo> ispList, boolean expectedResult) {
         setISPs(msg, ispList);
 
-        assertThat(testSubject.isValid(createIncoming(DSO, msg))).isEqualTo(expectedResult);
+        assertThat(testSubject.isValid(createIncoming(DSO, msg, "<SignedMessage/>", "<Payload/>"))).isEqualTo(expectedResult);
     }
 
     @ParameterizedTest
@@ -44,7 +45,7 @@ class IspConflictsValidatorTest {
     void isValid_overlapDueToDuration(PayloadMessageType msg, List<IspInfo> ispList, boolean expectedResult) {
         setISPs(msg, ispList);
 
-        assertThat(testSubject.isValid(createIncoming(DSO, msg))).isEqualTo(expectedResult);
+        assertThat(testSubject.isValid(createIncoming(DSO, msg, "<SignedMessage/>", "<Payload/>"))).isEqualTo(expectedResult);
     }
 
     private static Stream<Arguments> testCases() {

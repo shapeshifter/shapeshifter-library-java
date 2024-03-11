@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
+import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
+import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.UftpErrorProcessor;
 import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.core.service.receiving.DuplicateMessageException;
@@ -75,7 +77,7 @@ public class UftpInternalController {
       log.debug("Received UFTP message unsealed.");
       var payloadMessage = deserializer.fromPayloadXml(payloadXml);
 
-      processor.onReceivedMessage(signedMessage, payloadMessage);
+      processor.onReceivedMessage(IncomingUftpMessage.create(new UftpParticipant(signedMessage), payloadMessage, transportXml, payloadXml));
 
       return ResponseEntity.ok(null);
     } catch (DuplicateMessageException e) {

@@ -4,15 +4,17 @@
 
 package org.lfenergy.shapeshifter.spring.service.handler;
 
-import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
-import org.lfenergy.shapeshifter.core.model.UftpParticipant;
+import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
+import org.lfenergy.shapeshifter.core.model.OutgoingUftpMessage;
 import org.lfenergy.shapeshifter.core.service.handler.UftpPayloadHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * {@link UftpPayloadHandler} that takes any incoming or outgoing UFTP message and dispatches it to one or more appropriate registered handlers.
@@ -42,10 +44,10 @@ class UftpPayloadDispatcher implements UftpPayloadHandler {
 
   @Override
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void notifyNewIncomingMessage(UftpParticipant from, PayloadMessageType message) {
-    var messageType = message.getClass();
+  public void notifyNewIncomingMessage(IncomingUftpMessage<? extends PayloadMessageType> message) {
+    var messageType = message.payloadMessage().getClass();
 
-    log.debug(String.format("Notifying application handler of incoming %s message from %s", messageType.getSimpleName(), from));
+    log.debug(String.format("Notifying application handler of incoming %s message from %s", messageType.getSimpleName(), message.sender()));
 
     var matchingHandlers = incomingHandlers.stream()
                                            .filter(incomingHandler -> incomingHandler.isSupported(messageType))
@@ -56,16 +58,16 @@ class UftpPayloadDispatcher implements UftpPayloadHandler {
     }
 
     for (var handler : matchingHandlers) {
-      ((UftpIncomingHandler) handler).handle(from, message);
+      ((UftpIncomingHandler) handler).handle(message);
     }
   }
 
   @Override
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void notifyNewOutgoingMessage(UftpParticipant from, PayloadMessageType message) {
-    var messageType = message.getClass();
+  public void notifyNewOutgoingMessage(OutgoingUftpMessage<? extends PayloadMessageType> message) {
+    var messageType = message.payloadMessage().getClass();
 
-    log.debug(String.format("Notifying application handler of outgoing %s message from %s", messageType.getSimpleName(), from));
+    log.debug(String.format("Notifying application handler of outgoing %s message from %s", messageType.getSimpleName(), message.sender()));
 
     var matchingHandlers = outgoingHandlers.stream()
                                            .filter(outgoingHandler -> outgoingHandler.isSupported(messageType))
@@ -76,7 +78,7 @@ class UftpPayloadDispatcher implements UftpPayloadHandler {
     }
 
     for (var handler : matchingHandlers) {
-      ((UftpOutgoingHandler) handler).handle(from, message);
+      ((UftpOutgoingHandler) handler).handle(message);
     }
   }
 

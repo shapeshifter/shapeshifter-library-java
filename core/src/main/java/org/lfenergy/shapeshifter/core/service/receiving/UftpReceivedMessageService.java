@@ -9,6 +9,7 @@ import static org.lfenergy.shapeshifter.core.model.UftpRoleInformation.getRecipi
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.handler.UftpPayloadHandler;
@@ -41,14 +42,36 @@ public class UftpReceivedMessageService {
    * @param from The company uftp details of the recipient
    * @param payloadMessage The details of the flex message, including messageID and conversationID
    * @return The validation result, either `ok` or `rejected` including a rejection reason
+   * @deprecated This method will be removed in the future. Use {@link #process(IncomingUftpMessage)} instead.
    */
+  @Deprecated(forRemoval = true, since = "2.3.0")
   public ValidationResult process(UftpParticipant from, PayloadMessageType payloadMessage) {
-    var validationResult = validateMessage(from, payloadMessage);
+    return process(IncomingUftpMessage.create(from, payloadMessage, null, null));
+  }
 
+  /**
+   * Processes an incoming flex message in a specific conversation. Can be called from within your own incoming flex message processor. When the message passed validation, a
+   * response message is created and sent.
+   *
+   * <pre><code>
+   * public void process(IncomingUftpMessage&lt;? extends PayloadMessageType&gt; message) {
+   *   var validationResult = uftpReceivedMessageService.process(message);
+   *
+   *   // implement further business logic here
+   * }
+   * </code></pre>
+   *
+   * @param uftpMessage The flex message
+   * @return The validation result, either `ok` or `rejected` including a rejection reason
+   */
+  public <T extends PayloadMessageType> ValidationResult process(IncomingUftpMessage<T> uftpMessage) {
+    var validationResult = validateMessage(uftpMessage);
+
+    var payloadMessage = uftpMessage.payloadMessage();
     if (UftpMessage.isResponse(payloadMessage)) {
       processPayloadMessageResponse(payloadMessage, validationResult);
     } else {
-      processPayloadMessage(from, payloadMessage, validationResult);
+      processPayloadMessage(uftpMessage.sender(), payloadMessage, validationResult);
     }
 
     return validationResult;
@@ -64,12 +87,12 @@ public class UftpReceivedMessageService {
     var response = UftpValidationResponseCreator.getResponseForMessage(payloadMessage, validationResult);
     var originalRecipient = new UftpParticipant(payloadMessage.getRecipientDomain(), getRecipientRoleBySenderRole(from.role()));
 
-    payloadHandler.notifyNewOutgoingMessage(originalRecipient, response);
+    payloadHandler.notifyNewOutgoingMessage(UftpMessage.createOutgoing(originalRecipient, response));
   }
 
-  private ValidationResult validateMessage(UftpParticipant from, PayloadMessageType payloadMessage) {
+  private <T extends PayloadMessageType> ValidationResult validateMessage(UftpMessage<T> uftpMessage) {
     if (shouldPerformValidations) {
-      return validationService.validate(UftpMessage.createIncoming(from, payloadMessage));
+      return validationService.validate(uftpMessage);
     }
     return ValidationResult.ok();
   }
