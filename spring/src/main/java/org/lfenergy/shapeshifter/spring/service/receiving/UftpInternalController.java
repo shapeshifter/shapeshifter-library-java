@@ -52,7 +52,7 @@ public class UftpInternalController {
    *
    * @param transportXml the signed UFTP message in XML format
    */
-  @PostMapping(value = "/message", consumes = MediaType.TEXT_XML_VALUE)
+  @PostMapping(value = "/message", consumes = {MediaType.APPLICATION_XML_VALUE, MediaType.TEXT_XML_VALUE})
   @Operation(summary = "Send an UFTP message", description = "Send an UFTP message in a signed XML document",
       responses = {
           @ApiResponse(responseCode = "200", description = "The UFTP message was succesfully received"),
