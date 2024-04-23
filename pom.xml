@@ -48,7 +48,7 @@
     <!-- Test dependency versions -->
     <junit.version>5.10.2</junit.version>
     <assertj.version>3.25.3</assertj.version>
-    <mockito.version>5.6.0</mockito.version>
+    <mockito.version>5.11.0</mockito.version>
 
     <!-- Plugin versions -->
     <maven-surefire-plugin.version>3.2.1</maven-surefire-plugin.version>
@@ -138,6 +138,7 @@
         <version>${dependency-check-maven.version}</version>
         <configuration>
           <failBuildOnCVSS>8</failBuildOnCVSS>
+          <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled> <!-- We don't have .NET assemblies -->
         </configuration>
         <executions>
           <execution>
