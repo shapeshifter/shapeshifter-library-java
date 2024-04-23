@@ -52,7 +52,7 @@ public class UftpSendMessageService {
     private static final String MSG_CLIENT_ERROR = "Client error {0} received while sending UFTP message to {1}: {2}";
     private static final String MSG_SERVER_ERROR = "Server error {0} received while sending UFTP message to {1}: {2}";
     private static final String MSG_UNEXPECTED_RESPONSE_STATUS = "Unexpected response status {0} received while sending UFTP message to {1}: {2}";
-    private static final String MSG_UNEXPECTED_IO_ERROR = "Unexpected I/O exception while sending UFTP message to {0}: {1}";
+    private static final String MSG_UNEXPECTED_IO_ERROR = "Unexpected I/O exception while sending UFTP message to {0}: {1}: {2}";
     private static final String MSG_INTERRUPTED = "Interrupted while sending UFTP message to {0}: {1}";
     private static final String MSG_TOO_MANY_REDIRECTS = "Too many redirects while sending UFTP message to {0}";
     private static final String MSG_MISSING_REDIRECT_LOCATION = "Redirect received without " + REDIRECT_LOCATION_HEADER_NAME + " header while sending UFTP message to {0}";
@@ -166,7 +166,7 @@ public class UftpSendMessageService {
         } catch (URISyntaxException | IllegalArgumentException e) {
             throw new UftpSendException(MessageFormat.format(MSG_INVALID_ENDPOINT, e.getMessage()), e);
         } catch (IOException e) {
-            throw new UftpSendException(MessageFormat.format(MSG_UNEXPECTED_IO_ERROR, url, e.getMessage()), e);
+            throw new UftpSendException(MessageFormat.format(MSG_UNEXPECTED_IO_ERROR, url, e.getClass().getSimpleName(), e.getMessage()), e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new UftpSendException(MessageFormat.format(MSG_INTERRUPTED, url, e.getMessage()), e);

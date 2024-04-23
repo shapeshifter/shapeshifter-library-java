@@ -351,6 +351,26 @@ class UftpSendMessageServiceTest {
     }
 
     @Test
+    void attemptToSendMessage_connectFailed() {
+        mockSerialisation();
+        mockSending();
+        var endpoint = "http://localhost:1"; // something that will trigger a java.net.ConnectException
+        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        var httpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
+
+        var actual = assertThrows(UftpSendException.class, () ->
+                testSubject.attemptToSendMessage(flexRequest, details));
+
+        verifySending();
+
+        assertThat(actual)
+                .isInstanceOf(UftpSendException.class)
+                .hasMessage("Unexpected I/O exception while sending UFTP message to " + endpoint + ": ConnectException: null");
+        assertThat(actual.getHttpStatusCode()).isEqualTo(httpStatusCode);
+        verifyNoInteractions(uftpValidationService);
+    }
+
+    @Test
     void attemptToValidateAndSendMessage_ValidationException() {
         given(details.sender()).willReturn(sender);
 

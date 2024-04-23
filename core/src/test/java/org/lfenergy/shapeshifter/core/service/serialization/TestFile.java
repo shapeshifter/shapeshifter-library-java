@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import org.apache.commons.io.FileUtils;
 
 public class TestFile {
 
@@ -26,7 +25,7 @@ public class TestFile {
 
   public static String readResourceFileAsString(Class<?> testClass, String testName, String postFix) throws IOException {
     File file = resourceAsFile(testClass, testName, postFix);
-    return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+    return Files.readString(file.toPath(), StandardCharsets.UTF_8);
   }
 
   public static void compareAsXml(Class<?> testClass, String testName, String actualXml) throws IOException {
