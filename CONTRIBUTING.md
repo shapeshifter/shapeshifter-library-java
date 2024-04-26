@@ -60,6 +60,13 @@ Given a version number MAJOR.MINOR.PATCH, increment the:
  - MINOR version when you add functionality in a backward compatible manner
  - PATCH version when you make backward compatible bug/security fixes
 
+We use GitHub Actions to automate the release process. The release process is as follows:
+1. The release workflow will build the project, run all tests and then create the artifacts.
+2. The release workflow will sign the artifacts and upload them to the Maven central repository.
+3. The release workflow will wait until staging checks are complete.
+2. The release workflow will update the `pom.xml` with the next development version and push the changes to the branch.
+3. The release workflow will tag the release in the repository.
+
 ### Releasing a Major or minor release
 Whatever the version in the `pom.xml` is, that is the version that will be released.
 For example if the version in the pom.xml is `1.0.0-SNAPSHOT`, then the released version will be `1.0.0`.
