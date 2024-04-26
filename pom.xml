@@ -55,7 +55,7 @@
     <maven-failsafe-plugin.version>3.2.1</maven-failsafe-plugin.version>
     <maven-jaxb2-plugin.version>0.15.2</maven-jaxb2-plugin.version>
     <dependency-check-maven.version>8.4.2</dependency-check-maven.version>
-    <jacoco-maven-plugin.version>0.8.9</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
     <maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
     <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
     <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
