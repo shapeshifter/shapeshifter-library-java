@@ -73,11 +73,13 @@ version of Maven (at time of writing, the most recent version is version 3.9.1)
 
 You can download the most recent version of Maven [here](https://maven.apache.org/download.cgi)
 
-After installing Maven, you can build the library with the following command:
+After installing Maven, you can build and test the library with the following command:
 
 ```
 mvn install
 ```
+
+This will compile the code, run all (both unit and integration) tests and install the artifacts in your local Maven repository.
 
 Now, in order to add the Shapeshifter Core dependency to your application, just add
 the following snippet to your pom (within the `dependencies` element):
