@@ -9,11 +9,11 @@ import static java.util.stream.Collectors.toUnmodifiableSet;
 import java.util.Optional;
 import java.util.Set;
 
-public final class SetOf {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-  private SetOf() {
-    // private constructor to hide implicit public one
-  }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class SetOf {
 
   public static <T> Set<T> setOfNullable(T value) {
     return setOfOptional(Optional.ofNullable(value));

@@ -14,8 +14,6 @@ import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 /**
  * Validates that the min activation factor (if present) is in the interval &lt;0,1] (thus: &gt; 0, &lt;=1)
  */
-
-
 public class MinActivationFactorValidator implements UftpValidator<FlexOffer> {
 
   @Override

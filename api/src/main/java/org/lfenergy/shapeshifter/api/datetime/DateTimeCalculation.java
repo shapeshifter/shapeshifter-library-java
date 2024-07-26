@@ -12,11 +12,11 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-public class DateTimeCalculation {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-  private DateTimeCalculation() {
-    // private constructor to hide implicit public one
-  }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class DateTimeCalculation {
 
   public static Duration toJavaTime(javax.xml.datatype.Duration duration) {
     if (!canBeConvertedWithoutOffset(duration)) {

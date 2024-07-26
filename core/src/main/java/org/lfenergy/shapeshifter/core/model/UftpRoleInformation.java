@@ -5,6 +5,9 @@
 package org.lfenergy.shapeshifter.core.model;
 
 import java.util.Set;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.lfenergy.shapeshifter.api.AGRPortfolioQuery;
 import org.lfenergy.shapeshifter.api.AGRPortfolioQueryResponse;
 import org.lfenergy.shapeshifter.api.AGRPortfolioUpdate;
@@ -34,11 +37,8 @@ import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.api.TestMessageResponse;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UftpRoleInformation {
-
-  private UftpRoleInformation() {
-    // Private constructor to hide implicit one
-  }
 
   private static final Set<Class<? extends PayloadMessageType>> AGR_MESSAGE_TYPES = Set.of(
       AGRPortfolioQuery.class,

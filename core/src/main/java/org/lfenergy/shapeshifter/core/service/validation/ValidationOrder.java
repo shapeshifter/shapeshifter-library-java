@@ -4,14 +4,14 @@
 
 package org.lfenergy.shapeshifter.core.service.validation;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Pre-defined constants to indicate the order with {@link UftpValidator#order}.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ValidationOrder {
-
-  private ValidationOrder() {
-    // Add private constructor to hide implicit public one
-  }
 
   /**
    * Must be performed BEFORE the validations from the official specification.

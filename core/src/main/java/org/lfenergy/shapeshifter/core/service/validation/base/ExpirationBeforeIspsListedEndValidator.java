@@ -46,7 +46,7 @@ public class ExpirationBeforeIspsListedEndValidator implements UftpValidator<Pay
 
   @Override
   public String getReason() {
-    return "ExpirationDateTime out of bounds (ISP's related)";
+    return "ExpirationDateTime out of bounds (ISPs related)";
   }
 
   private boolean expirationAdheresToIspList(FlexRequest msg) {

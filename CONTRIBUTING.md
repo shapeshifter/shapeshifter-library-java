@@ -36,6 +36,7 @@ To contribute code, you will need to create a fork of the repository on GitHub.
 3. Create a new branch for your changes.
 4. Make and verify your changes.
 5. Commit and push your changes to your fork on GitHub.
+   - When committing you must sign-off your commit. If you are unfamiliar on how to do this, Google is your friend.
 
 ### Building the source code
 To build the source code, run the following command in the root directory of the project:
