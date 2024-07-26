@@ -107,4 +107,4 @@ This can be done for any previous release (including patch versions).
 
 ## Code of conduct
 
-To be described.
+Read the full code of conduct [here](CODE_OF_CONDUCT.md).
