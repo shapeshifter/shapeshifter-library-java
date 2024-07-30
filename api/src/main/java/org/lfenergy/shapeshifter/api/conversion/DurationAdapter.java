@@ -6,11 +6,11 @@ package org.lfenergy.shapeshifter.api.conversion;
 
 import java.time.Duration;
 
-public class DurationAdapter {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-  private DurationAdapter() {
-    // private constructor to hide implicit public one
-  }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class DurationAdapter {
 
   public static Duration parse(String str) {
     return str != null ? Duration.parse(str) : null;

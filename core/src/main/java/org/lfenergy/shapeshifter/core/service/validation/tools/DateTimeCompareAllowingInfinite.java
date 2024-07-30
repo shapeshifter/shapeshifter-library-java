@@ -6,11 +6,11 @@ package org.lfenergy.shapeshifter.core.service.validation.tools;
 
 import java.time.OffsetDateTime;
 
-public final class DateTimeCompareAllowingInfinite {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-  private DateTimeCompareAllowingInfinite() {
-    // private constructor to hide implicit public one
-  }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class DateTimeCompareAllowingInfinite {
 
   public static boolean equalOrAfter(OffsetDateTime equalToOrAfter, OffsetDateTime comparedTo) {
     return isEqual(equalToOrAfter, comparedTo) || isAfter(equalToOrAfter, comparedTo);

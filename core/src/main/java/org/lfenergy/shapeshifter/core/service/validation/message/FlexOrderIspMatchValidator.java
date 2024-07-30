@@ -19,10 +19,8 @@ import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 import java.util.List;
 
 /**
- * Validates that at ISP's in the flex order match the ISP's in the flex offer
+ * Validates that ISPs in the flex order match the ISPs in the flex offer
  */
-
-
 @RequiredArgsConstructor
 public class FlexOrderIspMatchValidator implements UftpValidator<FlexOrder> {
 

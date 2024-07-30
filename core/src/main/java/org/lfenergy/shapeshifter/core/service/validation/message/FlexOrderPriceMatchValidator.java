@@ -19,8 +19,6 @@ import java.math.BigDecimal;
 /**
  * Validates that at the price of the order matches the price in the offer
  */
-
-
 @RequiredArgsConstructor
 public class FlexOrderPriceMatchValidator implements UftpValidator<FlexOrder> {
 

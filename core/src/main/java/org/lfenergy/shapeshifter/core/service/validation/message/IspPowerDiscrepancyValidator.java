@@ -13,7 +13,7 @@ import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 
 /**
- * Validates that all ISP's that have disposition = requested indicate a power direction, thus having either a minPower &lt; 0 *or* a maxPower &gt; 0 but not both.
+ * Validates that all ISPs that have disposition = requested indicate a power direction, thus having either a minPower &lt; 0 *or* a maxPower &gt; 0 but not both.
  */
 public class IspPowerDiscrepancyValidator implements UftpValidator<FlexRequest> {
 

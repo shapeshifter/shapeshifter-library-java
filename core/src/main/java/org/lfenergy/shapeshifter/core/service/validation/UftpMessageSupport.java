@@ -29,7 +29,7 @@ import java.util.Optional;
 public interface UftpMessageSupport {
 
     /**
-     * Finds an existing received message by messageID (if any) and and sender domain and recipient domain
+     * Finds an existing received message by messageID (if any) and sender domain and recipient domain
      *
      * @param messageID       The message ID.
      * @param senderDomain    The sender domain.

@@ -23,7 +23,7 @@ public class PayloadMessagePropertyRetriever<T extends PayloadMessageType, R> {
   }
 
   public Optional<R> getOptionalProperty(T payloadMessage) {
-    var getter = retrieveProperetyGetter(payloadMessage);
+    var getter = retrievePropertyGetter(payloadMessage);
     var result = getter.apply(payloadMessage);
     return Optional.ofNullable(result);
   }
@@ -36,7 +36,7 @@ public class PayloadMessagePropertyRetriever<T extends PayloadMessageType, R> {
     return result.get();
   }
 
-  private Function<PayloadMessageType, R> retrieveProperetyGetter(T payloadMessage) {
+  private Function<PayloadMessageType, R> retrievePropertyGetter(T payloadMessage) {
     var key = getApplicableKey(payloadMessage.getClass());
     return typePropertyGetterMap.get(key);
   }

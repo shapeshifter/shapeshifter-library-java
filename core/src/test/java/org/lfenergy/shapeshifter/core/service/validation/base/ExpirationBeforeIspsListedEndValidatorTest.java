@@ -253,6 +253,6 @@ class ExpirationBeforeIspsListedEndValidatorTest {
 
   @Test
   void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("ExpirationDateTime out of bounds (ISP's related)");
+    assertThat(testSubject.getReason()).isEqualTo("ExpirationDateTime out of bounds (ISPs related)");
   }
 }
