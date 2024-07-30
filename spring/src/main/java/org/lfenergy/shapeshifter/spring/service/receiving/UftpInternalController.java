@@ -55,7 +55,7 @@ public class UftpInternalController {
   @PostMapping(value = "/message", consumes = {MediaType.APPLICATION_XML_VALUE, MediaType.TEXT_XML_VALUE})
   @Operation(summary = "Send an UFTP message", description = "Send an UFTP message in a signed XML document",
       responses = {
-          @ApiResponse(responseCode = "200", description = "The UFTP message was succesfully received"),
+          @ApiResponse(responseCode = "200", description = "The UFTP message was successfully received"),
           @ApiResponse(responseCode = "400", description = "Error during XML validation or deserialization"),
           @ApiResponse(responseCode = "401", description = "Failed to unseal message"),
           @ApiResponse(responseCode = "500", description = "Internal server error: An unexpected error occurred. Details are provided in the response body",

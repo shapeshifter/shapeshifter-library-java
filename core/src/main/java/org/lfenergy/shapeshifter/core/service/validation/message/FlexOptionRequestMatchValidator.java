@@ -19,10 +19,8 @@ import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 
 /**
- * Validates that at least one of the ISPs with a 'requested'”' disposition in the referred FlexRequest, is mentioned in the FlexOffer.
+ * Validates that at least one of the ISPs with a 'requested' disposition in the referred FlexRequest, is mentioned in the FlexOffer.
  */
-
-
 @RequiredArgsConstructor
 public class FlexOptionRequestMatchValidator implements UftpValidator<FlexOffer> {
 

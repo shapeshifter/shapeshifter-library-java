@@ -7,7 +7,6 @@ Thank you for investing your time in contributing to our project!
 2. [Requesting features](#requesting-features)
 3. [Contributing code](#contributing-code)
 4. [Releasing new versions](#releasing-new-versions)
-5. [Code of conduct](#code-of-conduct)
 
 ## Reporting bugs
 
@@ -36,6 +35,7 @@ To contribute code, you will need to create a fork of the repository on GitHub.
 3. Create a new branch for your changes.
 4. Make and verify your changes.
 5. Commit and push your changes to your fork on GitHub.
+   - When committing you must sign-off your commit. If you are unfamiliar on how to do this, Google is your friend.
 
 ### Building the source code
 To build the source code, run the following command in the root directory of the project:
@@ -59,6 +59,13 @@ Given a version number MAJOR.MINOR.PATCH, increment the:
  - MAJOR version when you make incompatible API changes
  - MINOR version when you add functionality in a backward compatible manner
  - PATCH version when you make backward compatible bug/security fixes
+
+We use GitHub Actions to automate the release process. The release process is as follows:
+1. The release workflow will build the project, run all tests and then create the artifacts.
+2. The release workflow will sign the artifacts and upload them to the Maven central repository.
+3. The release workflow will wait until staging checks are complete.
+2. The release workflow will update the `pom.xml` with the next development version and push the changes to the branch.
+3. The release workflow will tag the release in the repository.
 
 ### Releasing a Major or minor release
 Whatever the version in the `pom.xml` is, that is the version that will be released.
@@ -97,7 +104,3 @@ Let's assume the last release was `1.0.0` and you want to make a security or bug
 You can keep the `v1.0-maintenance` branch open to make more bug/security fixes, or you can delete the branch when no longer needed.
 
 This can be done for any previous release (including patch versions).
-
-## Code of conduct
-
-To be described.

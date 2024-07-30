@@ -1,5 +1,8 @@
 package org.lfenergy.shapeshifter.core.common;
 
+import lombok.Getter;
+
+@Getter
 public enum HttpStatusCode {
 
   //1xx: Informational
@@ -79,14 +82,6 @@ public enum HttpStatusCode {
   HttpStatusCode(int value, String description) {
     this.value = value;
     this.description = description;
-  }
-
-  public int getValue() {
-    return value;
-  }
-
-  public String getDescription() {
-    return description;
   }
 
   @Override
