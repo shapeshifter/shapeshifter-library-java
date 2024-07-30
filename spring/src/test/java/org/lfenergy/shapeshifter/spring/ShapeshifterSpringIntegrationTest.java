@@ -121,11 +121,11 @@ class ShapeshifterSpringIntegrationTest {
     mockUftpParticipants();
     mockValidatorSupport();
 
-    var flexRequest = createTestFlexRequest(MESSAGE_ID, DSO_DOMAIN, AGR_DOMAIN);
+    var flexRequest = createTestFlexRequest();
 
     mockMvc.perform(post(APPLICATION_ENDPOINT_PATH)
                         .contentType(MediaType.TEXT_XML)
-                        .content(createSignedMessageXml(DSO_PARTICIPANT, flexRequest)))
+                        .content(createSignedMessageXml(flexRequest)))
            .andExpect(status().isOk());
 
     verify(uftpIncomingHandler).handle(incomingUftpMessageCaptor.capture());
@@ -155,13 +155,13 @@ class ShapeshifterSpringIntegrationTest {
     mockUftpParticipants();
     mockValidatorSupport();
 
-    var flexRequest = createTestFlexRequest(MESSAGE_ID, DSO_DOMAIN, AGR_DOMAIN);
+    var flexRequest = createTestFlexRequest();
 
     given(uftpMessageSupport.findDuplicateMessage(flexRequest.getMessageID(), flexRequest.getSenderDomain(), flexRequest.getRecipientDomain())).willReturn(Optional.of(flexRequest));
 
     mockMvc.perform(post(APPLICATION_ENDPOINT_PATH)
                         .contentType(MediaType.TEXT_XML)
-                        .content(createSignedMessageXml(DSO_PARTICIPANT, flexRequest)))
+                        .content(createSignedMessageXml(flexRequest)))
            .andExpect(status().isBadRequest());
 
     verifyNoInteractions(uftpIncomingHandler);
@@ -172,12 +172,12 @@ class ShapeshifterSpringIntegrationTest {
     mockUftpParticipants();
     mockValidatorSupport();
 
-    var flexRequest = createTestFlexRequest(MESSAGE_ID, DSO_DOMAIN, AGR_DOMAIN);
+    var flexRequest = createTestFlexRequest();
     flexRequest.setISPDuration(Duration.ofMinutes(30));
 
     mockMvc.perform(post(APPLICATION_ENDPOINT_PATH)
                         .contentType(MediaType.TEXT_XML)
-                        .content(createSignedMessageXml(DSO_PARTICIPANT, flexRequest)))
+                        .content(createSignedMessageXml(flexRequest)))
            .andExpect(status().isOk());
 
     verify(uftpIncomingHandler).handle(incomingUftpMessageCaptor.capture());
@@ -206,11 +206,11 @@ class ShapeshifterSpringIntegrationTest {
     mockUftpParticipants();
     mockValidatorSupport();
 
-    var testMessage = createTestMessage(MESSAGE_ID, DSO_DOMAIN, AGR_DOMAIN);
+    var testMessage = createTestMessage();
 
     mockMvc.perform(post(APPLICATION_ENDPOINT_PATH)
                         .contentType(MediaType.TEXT_XML)
-                        .content(createSignedMessageXml(DSO_PARTICIPANT, testMessage)))
+                        .content(createSignedMessageXml(testMessage)))
            .andExpect(status().isOk());
 
     verify(uftpIncomingHandler).handle(incomingUftpMessageCaptor.capture());
@@ -247,17 +247,17 @@ class ShapeshifterSpringIntegrationTest {
     given(uftpValidatorSupport.isSupportedTimeZone(TimeZone.getTimeZone(TIME_ZONE))).willReturn(true);
   }
 
-  private String createSignedMessageXml(UftpParticipant sender, PayloadMessageType payloadMessage) {
-    return serializer.toXml(cryptoService.signMessage(serializer.toXml(payloadMessage), sender, TEST_PRIVATE_KEY));
+  private String createSignedMessageXml(PayloadMessageType payloadMessage) {
+    return serializer.toXml(cryptoService.signMessage(serializer.toXml(payloadMessage), DSO_PARTICIPANT, TEST_PRIVATE_KEY));
   }
 
-  private static FlexRequest createTestFlexRequest(String messageId, String senderDomain, String recipientDomain) {
+  private static FlexRequest createTestFlexRequest() {
     var flexRequest = new FlexRequest();
-    flexRequest.setMessageID(messageId);
+    flexRequest.setMessageID(MESSAGE_ID);
     flexRequest.setConversationID(CONVERSATION_ID);
     flexRequest.setContractID(CONTRACT_ID);
-    flexRequest.setSenderDomain(senderDomain);
-    flexRequest.setRecipientDomain(recipientDomain);
+    flexRequest.setSenderDomain(DSO_DOMAIN);
+    flexRequest.setRecipientDomain(AGR_DOMAIN);
     flexRequest.setPeriod(NOW.plusDays(7).toLocalDate());
     flexRequest.setExpirationDateTime(NOW.plusDays(1));
     flexRequest.setCongestionPoint(CONGESTION_POINT);
@@ -279,12 +279,12 @@ class ShapeshifterSpringIntegrationTest {
     return flexRequest;
   }
 
-  private static TestMessage createTestMessage(String messageId, String senderDomain, String recipientDomain) {
+  private static TestMessage createTestMessage() {
     var testMessage = new TestMessage();
-    testMessage.setMessageID(messageId);
+    testMessage.setMessageID(MESSAGE_ID);
     testMessage.setConversationID(CONVERSATION_ID);
-    testMessage.setSenderDomain(senderDomain);
-    testMessage.setRecipientDomain(recipientDomain);
+    testMessage.setSenderDomain(DSO_DOMAIN);
+    testMessage.setRecipientDomain(AGR_DOMAIN);
     testMessage.setTimeStamp(NOW);
     testMessage.setVersion(VERSION);
     return testMessage;

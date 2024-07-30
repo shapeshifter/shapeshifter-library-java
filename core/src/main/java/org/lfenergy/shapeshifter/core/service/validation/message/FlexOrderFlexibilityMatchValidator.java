@@ -18,10 +18,8 @@ import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
 import java.util.List;
 
 /**
- * Validates that at the ordered power matches the offered power
+ * Validates that the ordered power matches the offered power
  */
-
-
 @RequiredArgsConstructor
 public class FlexOrderFlexibilityMatchValidator implements UftpValidator<FlexOrder> {
 

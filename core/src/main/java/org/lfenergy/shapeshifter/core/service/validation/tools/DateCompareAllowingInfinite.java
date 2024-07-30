@@ -2,11 +2,11 @@ package org.lfenergy.shapeshifter.core.service.validation.tools;
 
 import java.time.LocalDate;
 
-public final class DateCompareAllowingInfinite {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-  private DateCompareAllowingInfinite() {
-    // private constructor to hide implicit public one
-  }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class DateCompareAllowingInfinite {
 
   public static boolean equalOrAfter(LocalDate equalToOrAfter, LocalDate comparedTo) {
     return isEqual(equalToOrAfter, comparedTo) || isAfter(equalToOrAfter, comparedTo);

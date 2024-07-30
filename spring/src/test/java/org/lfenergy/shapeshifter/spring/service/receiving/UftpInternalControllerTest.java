@@ -105,7 +105,7 @@ class UftpInternalControllerTest {
     assertThat(uftpExceptionCaptor.getValue())
         .hasMessage(ERROR_MESSAGE)
         .hasCause(runtimeException)
-        .satisfies(uftpException -> assertThat(uftpException.getHttpStatusCode()).isEqualTo(HttpStatusCode.INTERNAL_SERVER_ERROR));
+        .satisfies(exception -> assertThat(exception.getHttpStatusCode()).isEqualTo(HttpStatusCode.INTERNAL_SERVER_ERROR));
   }
 
   @Test

@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.lfenergy.shapeshifter.api.AGRPortfolioQuery;
 import org.lfenergy.shapeshifter.api.AGRPortfolioQueryResponse;
 import org.lfenergy.shapeshifter.api.AGRPortfolioUpdate;
@@ -40,11 +43,8 @@ import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.api.TestMessageResponse;
 import org.lfenergy.shapeshifter.core.service.validation.tools.PayloadMessagePropertyRetriever;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UftpRequestResponseMapping {
-
-  private UftpRequestResponseMapping() {
-    // Private constructor to hide implicit one
-  }
 
   private static final Map<Class<? extends PayloadMessageType>, Class<? extends PayloadMessageType>> REQUEST_TO_RESPONSE_TYPES =
       Map.ofEntries(

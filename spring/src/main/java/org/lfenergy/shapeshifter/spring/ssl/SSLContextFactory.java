@@ -1,5 +1,7 @@
 package org.lfenergy.shapeshifter.spring.ssl;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.spring.config.ShapeshifterProperties;
 import org.springframework.core.io.Resource;
@@ -8,6 +10,7 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.security.*;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @CommonsLog
 public class SSLContextFactory {
 

@@ -10,11 +10,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 
-public class DateAdapter {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-  private DateAdapter() {
-    // private constructor to hide implicit public one
-  }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class DateAdapter {
 
   private static final DateTimeFormatter XSD_DATE = new DateTimeFormatterBuilder()
       .append(ISO_LOCAL_DATE)

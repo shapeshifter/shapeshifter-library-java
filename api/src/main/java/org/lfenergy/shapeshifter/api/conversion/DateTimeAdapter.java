@@ -11,11 +11,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 
-public class DateTimeAdapter {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-  private DateTimeAdapter() {
-    // private constructor to hide implicit public one
-  }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class DateTimeAdapter {
 
   private static final DateTimeFormatter XSD_DATE_TIME = new DateTimeFormatterBuilder()
       .append(ISO_LOCAL_DATE_TIME)
