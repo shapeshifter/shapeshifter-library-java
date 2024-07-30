@@ -7,7 +7,6 @@ Thank you for investing your time in contributing to our project!
 2. [Requesting features](#requesting-features)
 3. [Contributing code](#contributing-code)
 4. [Releasing new versions](#releasing-new-versions)
-5. [Code of conduct](#code-of-conduct)
 
 ## Reporting bugs
 
@@ -105,7 +104,3 @@ Let's assume the last release was `1.0.0` and you want to make a security or bug
 You can keep the `v1.0-maintenance` branch open to make more bug/security fixes, or you can delete the branch when no longer needed.
 
 This can be done for any previous release (including patch versions).
-
-## Code of conduct
-
-To be described.
