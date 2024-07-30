@@ -26,7 +26,7 @@
     <wiremock.version>3.5.3</wiremock.version>
     <xmlunit.verion>2.9.1</xmlunit.verion>
     <commons-logging.version>1.3.1</commons-logging.version>
-    <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
+    <jakarta-annotation.version>3.0.0</jakarta-annotation.version>
     <awaitility.version>4.2.1</awaitility.version>
   </properties>
 
