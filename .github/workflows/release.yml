@@ -35,8 +35,8 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         server-id: ossrh
-        server-username: OSSRH_USERNAME
-        server-password: OSSRH_PASSWORD
+        server-username: OSSRH_TOKEN_USER
+        server-password: OSSRH_TOKEN_KEY
         gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
@@ -47,5 +47,5 @@ jobs:
         mvn -B -DdryRun=${{inputs.dry_run}} -DreleaseVersion=${{inputs.release_version}} -DdevelopmentVersion=${{inputs.development_version}} release:prepare release:perform
       env:
         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-        OSSRH_USERNAME: ${{ vars.OSSRH_USERNAME }}
-        OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        OSSRH_USERNAME: ${{ vars.OSSRH_TOKEN_USER }}
+        OSSRH_PASSWORD: ${{ secrets.OSSRH_TOKEN_KEY }}
