@@ -47,5 +47,5 @@ jobs:
         mvn -B -DdryRun=${{inputs.dry_run}} -DreleaseVersion=${{inputs.release_version}} -DdevelopmentVersion=${{inputs.development_version}} release:prepare release:perform
       env:
         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-        OSSRH_USERNAME: ${{ vars.OSSRH_TOKEN_USER }}
-        OSSRH_PASSWORD: ${{ secrets.OSSRH_TOKEN_KEY }}
+        OSSRH_TOKEN_USER: ${{ vars.OSSRH_TOKEN_USER }}
+        OSSRH_TOKEN_KEY: ${{ secrets.OSSRH_TOKEN_KEY }}
