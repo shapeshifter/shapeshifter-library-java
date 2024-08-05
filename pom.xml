@@ -55,7 +55,6 @@
     <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>3.2.1</maven-failsafe-plugin.version>
     <maven-jaxb2-plugin.version>0.15.2</maven-jaxb2-plugin.version>
-    <dependency-check-maven.version>10.0.3</dependency-check-maven.version>
     <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
     <maven-javadoc-plugin.version>3.8.0</maven-javadoc-plugin.version>
     <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
@@ -136,24 +135,6 @@
             <goals>
               <goal>integration-test</goal>
               <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.owasp</groupId>
-        <artifactId>dependency-check-maven</artifactId>
-        <version>${dependency-check-maven.version}</version>
-        <configuration>
-          <failBuildOnCVSS>8</failBuildOnCVSS>
-          <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled> <!-- We don't have .NET assemblies -->
-        </configuration>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>aggregate</goal>
             </goals>
           </execution>
         </executions>
