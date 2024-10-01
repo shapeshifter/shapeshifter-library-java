@@ -6,6 +6,7 @@ package org.lfenergy.shapeshifter.core.tools;
 
 import com.goterl.lazysodium.LazySodiumJava;
 import com.goterl.lazysodium.SodiumJava;
+import com.goterl.lazysodium.exceptions.SodiumException;
 import java.util.Base64;
 import lombok.val;
 import org.apache.commons.logging.LogFactory;
@@ -15,24 +16,14 @@ public class UftpKeyPairTool {
 
   public static void main(String[] args) {
     var log = LogFactory.getLog(UftpKeyPairTool.class);
+
     log.info("GOPACS UFTP Key Pair Tool");
     log.info("-------------------------");
-    log.info("Generating key pair...");
 
     val keypair = generateKeyPair();
 
-    log.info("\n");
-    log.info("Private Key:");
-    log.info("\n");
-    log.info(keypair.privateKey());
-
-    log.info("\n");
-    log.info("Public Key:");
-    log.info("\n");
-    log.info(keypair.publicKey());
-
-    log.info("\n");
-    log.info("All done!");
+    log.info("Private Key: " + keypair.privateKey());
+    log.info("Public Key : " + keypair.publicKey());
   }
 
   public static KeyPair generateKeyPair() {
@@ -42,7 +33,7 @@ public class UftpKeyPairTool {
       String base64Public = Base64.getEncoder().encodeToString(keyPair.getPublicKey().getAsBytes());
       String base64Secret = Base64.getEncoder().encodeToString(keyPair.getSecretKey().getAsBytes());
       return new KeyPair(base64Public, base64Secret);
-    } catch (Exception cause) {
+    } catch (SodiumException cause) {
       throw new UftpConnectorException("Failed to generate key pair.", cause);
     }
   }
