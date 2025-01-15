@@ -7,23 +7,21 @@ package org.lfenergy.shapeshifter.core.tools;
 import com.goterl.lazysodium.LazySodiumJava;
 import com.goterl.lazysodium.SodiumJava;
 import com.goterl.lazysodium.exceptions.SodiumException;
-import java.util.Base64;
 import lombok.val;
-import org.apache.commons.logging.LogFactory;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
+
+import java.util.Base64;
 
 public class UftpKeyPairTool {
 
   public static void main(String[] args) {
-    var log = LogFactory.getLog(UftpKeyPairTool.class);
-
-    log.info("GOPACS UFTP Key Pair Tool");
-    log.info("-------------------------");
+    System.out.println("GOPACS UFTP Key Pair Tool");
+    System.out.println("-------------------------");
 
     val keypair = generateKeyPair();
 
-    log.info("Private Key: " + keypair.privateKey());
-    log.info("Public Key : " + keypair.publicKey());
+    System.out.println("Private Key: " + keypair.privateKey());
+    System.out.println("Public Key : " + keypair.publicKey());
   }
 
   public static KeyPair generateKeyPair() {

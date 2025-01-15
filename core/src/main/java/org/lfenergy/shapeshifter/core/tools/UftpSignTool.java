@@ -4,10 +4,6 @@
 
 package org.lfenergy.shapeshifter.core.tools;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.core.common.xml.XmlSerializer;
 import org.lfenergy.shapeshifter.core.common.xsd.XsdFactory;
@@ -22,11 +18,16 @@ import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.core.service.participant.ParticipantResolutionService;
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Optional;
+
 @CommonsLog
 public class UftpSignTool {
 
   static void usage() {
-    log.info(String.format("Usage: %s <input file> <output file> <private key>", UftpSignTool.class.getSimpleName()));
+    System.out.println("Usage: " + UftpSignTool.class.getSimpleName() + " <input file> <output file> <private key>");
   }
 
   public static void main(String[] args) {
@@ -65,7 +66,8 @@ public class UftpSignTool {
 
       Files.writeString(Paths.get(outputFileName), signedXml);
     } catch (IOException e) {
-      log.error(String.format("Could not sign message: %s", e.getMessage()), e);
+      System.err.println("Could not sign message: " + e.getMessage());
+      e.printStackTrace(System.err);
     }
   }
 }

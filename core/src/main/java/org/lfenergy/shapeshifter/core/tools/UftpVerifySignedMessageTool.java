@@ -24,7 +24,7 @@ import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
 public class UftpVerifySignedMessageTool {
 
   static void usage() {
-    log.info(String.format("Usage: %s <input file> <output file> <public key>", UftpVerifySignedMessageTool.class.getSimpleName()));
+    System.out.println(String.format("Usage: %s <input file> <output file> <public key>", UftpVerifySignedMessageTool.class.getSimpleName()));
   }
 
   public static void main(String[] args) {
@@ -59,7 +59,8 @@ public class UftpVerifySignedMessageTool {
 
       Files.writeString(Paths.get(outputFileName), payloadXml);
     } catch (IOException e) {
-      log.error(String.format("Could not verify message: %s", e.getMessage()), e);
+      System.err.println("Could not verify message" + e.getMessage());
+      e.printStackTrace(System.err);
     }
   }
 }
