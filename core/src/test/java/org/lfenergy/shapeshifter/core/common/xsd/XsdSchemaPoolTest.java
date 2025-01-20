@@ -85,7 +85,7 @@ class XsdSchemaPoolTest {
 
     verify(factoryPool).release(factory);
   }
-
+  
   @Test
   void create_violate_xxe_then_fail() {
     doTestXXE(XXE_ATTACK, "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.");

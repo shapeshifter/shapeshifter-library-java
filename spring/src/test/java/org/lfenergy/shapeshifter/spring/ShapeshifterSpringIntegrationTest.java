@@ -233,8 +233,8 @@ class ShapeshifterSpringIntegrationTest {
   }
 
   private void mockUftpParticipants() {
-    given(uftpParticipantService.getParticipantInformation(AGR, AGR_DOMAIN)).willReturn(Optional.of(new UftpParticipantInformation(AGR_DOMAIN, TEST_PUBLIC_KEY, "aEndpoint")));
-    given(uftpParticipantService.getParticipantInformation(DSO, DSO_DOMAIN)).willReturn(Optional.of(new UftpParticipantInformation(DSO_DOMAIN, TEST_PUBLIC_KEY, "aEndpoint")));
+    given(uftpParticipantService.getParticipantInformation(AGR, AGR_DOMAIN)).willReturn(Optional.of(new UftpParticipantInformation(AGR_DOMAIN, TEST_PUBLIC_KEY, "aEndpoint", false)));
+    given(uftpParticipantService.getParticipantInformation(DSO, DSO_DOMAIN)).willReturn(Optional.of(new UftpParticipantInformation(DSO_DOMAIN, TEST_PUBLIC_KEY, "aEndpoint", false)));
   }
 
   private void mockValidatorSupport() {

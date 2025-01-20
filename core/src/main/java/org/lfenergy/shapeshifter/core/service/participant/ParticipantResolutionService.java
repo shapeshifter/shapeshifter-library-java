@@ -24,6 +24,10 @@ public class ParticipantResolutionService {
     return getDomain(senderRole, senderDomain).publicKey();
   }
 
+  public UftpParticipantInformation getParticipantInformation(UftpParticipant recipient) {
+    return getDomain(recipient.role(), recipient.domain());
+  }
+
   private UftpParticipantInformation getDomain(USEFRoleType role, String domain) {
     return uftpParticipantService.getParticipantInformation(role, domain).orElseThrow(
         () -> new UftpConnectorException("No participant found for " + domain + " in " + role));
