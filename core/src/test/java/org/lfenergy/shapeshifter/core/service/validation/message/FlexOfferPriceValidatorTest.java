@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class FlexOfferPriceValidatorTest {
 
-    private static final UftpParticipant DSO = UftpParticipantFixture.createTestAGRParticipant();
+    private static final UftpParticipant DSO = UftpParticipantFixture.AGR;
 
     private final FlexOfferPriceValidator flexOfferPriceValidator = new FlexOfferPriceValidator();
 

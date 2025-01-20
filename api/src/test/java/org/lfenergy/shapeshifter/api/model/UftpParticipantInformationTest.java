@@ -6,20 +6,28 @@ package org.lfenergy.shapeshifter.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import net.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.util.StringUtils;
+
+import java.util.Random;
 
 class UftpParticipantInformationTest {
 
-  public static final String DOMAIN = "DOMAIN";
-  public static final String ENDPOINT = "ENDPOINT";
-  public static final String PUBLIC_KEY = "PUBLIC_KEY";
 
   @Test
   void construction() {
-    var testSubject = new UftpParticipantInformation(DOMAIN, PUBLIC_KEY, ENDPOINT);
+    Random random = new Random();
+    String domain = "DOMAIN" + random.nextInt();
+    String endpoint = "ENDPOINT"  + random.nextInt();
+    String publicKey = "PUBLIC_KEY" + random.nextInt();
+    boolean requiresAuth = random.nextBoolean();
 
-    assertThat(testSubject.domain()).isEqualTo(DOMAIN);
-    assertThat(testSubject.publicKey()).isEqualTo(PUBLIC_KEY);
-    assertThat(testSubject.endpoint()).isEqualTo(ENDPOINT);
+    var testSubject = new UftpParticipantInformation(domain, publicKey, endpoint, requiresAuth);
+
+    assertThat(testSubject.domain()).isEqualTo(domain);
+    assertThat(testSubject.publicKey()).isEqualTo(publicKey);
+    assertThat(testSubject.endpoint()).isEqualTo(endpoint);
+    assertThat(testSubject.requiresAuthorization()).isEqualTo(requiresAuth);
   }
 }

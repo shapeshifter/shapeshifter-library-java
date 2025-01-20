@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FlexOrderCurrencyValidatorTest {
 
 
-    private static final UftpParticipant DSO = UftpParticipantFixture.createTestAGRParticipant();
+    private static final UftpParticipant DSO = UftpParticipantFixture.AGR;
 
     private final FlexOrderCurrencyValidator flexOrderCurrencyValidator = new FlexOrderCurrencyValidator();
 
