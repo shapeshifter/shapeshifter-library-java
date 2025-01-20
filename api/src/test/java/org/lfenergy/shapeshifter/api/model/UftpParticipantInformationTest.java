@@ -16,10 +16,11 @@ class UftpParticipantInformationTest {
 
   @Test
   void construction() {
-    var testSubject = new UftpParticipantInformation(DOMAIN, PUBLIC_KEY, ENDPOINT);
+    var testSubject = new UftpParticipantInformation(DOMAIN, PUBLIC_KEY, ENDPOINT, false);
 
     assertThat(testSubject.domain()).isEqualTo(DOMAIN);
     assertThat(testSubject.publicKey()).isEqualTo(PUBLIC_KEY);
     assertThat(testSubject.endpoint()).isEqualTo(ENDPOINT);
+    //TODO uitbreiden?
   }
 }

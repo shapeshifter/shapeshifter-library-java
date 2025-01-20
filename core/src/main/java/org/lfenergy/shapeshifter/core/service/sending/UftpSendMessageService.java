@@ -13,16 +13,19 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.text.MessageFormat;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.api.model.UftpParticipantInformation;
 import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.model.SigningDetails;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
-import org.lfenergy.shapeshifter.core.model.UftpParticipant;
+import org.lfenergy.shapeshifter.core.service.ParticipantAuthorizationProvider;
 import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.core.service.participant.ParticipantResolutionService;
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
@@ -60,6 +63,7 @@ public class UftpSendMessageService {
     private final UftpSerializer serializer;
     private final UftpCryptoService cryptoService;
     private final ParticipantResolutionService participantService;
+    private final ParticipantAuthorizationProvider participantAuthorizationProvider;
     private final UftpValidationService uftpValidationService;
     private final HttpClient httpClient;
 
@@ -69,8 +73,9 @@ public class UftpSendMessageService {
     public UftpSendMessageService(@NonNull UftpSerializer serializer,
                                   @NonNull UftpCryptoService cryptoService,
                                   @NonNull ParticipantResolutionService participantService,
+                                  @NonNull ParticipantAuthorizationProvider participantAuthorizationProvider,
                                   @NonNull UftpValidationService uftpValidationService) {
-        this(serializer, cryptoService, participantService, uftpValidationService, HttpClient.newHttpClient());
+        this(serializer, cryptoService, participantService, participantAuthorizationProvider, uftpValidationService, HttpClient.newHttpClient());
     }
 
     /**
@@ -79,11 +84,13 @@ public class UftpSendMessageService {
     public UftpSendMessageService(@NonNull UftpSerializer serializer,
                                   @NonNull UftpCryptoService cryptoService,
                                   @NonNull ParticipantResolutionService participantService,
+                                  @NonNull ParticipantAuthorizationProvider participantAuthorizationProvider,
                                   @NonNull UftpValidationService uftpValidationService,
                                   @NonNull HttpClient httpClient) {
         this.serializer = serializer;
         this.cryptoService = cryptoService;
         this.participantService = participantService;
+        this.participantAuthorizationProvider = participantAuthorizationProvider;
         this.uftpValidationService = uftpValidationService;
         this.httpClient = httpClient;
     }
@@ -116,7 +123,13 @@ public class UftpSendMessageService {
 
     private void doSend(PayloadMessageType payloadMessage, SigningDetails details) {
         String signedXml = getSignedXml(payloadMessage, details);
-        send(signedXml, details.recipient());
+        UftpParticipantInformation participantInformation = participantService.getParticipantInformation(details.recipient());
+        String url = participantInformation.endpoint();
+        Map<String, String> additionalHeaders = new HashMap<>();
+        if (participantInformation.requiresAuthorization()) {
+            additionalHeaders.put("Authorization", participantAuthorizationProvider.getAuthorizationHeader(details.recipient()));
+        }
+        send(signedXml, url, additionalHeaders, MAX_FOLLOW_REDIRECTS);
     }
 
     private String getSignedXml(PayloadMessageType payloadMessage, SigningDetails details) {
@@ -125,20 +138,18 @@ public class UftpSendMessageService {
         return serializer.toXml(signedMessage);
     }
 
-    private void send(String signedXml, UftpParticipant recipient) {
-        var url = participantService.getEndPointUrl(recipient);
-        send(signedXml, url, MAX_FOLLOW_REDIRECTS);
-    }
-
-    private void send(String signedXml, String url, int maxFollowRedirects) {
+    private void send(String signedXml, String url, Map<String, String> additionalHeaders, int maxFollowRedirects) {
         try {
             log.debug(String.format("Sending message to: %s", url));
 
-            var request = HttpRequest.newBuilder()
+            var requestBuilder = HttpRequest.newBuilder()
                     .uri(new URI(url))
                     .POST(BodyPublishers.ofString(signedXml))
-                    .setHeader("Content-Type", "text/xml")
-                    .build();
+                    .setHeader("Content-Type", "text/xml");
+            for (var header : additionalHeaders.entrySet()) {
+                requestBuilder.setHeader(header.getKey(), header.getValue());
+            }
+            var request = requestBuilder.build();
 
             var response = httpClient.send(request, BodyHandlers.ofString());
 
@@ -154,7 +165,7 @@ public class UftpSendMessageService {
                     var redirectUrl = response.headers().firstValue(REDIRECT_LOCATION_HEADER_NAME)
                             .orElseThrow(() -> new UftpServerErrorException(MessageFormat.format(MSG_MISSING_REDIRECT_LOCATION, url), httpStatusCode));
 
-                    send(signedXml, redirectUrl, maxFollowRedirects - 1);
+                    send(signedXml, redirectUrl, additionalHeaders, maxFollowRedirects - 1);
                 } else if (httpStatusCode.isClientError()) {
                     throw new UftpClientErrorException(MessageFormat.format(MSG_CLIENT_ERROR, response.statusCode(), url, response.body()), httpStatusCode);
                 } else if (httpStatusCode.isServerError()) {

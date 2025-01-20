@@ -21,7 +21,7 @@ public class UftpParticipantFixture {
   }
 
   public static UftpParticipantInformation createTestAGRParticipantInformation(String publicKey, String endpoint) {
-    return new UftpParticipantInformation(AGR_DOMAIN, publicKey, endpoint);
+    return new UftpParticipantInformation(AGR_DOMAIN, publicKey, endpoint, false);
   }
 
   public static UftpParticipant createTestDSOParticipant() {
@@ -29,7 +29,7 @@ public class UftpParticipantFixture {
   }
 
   public static UftpParticipantInformation createTestDSOParticipantInformation(String publicKey, String endpoint) {
-    return new UftpParticipantInformation(DSO_DOMAIN, publicKey, endpoint);
+    return new UftpParticipantInformation(DSO_DOMAIN, publicKey, endpoint, false);
   }
 
 }
