@@ -59,7 +59,6 @@ public class ShapeshifterConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UftpSendMessageService uftpSendMessageService(UftpSerializer serializer,
                                                          UftpCryptoService cryptoService,
                                                          ParticipantResolutionService participantService,
@@ -69,7 +68,6 @@ public class ShapeshifterConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UftpCryptoService uftpCryptoService(ParticipantResolutionService participantService,
                                                LazySodiumFactory factory,
                                                LazySodiumBase64Pool lazySodiumInstancePool) {
@@ -84,7 +82,6 @@ public class ShapeshifterConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ReceivedMessageProcessor receivedMessageProcessor(UftpPayloadHandler payloadHandler,
                                                              DuplicateMessageDetection duplicateDetection,
                                                              UftpErrorProcessor errorProcessor) {
@@ -93,21 +90,18 @@ public class ShapeshifterConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UftpSerializer uftpSerializer(XsdValidator xsdValidator) {
         return new UftpSerializer(new XmlSerializer(), xsdValidator);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ParticipantResolutionService participantResolutionService(UftpParticipantService uftpParticipantService) {
         return new ParticipantResolutionService(uftpParticipantService);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UftpValidationService uftpValidationService(ParticipantSupport participantSupport,
                                                        CongestionPointSupport congestionPointSupport,
                                                        DuplicateMessageDetection duplicateMessageDetection,
@@ -159,14 +153,12 @@ public class ShapeshifterConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public DuplicateMessageDetection duplicateMessageDetection(UftpMessageSupport uftpMessageSupport) {
         return new DuplicateMessageDetection(uftpMessageSupport, new XmlSerializer());
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UftpReceivedMessageService uftpReceivedMessageService(UftpValidationService uftpValidationService,
                                                                  UftpPayloadHandler uftpPayloadHandler) {
         var uftpReceivedMessageService = new UftpReceivedMessageService(uftpValidationService, uftpPayloadHandler);
@@ -192,14 +184,12 @@ public class ShapeshifterConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public XsdValidator xsdValidator(XsdSchemaProvider xsdSchemaProvider) {
         return new XsdValidator(xsdSchemaProvider);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public XsdSchemaProvider xsdSchemaProvider(XsdFactory xsdFactory) {
         return new XsdSchemaProvider(xsdFactory);
     }
