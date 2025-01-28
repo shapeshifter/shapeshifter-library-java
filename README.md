@@ -411,3 +411,18 @@ Useful tools for creating a key pair, signing and verifying UFTP messages:
 
 Each payload message `*.xml` has a `*Signed.xml` counterpart which contains the same message but
 signed (encrypted using the private key) in a `SignedMessage`.
+
+## Sending messages to participants that require authorization
+Starting from version 3.0.0, the Shapeshifter library supports sending messages to participants that require 
+authorization. This means that the sender must have a valid token to send a message to the recipient.
+
+Your implementation of `UftpParticipantService`, which returns `UftpParticipantInformation` instances, must tell
+whether the UFTP participant requires authorization in order to send messages to it. 
+The `UftpSendMessageService` will check whether the recipient requires authorization and, if so, will call the 
+`ParticipantAuthorizationProvider` to take care of the authorization for that participant and receive the Authorization
+header. If you are using the shapeshifter-spring library, a stub implementation of the `ParticipantAuthorizationProvider`
+that throws UnsupportedOperationException is provided. This is enough when you have no participants that require 
+authorization. If you don't use the spring library or you have participants that require authorization, you must provide
+your own implementation of the `ParticipantAuthorizationProvider`.
+
+

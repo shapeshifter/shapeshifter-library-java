@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class FlexOfferCurrencyValidatorTest {
 
-    private static final UftpParticipant DSO = UftpParticipantFixture.createTestAGRParticipant();
+    private static final UftpParticipant AGR = UftpParticipantFixture.AGR;
 
     private final FlexOfferCurrencyValidator flexOfferCurrencyValidator = new FlexOfferCurrencyValidator();
 
@@ -36,7 +36,7 @@ class FlexOfferCurrencyValidatorTest {
         var flexOffer = new FlexOffer();
         flexOffer.setCurrency(currency);
 
-        var result = flexOfferCurrencyValidator.isValid(UftpMessageFixture.createIncoming(DSO, flexOffer));
+        var result = flexOfferCurrencyValidator.isValid(UftpMessageFixture.createIncoming(AGR, flexOffer));
 
         assertThat(result).isEqualTo(expectedResult);
     }

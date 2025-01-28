@@ -4,20 +4,16 @@
 
 package org.lfenergy.shapeshifter.core.service.sending;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import net.datafaker.Faker;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,16 +26,21 @@ import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestResponse;
 import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.api.model.UftpParticipantInformation;
 import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.model.SigningDetails;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
+import org.lfenergy.shapeshifter.core.service.ParticipantAuthorizationProvider;
 import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.core.service.participant.ParticipantResolutionService;
+import org.lfenergy.shapeshifter.core.service.participant.UftpParticipantInformationBuilder;
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidationService;
 import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Locale;
 
 @ExtendWith(MockitoExtension.class)
 class UftpSendMessageServiceTest {
@@ -57,7 +58,11 @@ class UftpSendMessageServiceTest {
 
     private static WireMockServer wireMockServer;
 
+    private final UftpParticipantInformationBuilder uftpParticipantInformationBuilder = new UftpParticipantInformationBuilder();
+
     private final UftpParticipant recipient = new UftpParticipant(DOMAIN, USEFRoleType.AGR);
+
+    private static final Faker FAKER = new Faker(Locale.forLanguageTag("nl"));
 
     @Mock
     private UftpSerializer serializer;
@@ -65,6 +70,8 @@ class UftpSendMessageServiceTest {
     private UftpCryptoService cryptoService;
     @Mock
     private ParticipantResolutionService participantService;
+    @Mock
+    private ParticipantAuthorizationProvider authorizationProvider;
     @Mock
     private UftpValidationService uftpValidationService;
 
@@ -81,15 +88,16 @@ class UftpSendMessageServiceTest {
 
     @BeforeAll
     public static void setupWireMockServer() {
-    wireMockServer = new WireMockServer(0);
+        wireMockServer = new WireMockServer(0);
         wireMockServer.start();
-    WireMock.configureFor(wireMockServer.port());
-        setupWiremockStubs();
+        WireMock.configureFor(wireMockServer.port());
     }
 
     @BeforeEach
     void setup() {
-        this.testSubject = new UftpSendMessageService(serializer, cryptoService, participantService, uftpValidationService);
+        wireMockServer.resetAll();
+        setupWiremockStubs();
+        this.testSubject = new UftpSendMessageService(serializer, cryptoService, participantService, authorizationProvider, uftpValidationService);
     }
 
     @AfterEach
@@ -103,8 +111,6 @@ class UftpSendMessageServiceTest {
                 sender,
                 signedMessage
         );
-
-
     }
 
     @AfterAll
@@ -126,31 +132,47 @@ class UftpSendMessageServiceTest {
         given(details.recipient()).willReturn(recipient);
     }
 
-    private void verifySending() {
+    private void verifyNoValidations() {
         verifyNoInteractions(uftpValidationService);
+    }
+
+    @Test
+    void attemptToSendMessage_happyFlow_withAuthorization() {
+        mockSerialisation();
+        mockSending();
+        mockParticipantServiceWithAuthorization(getEndpointURL(PATH_HAPPY_FLOW));
+
+        String authorizationHeader = FAKER.regexify("Bearer [\\w\\d]{20}");
+        given(authorizationProvider.getAuthorizationHeader(any(UftpParticipant.class))).willReturn(authorizationHeader);
+
+        testSubject.attemptToSendMessage(flexRequest, details);
+
+        wireMockServer.verify(1,  postRequestedFor(urlPathEqualTo(PATH_HAPPY_FLOW)).withHeader("Authorization", equalTo(authorizationHeader)));
+        verifyNoValidations();
     }
 
     @Test
     void attemptToSendMessage_happyFlow() {
         mockSerialisation();
         mockSending();
-        given(participantService.getEndPointUrl(any())).willReturn(getEndpointURL(PATH_HAPPY_FLOW));
+        mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_HAPPY_FLOW));
 
         testSubject.attemptToSendMessage(flexRequest, details);
 
-        verifySending();
+        wireMockServer.verify(1,  postRequestedFor( urlPathEqualTo(PATH_HAPPY_FLOW)).withoutHeader("Authorization"));
+        verifyNoValidations();
     }
 
     @Test
     void attemptToSendMessage_204_No_Content() {
         mockSerialisation();
         mockSending();
-        var endpoint = getEndpointURL(PATH_204_NO_CONTENT);
-        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_204_NO_CONTENT));
 
         testSubject.attemptToSendMessage(flexRequest, details);
 
-        verifySending();
+        wireMockServer.verify(1,  postRequestedFor( urlPathEqualTo(PATH_204_NO_CONTENT)));
+        verifyNoValidations();
     }
 
     @ParameterizedTest
@@ -164,12 +186,13 @@ class UftpSendMessageServiceTest {
                         .withStatus(statusCode.getValue())
                         .withHeader("Location", getEndpointURL(PATH_HAPPY_FLOW))));
 
-        var endpoint = getEndpointURL(PATH_3XX);
-        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_3XX));
 
         testSubject.attemptToSendMessage(flexRequest, details);
 
-        verifySending();
+        wireMockServer.verify(1, postRequestedFor(urlPathMatching(PATH_3XX + ".*")));
+        wireMockServer.verify(1, postRequestedFor(urlPathMatching(PATH_HAPPY_FLOW)));
+        verifyNoValidations();
     }
 
     @ParameterizedTest
@@ -183,19 +206,19 @@ class UftpSendMessageServiceTest {
                         .withStatus(statusCode.getValue())
                         .withHeader("Location", getEndpointURL(PATH_BAD_REQUEST))));
 
-        var endpoint = getEndpointURL(PATH_3XX);
-        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_3XX));
 
         var actual = assertThrows(UftpClientErrorException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
 
-        verifySending();
+        verifyNoValidations();
 
+        wireMockServer.verify(1, postRequestedFor(urlPathMatching(PATH_3XX + ".*")));
+        wireMockServer.verify(1, postRequestedFor(urlPathMatching(PATH_BAD_REQUEST)));
         assertThat(actual)
                 .isInstanceOf(UftpClientErrorException.class)
                 .hasMessage("Client error 400 received while sending UFTP message to " + getEndpointURL(PATH_BAD_REQUEST) + ": Bad Request");
         assertThat(actual.getHttpStatusCode()).isEqualTo(HttpStatusCode.BAD_REQUEST);
-        verifyNoInteractions(uftpValidationService);
     }
 
     @ParameterizedTest
@@ -208,19 +231,17 @@ class UftpSendMessageServiceTest {
                 .willReturn(aResponse()
                         .withStatus(statusCode.getValue())));
 
-        var endpoint = getEndpointURL(PATH_3XX);
-        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_3XX));
 
         var actual = assertThrows(UftpServerErrorException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
 
-        verifySending();
+        verifyNoValidations();
 
         assertThat(actual)
                 .isInstanceOf(UftpServerErrorException.class)
                 .hasMessage("Redirect received without Location header while sending UFTP message to " + getEndpointURL(PATH_3XX));
         assertThat(actual.getHttpStatusCode()).isEqualTo(statusCode);
-        verifyNoInteractions(uftpValidationService);
     }
 
     @ParameterizedTest
@@ -235,17 +256,19 @@ class UftpSendMessageServiceTest {
                         .withHeader("Location", getEndpointURL(PATH_3XX))));
 
         var endpoint = getEndpointURL(PATH_3XX);
-        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        mockParticipantServiceWithoutAuthorization(endpoint);
 
         var actual = assertThrows(UftpSendException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
 
-        verifySending();
+        verifyNoValidations();
+
+        wireMockServer.verify(3, postRequestedFor(urlPathMatching(PATH_3XX + ".*")));
+        assertThat(wireMockServer.findAllUnmatchedRequests()).isEmpty();
 
         assertThat(actual)
                 .isInstanceOf(UftpSendException.class)
                 .hasMessage("Too many redirects while sending UFTP message to " + endpoint);
-        verifyNoInteractions(uftpValidationService);
     }
 
     @ParameterizedTest
@@ -260,18 +283,17 @@ class UftpSendMessageServiceTest {
                         .withHeader("Location", getEndpointURL(PATH_HAPPY_FLOW))));
 
         var endpoint = getEndpointURL(PATH_3XX);
-        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        mockParticipantServiceWithoutAuthorization(endpoint);
 
         var actual = assertThrows(UftpSendException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
 
-        verifySending();
+        verifyNoValidations();
 
         assertThat(actual)
                 .isInstanceOf(UftpSendException.class)
                 .hasMessageContaining("Unexpected response status " + statusCode.getValue() + " received while sending UFTP message to " + endpoint);
         assertThat(actual.getHttpStatusCode()).isEqualTo(statusCode);
-        verifyNoInteractions(uftpValidationService);
     }
 
     @Test
@@ -279,19 +301,18 @@ class UftpSendMessageServiceTest {
         mockSerialisation();
         mockSending();
         var endpoint = getEndpointURL(PATH_INTERNAL_SERVER_ERROR);
-        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        mockParticipantServiceWithoutAuthorization(endpoint);
         var httpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
 
         var actual = assertThrows(UftpSendException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
 
-        verifySending();
+        verifyNoValidations();
 
         assertThat(actual)
                 .isInstanceOf(UftpSendException.class)
                 .hasMessage("Server error 500 received while sending UFTP message to " + endpoint + ": Internal Server Error");
         assertThat(actual.getHttpStatusCode()).isEqualTo(httpStatusCode);
-        verifyNoInteractions(uftpValidationService);
     }
 
     @Test
@@ -299,36 +320,32 @@ class UftpSendMessageServiceTest {
         mockSerialisation();
         mockSending();
         var endpoint = getEndpointURL(PATH_BAD_REQUEST);
-        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        mockParticipantServiceWithoutAuthorization(endpoint);
 
         var httpStatusCode = HttpStatusCode.BAD_REQUEST;
 
         var actual = assertThrows(UftpClientErrorException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
 
-        verifySending();
+        verifyNoValidations();
 
         assertThat(actual)
                 .isInstanceOf(UftpClientErrorException.class)
                 .hasMessage("Client error 400 received while sending UFTP message to " + endpoint + ": Bad Request");
         assertThat(actual.getHttpStatusCode()).isEqualTo(httpStatusCode);
-        verifyNoInteractions(uftpValidationService);
     }
 
     @Test
     void attemptToSendMessage_UrlIsNull() {
         mockSerialisation();
         mockSending();
-
-        given(participantService.getEndPointUrl(any())).willReturn(null);
+        mockParticipantServiceWithoutAuthorization(null);
         var actual = assertThrows(NullPointerException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
 
-        verifySending();
+        verifyNoValidations();
 
-        assertThat(actual)
-                .isInstanceOf(NullPointerException.class);
-        verifyNoInteractions(uftpValidationService);
+        assertThat(actual).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -337,17 +354,16 @@ class UftpSendMessageServiceTest {
         mockSending();
 
         var endpoint = "http://???";
-        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        mockParticipantServiceWithoutAuthorization(endpoint);
         var actual = assertThrows(UftpSendException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
 
-        verifySending();
+        verifyNoValidations();
 
         assertThat(actual)
                 .isInstanceOf(UftpSendException.class)
                 .hasMessage("Could not send UFTP message; invalid endpoint: unsupported URI " + endpoint);
         assertThat(actual.getHttpStatusCode()).isEqualTo(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        verifyNoInteractions(uftpValidationService);
     }
 
     @Test
@@ -355,19 +371,18 @@ class UftpSendMessageServiceTest {
         mockSerialisation();
         mockSending();
         var endpoint = "http://localhost:1"; // something that will trigger a java.net.ConnectException
-        given(participantService.getEndPointUrl(any())).willReturn(endpoint);
+        mockParticipantServiceWithoutAuthorization(endpoint);
         var httpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
 
         var actual = assertThrows(UftpSendException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
 
-        verifySending();
+        verifyNoValidations();
 
         assertThat(actual)
                 .isInstanceOf(UftpSendException.class)
                 .hasMessage("Unexpected I/O exception while sending UFTP message to " + endpoint + ": ConnectException: null");
         assertThat(actual.getHttpStatusCode()).isEqualTo(httpStatusCode);
-        verifyNoInteractions(uftpValidationService);
     }
 
     @Test
@@ -390,13 +405,22 @@ class UftpSendMessageServiceTest {
         given(serializer.toXml(signedMessage)).willReturn(SIGNED_XML);
 
         mockSending();
-        given(participantService.getEndPointUrl(any())).willReturn(getEndpointURL(PATH_HAPPY_FLOW));
+        mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_HAPPY_FLOW));
 
         // We are calling attemptToValidateAndSendMessage, but since we are sending a flex request response, the
         // message is not validated (since we have decided not to validate outgoing response messages)
         testSubject.attemptToValidateAndSendMessage(flexRequestResponse, details);
-        verifyNoInteractions(uftpValidationService);
-        verifySending();
+        verifyNoValidations();
+    }
+
+    private void mockParticipantServiceWithAuthorization(String endpointUrl) {
+        UftpParticipantInformation recipientInformation = uftpParticipantInformationBuilder.withEndpoint(endpointUrl).withRequiresAuthorization(true).build();
+        given(participantService.getParticipantInformation(any(UftpParticipant.class))).willReturn(recipientInformation);
+    }
+
+    private void mockParticipantServiceWithoutAuthorization(String endpointUrl) {
+        UftpParticipantInformation recipientInformation = uftpParticipantInformationBuilder.withEndpoint(endpointUrl).withRequiresAuthorization(false).build();
+        given(participantService.getParticipantInformation(any(UftpParticipant.class))).willReturn(recipientInformation);
     }
 
     private String getEndpointURL(String path) {

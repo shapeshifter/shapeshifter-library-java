@@ -10,6 +10,8 @@ import org.lfenergy.shapeshifter.core.common.xsd.XsdFactory;
 import org.lfenergy.shapeshifter.core.common.xsd.XsdSchemaFactoryPool;
 import org.lfenergy.shapeshifter.core.common.xsd.XsdSchemaProvider;
 import org.lfenergy.shapeshifter.core.common.xsd.XsdValidator;
+import org.lfenergy.shapeshifter.core.model.UftpParticipant;
+import org.lfenergy.shapeshifter.core.service.ParticipantAuthorizationProvider;
 import org.lfenergy.shapeshifter.core.service.UftpErrorProcessor;
 import org.lfenergy.shapeshifter.core.service.UftpParticipantService;
 import org.lfenergy.shapeshifter.core.service.crypto.LazySodiumBase64Pool;
@@ -63,8 +65,9 @@ public class ShapeshifterConfiguration {
     public UftpSendMessageService uftpSendMessageService(UftpSerializer serializer,
                                                          UftpCryptoService cryptoService,
                                                          ParticipantResolutionService participantService,
+                                                         ParticipantAuthorizationProvider participantAuthorizationProvider,
                                                          UftpValidationService uftpValidationService) {
-        return new UftpSendMessageService(serializer, cryptoService, participantService, uftpValidationService, httpClient());
+        return new UftpSendMessageService(serializer, cryptoService, participantService, participantAuthorizationProvider, uftpValidationService, httpClient());
     }
 
     @ConditionalOnMissingBean
@@ -103,6 +106,17 @@ public class ShapeshifterConfiguration {
     @Autowired
     public ParticipantResolutionService participantResolutionService(UftpParticipantService uftpParticipantService) {
         return new ParticipantResolutionService(uftpParticipantService);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ParticipantAuthorizationProvider participantOAuth2TokenProvider() {
+        return new ParticipantAuthorizationProvider() {
+            @Override
+            public String getAuthorizationHeader(UftpParticipant participant) {
+                throw new UnsupportedOperationException("It is required to provide an custom implementation of ParticipantAuthorizationProvider when authorization is used.");
+            }
+        };
     }
 
     @ConditionalOnMissingBean
