@@ -19,7 +19,7 @@
   </description>
 
   <properties>
-    <jna.version>5.14.0</jna.version>
+    <jna.version>5.16.0</jna.version>
     <lazysodium-java.version>5.1.4</lazysodium-java.version>
     <resource-loader.version>2.0.2</resource-loader.version>
     <swagger-annotations.version>2.2.28</swagger-annotations.version>
