@@ -1,12 +1,16 @@
 version: 2
 updates:
-  # Patch-level updates (e.g., 1.1.x) will be created as a single MR weekly
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
       interval: "weekly"
-    commit-message:
-      prefix: "chore"
-    open-pull-requests-limit: 1 # Limit a single MR for all updates
-    target-branch: "main"
-    update-types: "patch"
+    groups:
+      maven:
+        patterns:
+          - "*:*"
+        update-types:
+          - "patch"
+          - "minor"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
