@@ -1,16 +1,17 @@
 name: Dependabot Auto-Merge
-on: pull_request
+on: 
+  pull_request:
+    types:
+      - opened
 
 permissions:
   pull-requests: write 
-  contents: write
+  contents: read
 
 jobs:
   dependabot-auto-merge:
     runs-on: ubuntu-latest
-    if: |
-      github.event.pull_request.user.login == 'dependabot[bot]' &&
-      contains(github.event.pull_request.title, 'minor and patch-level')
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && startsWith(github.event.pull_request.title, 'Apply all minor and patch-level')
     steps:
       - name: Fetch Pull Request Metadata
         id: metadata
