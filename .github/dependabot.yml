@@ -1,11 +1,28 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
 version: 2
 updates:
-  - package-ecosystem: "maven" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # Patch-level updates (e.g., 1.1.x) will be merged into `main` automatically as a single MR
+  - package-ecosystem: "maven"
+    directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "chore"
+    open-pull-requests-limit: 1 # Limit a single MR for all updates
+    target-branch: "main"
+    versioning-strategy: "increase-patch" 
+    pull-request-branch-name: "dependabot/patch-updates"
+    # Merge automatically:
+    auto-merge: true
+
+  # Minor-level updates (e.g., 1.x.0) will not be merged automatically, but be consolidated into a single MR
+  - package-ecosystem: "maven"
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "chore"
+    open-pull-requests-limit: 1
+    target-branch: "main"
+    versioning-strategy: "increase-minor" 
+    pull-request-branch-name: "dependabot/minor-updates"
+    auto-merge: false
