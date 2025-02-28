@@ -11,6 +11,7 @@ updates:
         update-types:
           - "patch"
           - "minor"
+    pull-request-title: "Apply all minor and patch-level updates for Maven dependencies"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
