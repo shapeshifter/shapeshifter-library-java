@@ -9,4 +9,4 @@ updates:
       prefix: "chore"
     open-pull-requests-limit: 1 # Limit a single MR for all updates
     target-branch: "main"
-    versioning-strategy: "increase-patch" 
+    update-types: "patch"
