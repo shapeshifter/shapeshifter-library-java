@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Patch-level updates (e.g., 1.1.x) will be merged into `main` automatically as a single MR
+  # Patch-level updates (e.g., 1.1.x) will be created as a single MR weekly
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
@@ -10,5 +10,3 @@ updates:
     open-pull-requests-limit: 1 # Limit a single MR for all updates
     target-branch: "main"
     versioning-strategy: "increase-patch" 
-    pull-request-branch-name: "dependabot/patch-updates"
-    auto-merge: true
