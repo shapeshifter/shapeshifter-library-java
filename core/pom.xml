@@ -28,7 +28,7 @@
     <commons-logging.version>1.3.4</commons-logging.version>
     <jakarta-annotation.version>3.0.0</jakarta-annotation.version>
     <awaitility.version>4.2.2</awaitility.version>
-    <slf4j-api.version>2.0.12</slf4j-api.version>
+    <slf4j-api.version>2.0.17</slf4j-api.version>
   </properties>
 
   <dependencies>
