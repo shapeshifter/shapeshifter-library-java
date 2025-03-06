@@ -19,7 +19,7 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Merge Pull Request
-        run: gh pr merge --auto "$PR_URL"
+        run: gh pr merge "$PR_URL" --auto --merge
         env:
           PR_URL: "${{ github.event.pull_request.html_url }}"
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
