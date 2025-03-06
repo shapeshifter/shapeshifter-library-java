@@ -1,0 +1,25 @@
+name: Dependabot Auto-Merge
+on: 
+  pull_request:
+    types:
+      - opened
+
+permissions:
+  pull-requests: write 
+  contents: read
+
+jobs:
+  dependabot-auto-merge:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && startsWith(github.event.pull_request.title, 'Apply all minor and patch-level')
+    steps:
+      - name: Fetch Pull Request Metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Merge Pull Request
+        run: gh pr merge --auto "$PR_URL"
+        env:
+          PR_URL: "${{ github.event.pull_request.html_url }}"
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
