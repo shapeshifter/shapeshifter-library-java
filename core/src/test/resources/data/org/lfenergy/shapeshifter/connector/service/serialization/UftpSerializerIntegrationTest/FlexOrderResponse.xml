@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <FlexOrderResponse
-  Version="3.0.0"
+  Version="3.1.0"
   SenderDomain="aggregator.org"
   RecipientDomain="uftp.dso.nl"
   TimeStamp="2021-10-29T06:55:45.2118292Z"

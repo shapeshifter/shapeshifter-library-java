@@ -176,7 +176,7 @@ etc. All these Java domain objects are generated from the XSDs (XML Schema Defin
 maintained by the Shapeshifter foundation, and are
 published [here](https://github.com/shapeshifter/shapeshifter-specification). The Shapeshifter
 foundation aims to keep the XSDs and the library synchronised; currently the most recent version of
-the UFTP XSD specification is 3.0.0, and the current Shapeshifter library supports this version.
+the UFTP XSD specification is 3.1.0, and the current Shapeshifter library supports this version.
 When a new version of the XSD is published, the Shapeshifter foundation will make sure that the
 library is updated accordingly. The XSD's are stored in the following directory:
 
@@ -413,7 +413,7 @@ Each payload message `*.xml` has a `*Signed.xml` counterpart which contains the 
 signed (encrypted using the private key) in a `SignedMessage`.
 
 ## Sending messages to participants that require authorization
-Starting from version 3.0.0, the Shapeshifter library supports sending messages to participants that require 
+Starting from version 3.1.0, the Shapeshifter library supports sending messages to participants that require 
 authorization. This means that the sender must have a valid token to send a message to the recipient.
 
 Your implementation of `UftpParticipantService`, which returns `UftpParticipantInformation` instances, must tell

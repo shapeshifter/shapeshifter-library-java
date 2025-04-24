@@ -24,7 +24,7 @@ class UftpValidationResponseCreatorTest {
   private static final String RECIPIENT_DOMAIN = "recipient.domain";
   private static final String SENDER_DOMAIN = "sender.domain";
   private static final String REJECTION_REASON = "rejectionReason";
-  private static final String VERSION = "3.0.0";
+  private static final String VERSION = "3.1.0";
 
   @Test
   void getResponseForMessage_valid() {

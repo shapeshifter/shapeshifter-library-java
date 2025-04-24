@@ -21,7 +21,7 @@ public class PayloadMessageFixture {
     private static final String CONGESTION_POINT = "ean.123123123123123123";
     private static final OffsetDateTime NOW = OffsetDateTime.now();
     private static final String TIME_ZONE = "Europe/Amsterdam";
-    private static final String VERSION = "3.0.0";
+    private static final String VERSION = "3.1.0";
 
     public static final Duration DURATION_15_MINUTES = Duration.ofMinutes(15);
 
