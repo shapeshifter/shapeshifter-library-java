@@ -14,14 +14,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
+import org.lfenergy.shapeshifter.core.common.xsd.XsdValidationException;
 import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.UftpErrorProcessor;
 import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
+import org.lfenergy.shapeshifter.core.service.crypto.UftpVerifyException;
 import org.lfenergy.shapeshifter.core.service.receiving.DuplicateMessageException;
 import org.lfenergy.shapeshifter.core.service.receiving.ReceivedMessageProcessor;
 import org.lfenergy.shapeshifter.core.service.receiving.UftpReceiveException;
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -80,18 +84,20 @@ public class UftpInternalController {
       processor.onReceivedMessage(IncomingUftpMessage.create(new UftpParticipant(signedMessage), payloadMessage, transportXml, payloadXml));
 
       return ResponseEntity.ok(null);
+    } catch (XsdValidationException e) {
+      return handleException(transportXml, e, HttpStatus.BAD_REQUEST);
+    } catch (UftpVerifyException e) {
+      return handleException(transportXml, e, HttpStatus.UNAUTHORIZED);
     } catch (DuplicateMessageException e) {
       return ResponseEntity.badRequest().body("Duplicate message");
-    } catch (UftpConnectorException cause) {
-      return handleException(transportXml, cause);
     } catch (Exception cause) {
-      return handleException(transportXml, new UftpReceiveException(cause.getMessage(), cause));
+      return handleException(transportXml, new UftpReceiveException(cause.getMessage(), cause), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  private ResponseEntity<String> handleException(String transportXml, UftpConnectorException cause) {
+  private ResponseEntity<String> handleException(String transportXml, UftpConnectorException cause, HttpStatusCode httpStatusCode) {
     String error = "Failed to process received UFTP message. Error: " + cause.getMessage();
     errorProcessor.onErrorDuringReceivedMessageReading(transportXml, cause);
-    return ResponseEntity.status(cause.getHttpStatusCode().getValue()).body(error);
+    return ResponseEntity.status(httpStatusCode).body(error);
   }
 }
