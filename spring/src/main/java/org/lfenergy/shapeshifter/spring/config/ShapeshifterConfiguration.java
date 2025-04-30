@@ -157,7 +157,9 @@ public class ShapeshifterConfiguration {
                 new FlexOrderPriceMatchValidator(uftpMessageSupport),
                 new IspPowerDiscrepancyValidator(),
                 new IspRequestedDispositionValidator(),
-                new MinActivationFactorValidator()
+                new MinActivationFactorValidator(),
+                new UnsolicitedFlexOfferValidator(),
+                new UnsolicitedFlexOrderValidator()
         ));
 
         validators.addAll(uftpUserDefinedValidators);

@@ -1,11 +1,19 @@
 # Changelog
 
-Starting from version 3.0.0, all notable changes to this project will be documented in this file.
-
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.0]
+## 3.2.0
+
+### Changed
+- Updated to Shapeshifter specification version 3.1.0
+
+## 3.1.0
+
+### Changed
+- Update Spring Boot version to 3.4.1
+
+## 3.0.0
 
 ### Added
 
