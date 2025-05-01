@@ -36,16 +36,16 @@ class UnsolicitedFlexOrderValidatorTest {
     }
 
     @Test
-    void isValid_Unsolicited_null_FlexRequestMessageID_null() {
+    void isValid_Unsolicited_null_FlexOfferMessageID_null() {
         var flexOrder = new FlexOrder();
         flexOrder.setUnsolicited(null);
         flexOrder.setFlexOfferMessageID(null);
 
-        assertThat(validator.isValid(createUftpMessage(flexOrder))).isTrue();
+        assertThat(validator.isValid(createUftpMessage(flexOrder))).isFalse();
     }
 
     @Test
-    void isValid_Unsolicited_null_FlexRequestMessageID_not_null() {
+    void isValid_backwards_compatibility_Unsolicited_null_FlexOfferMessageID_not_null() {
         var flexOrder = new FlexOrder();
         flexOrder.setUnsolicited(null);
         flexOrder.setFlexOfferMessageID(FLEX_OFFER_MESSAGE_ID);
@@ -54,7 +54,7 @@ class UnsolicitedFlexOrderValidatorTest {
     }
 
     @Test
-    void isValid_Unsolicited_true_null_FlexRequestMessageID_null() {
+    void isValid_Unsolicited_true_null_FlexOfferMessageID_null() {
         var flexOrder = new FlexOrder();
         flexOrder.setUnsolicited(true);
         flexOrder.setFlexOfferMessageID(null);
@@ -63,7 +63,7 @@ class UnsolicitedFlexOrderValidatorTest {
     }
 
     @Test
-    void isValid_Unsolicited_true_FlexRequestMessageID_not_null() {
+    void isValid_Unsolicited_true_FlexOfferMessageID_not_null() {
         var flexOrder = new FlexOrder();
         flexOrder.setUnsolicited(true);
         flexOrder.setFlexOfferMessageID(FLEX_OFFER_MESSAGE_ID);
@@ -72,7 +72,7 @@ class UnsolicitedFlexOrderValidatorTest {
     }
 
     @Test
-    void isValid_Unsolicited_false_FlexRequestMessageID_null() {
+    void isValid_Unsolicited_false_FlexOfferMessageID_null() {
         var flexOrder = new FlexOrder();
         flexOrder.setUnsolicited(false);
         flexOrder.setFlexOfferMessageID(null);
@@ -81,7 +81,7 @@ class UnsolicitedFlexOrderValidatorTest {
     }
 
     @Test
-    void isValid_Unsolicited_false_FlexRequestMessageID_not_null() {
+    void isValid_Unsolicited_false_FlexOfferMessageID_not_null() {
         var flexOrder = new FlexOrder();
         flexOrder.setUnsolicited(false);
         flexOrder.setFlexOfferMessageID(FLEX_OFFER_MESSAGE_ID);
