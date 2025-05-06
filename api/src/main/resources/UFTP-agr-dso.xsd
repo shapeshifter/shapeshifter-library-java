@@ -334,9 +334,9 @@
     <xs:complexType name="FlexOfferResponseType">
         <xs:complexContent>
             <xs:extension base="PayloadMessageResponseType">
-                <xs:attribute name="FlexOfferMessageID" type="UUIDType" use="optional">
+                <xs:attribute name="FlexOfferMessageID" type="UUIDType" use="required">
                     <xs:annotation>
-                        <xs:documentation>MessageID of the FlexOffer message this request is based on, if applicable.</xs:documentation>
+                        <xs:documentation>MessageID of the FlexOffer message this request is based on.</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -387,7 +387,7 @@
                         <xs:documentation>Indicates whether this FlexOrder is intended to be unsolicited (i.e. without a preceding FlexOffer).</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="FlexOfferMessageID" type="UUIDType" use="required">
+                <xs:attribute name="FlexOfferMessageID" type="UUIDType" use="optional">
                     <xs:annotation>
                         <xs:documentation>MessageID of the FlexOffer message this order is based on. Mandatory if Unsolicited=false.</xs:documentation>
                     </xs:annotation>
