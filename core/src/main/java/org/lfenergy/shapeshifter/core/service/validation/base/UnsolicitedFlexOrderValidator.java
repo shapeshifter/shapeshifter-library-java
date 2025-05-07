@@ -29,7 +29,7 @@ public class UnsolicitedFlexOrderValidator implements UftpValidator<FlexOrder> {
     public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
         var flexOrder = uftpMessage.payloadMessage();
 
-        return (flexOrder.getFlexOfferMessageID() == null) == flexOrder.isUnsolicited();
+        return (flexOrder.getFlexOfferMessageID() == null) == (flexOrder.isUnsolicited() != null && flexOrder.isUnsolicited());
     }
 
     @Override

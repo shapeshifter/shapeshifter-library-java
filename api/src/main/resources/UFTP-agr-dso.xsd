@@ -382,7 +382,7 @@
                     </xs:annotation>
                     <xs:element name="ISP" type="FlexOrderISPType" maxOccurs="unbounded"/>
                 </xs:sequence>
-                <xs:attribute name="Unsolicited" type="xs:boolean" use="optional" default="false">
+                <xs:attribute name="Unsolicited" type="xs:boolean" use="optional">
                     <xs:annotation>
                         <xs:documentation>Indicates whether this FlexOrder is intended to be unsolicited (i.e. without a preceding FlexOffer).</xs:documentation>
                     </xs:annotation>
