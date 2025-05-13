@@ -4,30 +4,18 @@
 
 package org.lfenergy.shapeshifter.core.service.sending;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
-
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import net.datafaker.Faker;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestResponse;
 import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
 import org.lfenergy.shapeshifter.api.model.UftpParticipantInformation;
-import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.model.SigningDetails;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.ParticipantAuthorizationProvider;
@@ -41,6 +29,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Locale;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UftpSendMessageServiceTest {
@@ -176,14 +171,14 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
-    void attemptToSendMessage_3xx_followRedirect(HttpStatusCode statusCode) {
+    @ValueSource(ints={307,308})
+    void attemptToSendMessage_3xx_followRedirect(int statusCode) {
         mockSerialisation();
         mockSending();
 
         stubFor(post(urlPathMatching(PATH_3XX + ".*"))
                 .willReturn(aResponse()
-                        .withStatus(statusCode.getValue())
+                        .withStatus(statusCode)
                         .withHeader("Location", getEndpointURL(PATH_HAPPY_FLOW))));
 
         mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_3XX));
@@ -196,14 +191,14 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
-    void attemptToSendMessage_3xx_followRedirect_thenError(HttpStatusCode statusCode) {
+    @ValueSource(ints={307,308})
+    void attemptToSendMessage_3xx_followRedirect_thenError(int statusCode) {
         mockSerialisation();
         mockSending();
 
         stubFor(post(urlPathMatching(PATH_3XX + ".*"))
                 .willReturn(aResponse()
-                        .withStatus(statusCode.getValue())
+                        .withStatus(statusCode)
                         .withHeader("Location", getEndpointURL(PATH_BAD_REQUEST))));
 
         mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_3XX));
@@ -218,18 +213,18 @@ class UftpSendMessageServiceTest {
         assertThat(actual)
                 .isInstanceOf(UftpClientErrorException.class)
                 .hasMessage("Client error 400 received while sending UFTP message to " + getEndpointURL(PATH_BAD_REQUEST) + ": Bad Request");
-        assertThat(actual.getHttpStatusCode()).isEqualTo(HttpStatusCode.BAD_REQUEST);
+        assertThat(actual.getHttpStatusCode()).contains(400);
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
-    void attemptToSendMessage_3xx_followRedirect_locationHeaderMissing(HttpStatusCode statusCode) {
+    @ValueSource(ints={307,308})
+    void attemptToSendMessage_3xx_followRedirect_locationHeaderMissing(int statusCode) {
         mockSerialisation();
         mockSending();
 
         stubFor(post(urlPathMatching(PATH_3XX + ".*"))
                 .willReturn(aResponse()
-                        .withStatus(statusCode.getValue())));
+                        .withStatus(statusCode)));
 
         mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_3XX));
 
@@ -241,18 +236,18 @@ class UftpSendMessageServiceTest {
         assertThat(actual)
                 .isInstanceOf(UftpServerErrorException.class)
                 .hasMessage("Redirect received without Location header while sending UFTP message to " + getEndpointURL(PATH_3XX));
-        assertThat(actual.getHttpStatusCode()).isEqualTo(statusCode);
+        assertThat(actual.getHttpStatusCode()).contains(statusCode);
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
-    void attemptToSendMessage_3xx_followRedirect_tooManyRedirects(HttpStatusCode statusCode) {
+    @ValueSource(ints={307,308})
+    void attemptToSendMessage_3xx_followRedirect_tooManyRedirects(int statusCode) {
         mockSerialisation();
         mockSending();
 
         stubFor(post(urlPathMatching(PATH_3XX + ".*"))
                 .willReturn(aResponse()
-                        .withStatus(statusCode.getValue())
+                        .withStatus(statusCode)
                         .withHeader("Location", getEndpointURL(PATH_3XX))));
 
         var endpoint = getEndpointURL(PATH_3XX);
@@ -272,14 +267,14 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"MOVED_PERMANENTLY", "FOUND", "SEE_OTHER", "MULTIPLE_CHOICES", "USE_PROXY", "NOT_MODIFIED"})
-    void attemptToSendMessage_3xx_doNotFollowRedirect(HttpStatusCode statusCode) {
+    @ValueSource(ints={300,301,302,303,304,305})
+    void attemptToSendMessage_3xx_doNotFollowRedirect(int statusCode) {
         mockSerialisation();
         mockSending();
 
         stubFor(post(urlPathMatching(PATH_3XX + ".*"))
                 .willReturn(aResponse()
-                        .withStatus(statusCode.getValue())
+                        .withStatus(statusCode)
                         .withHeader("Location", getEndpointURL(PATH_HAPPY_FLOW))));
 
         var endpoint = getEndpointURL(PATH_3XX);
@@ -292,8 +287,8 @@ class UftpSendMessageServiceTest {
 
         assertThat(actual)
                 .isInstanceOf(UftpSendException.class)
-                .hasMessageContaining("Unexpected response status " + statusCode.getValue() + " received while sending UFTP message to " + endpoint);
-        assertThat(actual.getHttpStatusCode()).isEqualTo(statusCode);
+                .hasMessageContaining("Unexpected response status " + statusCode + " received while sending UFTP message to " + endpoint);
+        assertThat(actual.getHttpStatusCode()).contains(statusCode);
     }
 
     @Test
@@ -302,7 +297,6 @@ class UftpSendMessageServiceTest {
         mockSending();
         var endpoint = getEndpointURL(PATH_INTERNAL_SERVER_ERROR);
         mockParticipantServiceWithoutAuthorization(endpoint);
-        var httpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
 
         var actual = assertThrows(UftpSendException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
@@ -312,7 +306,7 @@ class UftpSendMessageServiceTest {
         assertThat(actual)
                 .isInstanceOf(UftpSendException.class)
                 .hasMessage("Server error 500 received while sending UFTP message to " + endpoint + ": Internal Server Error");
-        assertThat(actual.getHttpStatusCode()).isEqualTo(httpStatusCode);
+        assertThat(actual.getHttpStatusCode()).contains(500);
     }
 
     @Test
@@ -322,8 +316,6 @@ class UftpSendMessageServiceTest {
         var endpoint = getEndpointURL(PATH_BAD_REQUEST);
         mockParticipantServiceWithoutAuthorization(endpoint);
 
-        var httpStatusCode = HttpStatusCode.BAD_REQUEST;
-
         var actual = assertThrows(UftpClientErrorException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
 
@@ -332,7 +324,7 @@ class UftpSendMessageServiceTest {
         assertThat(actual)
                 .isInstanceOf(UftpClientErrorException.class)
                 .hasMessage("Client error 400 received while sending UFTP message to " + endpoint + ": Bad Request");
-        assertThat(actual.getHttpStatusCode()).isEqualTo(httpStatusCode);
+        assertThat(actual.getHttpStatusCode()).contains(400);
     }
 
     @Test
@@ -363,7 +355,7 @@ class UftpSendMessageServiceTest {
         assertThat(actual)
                 .isInstanceOf(UftpSendException.class)
                 .hasMessage("Could not send UFTP message; invalid endpoint: unsupported URI " + endpoint);
-        assertThat(actual.getHttpStatusCode()).isEqualTo(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        assertThat(actual.getHttpStatusCode()).isEmpty();
     }
 
     @Test
@@ -372,7 +364,6 @@ class UftpSendMessageServiceTest {
         mockSending();
         var endpoint = "http://localhost:1"; // something that will trigger a java.net.ConnectException
         mockParticipantServiceWithoutAuthorization(endpoint);
-        var httpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
 
         var actual = assertThrows(UftpSendException.class, () ->
                 testSubject.attemptToSendMessage(flexRequest, details));
@@ -382,7 +373,7 @@ class UftpSendMessageServiceTest {
         assertThat(actual)
                 .isInstanceOf(UftpSendException.class)
                 .hasMessage("Unexpected I/O exception while sending UFTP message to " + endpoint + ": ConnectException: null");
-        assertThat(actual.getHttpStatusCode()).isEqualTo(httpStatusCode);
+        assertThat(actual.getHttpStatusCode()).isEmpty();
     }
 
     @Test

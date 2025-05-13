@@ -4,27 +4,33 @@
 
 package org.lfenergy.shapeshifter.core.service.sending;
 
-import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
+
+import java.util.Optional;
 
 /**
  * Base class for exceptions thrown when sending an UFTP message fails e.g. when a request fails because of an error response, or a low level I/O error.
  */
 public class UftpSendException extends UftpConnectorException {
 
+  private final Integer httpStatusCode;
+
   public UftpSendException(String message) {
     super(message);
+    this.httpStatusCode = null;
   }
 
   public UftpSendException(String message, Throwable cause) {
     super(message, cause);
+    this.httpStatusCode = null;
   }
 
-  public UftpSendException(String message, HttpStatusCode httpStatusCode) {
-    super(message, httpStatusCode);
+  public UftpSendException(String message, int httpStatusCode) {
+    super(message);
+    this.httpStatusCode = httpStatusCode;
   }
 
-  public UftpSendException(String message, HttpStatusCode httpStatusCode, Throwable cause) {
-    super(message, httpStatusCode, cause);
+  public Optional<Integer> getHttpStatusCode() {
+    return Optional.ofNullable(httpStatusCode);
   }
 }
