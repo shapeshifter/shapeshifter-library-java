@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.api.xsdinfo.UftpXsds;
-import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.common.xml.XmlSerializer;
 import org.lfenergy.shapeshifter.core.common.xsd.XsdValidator;
 
@@ -24,7 +23,7 @@ public class UftpSerializer {
     try {
       return serializer.fromXml(signedXml, SignedMessage.class);
     } catch (Exception cause) {
-      throw new UftpSerializerException("SignedMessage XML deserialization failed: " + cause.getMessage(), cause, HttpStatusCode.BAD_REQUEST);
+      throw new UftpSerializerException("SignedMessage XML deserialization failed: " + cause.getMessage(), cause);
     }
   }
 
@@ -34,7 +33,7 @@ public class UftpSerializer {
     try {
       return serializer.fromXml(payloadXml, PayloadMessageType.class);
     } catch (Exception cause) {
-      throw new UftpSerializerException("Payload message XML deserialization failed: " + cause.getMessage(), cause, HttpStatusCode.BAD_REQUEST);
+      throw new UftpSerializerException("Payload message XML deserialization failed: " + cause.getMessage(), cause);
     }
   }
 

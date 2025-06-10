@@ -4,25 +4,11 @@
 
 package org.lfenergy.shapeshifter.core.service.sending;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.text.MessageFormat;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.model.UftpParticipantInformation;
-import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.model.SigningDetails;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.ParticipantAuthorizationProvider;
@@ -31,6 +17,18 @@ import org.lfenergy.shapeshifter.core.service.participant.ParticipantResolutionS
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidationService;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Sends UFTP messages to recipients
  */
@@ -38,15 +36,15 @@ import org.lfenergy.shapeshifter.core.service.validation.UftpValidationService;
 public class UftpSendMessageService {
 
     private static final int MAX_FOLLOW_REDIRECTS = 2;
-    private static final Set<HttpStatusCode> FOLLOW_REDIRECT_STATUS_CODES = EnumSet.of(
+    private static final Set<Integer> FOLLOW_REDIRECT_STATUS_CODES = Set.of(
             // These redirect status codes are not followed:
             // - 300 Multiple Choices: not applicable to Shapeshifter
             // - 301 Moved Permanently: only for GET and HEAD
             // - 303 See Other: the redirect Location will always use GET
             // - 304 Not Modified: only for GET and HEAD (with If-None-Match or If-Modified-Since header)
             // - 305 Use Proxy: deprecated
-            HttpStatusCode.TEMPORARY_REDIRECT,
-            HttpStatusCode.PERMANENT_REDIRECT
+            307, // Temporary Redirect
+            308 // Permanent Redirect
     );
     private static final String REDIRECT_LOCATION_HEADER_NAME = "Location";
 
@@ -153,25 +151,23 @@ public class UftpSendMessageService {
 
             var response = httpClient.send(request, BodyHandlers.ofString());
 
-            var httpStatusCode = HttpStatusCode.getByValue(response.statusCode());
-
-            if (!httpStatusCode.isSuccess()) {
+            if (response.statusCode() >= 300) { // not success
                 // According to the specification: redirects (responses with status code 3xx) should be honored in order to support load balancing
-                if (httpStatusCode.isRedirect() && FOLLOW_REDIRECT_STATUS_CODES.contains(httpStatusCode)) {
+                if (FOLLOW_REDIRECT_STATUS_CODES.contains(response.statusCode())) {
                     if (maxFollowRedirects <= 0) {
                         throw new UftpSendException(MessageFormat.format(MSG_TOO_MANY_REDIRECTS, url));
                     }
 
                     var redirectUrl = response.headers().firstValue(REDIRECT_LOCATION_HEADER_NAME)
-                            .orElseThrow(() -> new UftpServerErrorException(MessageFormat.format(MSG_MISSING_REDIRECT_LOCATION, url), httpStatusCode));
+                            .orElseThrow(() -> new UftpServerErrorException(MessageFormat.format(MSG_MISSING_REDIRECT_LOCATION, url), response.statusCode()));
 
                     send(signedXml, redirectUrl, additionalHeaders, maxFollowRedirects - 1);
-                } else if (httpStatusCode.isClientError()) {
-                    throw new UftpClientErrorException(MessageFormat.format(MSG_CLIENT_ERROR, response.statusCode(), url, response.body()), httpStatusCode);
-                } else if (httpStatusCode.isServerError()) {
-                    throw new UftpServerErrorException(MessageFormat.format(MSG_SERVER_ERROR, response.statusCode(), url, response.body()), httpStatusCode);
+                } else if (response.statusCode() >= 400 && response.statusCode() < 500) {
+                    throw new UftpClientErrorException(MessageFormat.format(MSG_CLIENT_ERROR, response.statusCode(), url, response.body()), response.statusCode());
+                } else if (response.statusCode() >= 500 && response.statusCode() < 600) {
+                    throw new UftpServerErrorException(MessageFormat.format(MSG_SERVER_ERROR, response.statusCode(), url, response.body()), response.statusCode());
                 } else {
-                    throw new UftpSendException(MessageFormat.format(MSG_UNEXPECTED_RESPONSE_STATUS, response.statusCode(), url, response.body()), httpStatusCode);
+                    throw new UftpSendException(MessageFormat.format(MSG_UNEXPECTED_RESPONSE_STATUS, response.statusCode(), url, response.body()), response.statusCode());
                 }
             }
         } catch (URISyntaxException | IllegalArgumentException e) {
