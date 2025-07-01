@@ -16,11 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.SignedMessage;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
-import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
+import org.lfenergy.shapeshifter.core.common.xsd.XsdValidationException;
 import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
 import org.lfenergy.shapeshifter.core.service.UftpErrorProcessor;
 import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
+import org.lfenergy.shapeshifter.core.service.crypto.UftpVerifyException;
 import org.lfenergy.shapeshifter.core.service.receiving.ReceivedMessageProcessor;
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
 import org.mockito.ArgumentCaptor;
@@ -54,10 +55,6 @@ class UftpInternalControllerTest {
   private SignedMessage signedMessage;
   @Mock
   private PayloadMessageType payloadMessage;
-  @Mock
-  private UftpConnectorException uftpException;
-  @Mock
-  private RuntimeException runtimeException;
   @Captor
   private ArgumentCaptor<UftpConnectorException> uftpExceptionCaptor;
   @Captor
@@ -71,29 +68,62 @@ class UftpInternalControllerTest {
         processor,
         errorProcessor,
         signedMessage,
-        payloadMessage,
-        uftpException,
-        runtimeException
+        payloadMessage
     );
   }
 
   @Test
-  void receiveUftpMessageUftpConnectorException() {
+  void receiveUftpMessageXsdValidationException() {
+    var uftpException = new XsdValidationException(ERROR_MESSAGE);
     given(deserializer.fromSignedXml(TRANSPORT_XML)).willThrow(uftpException);
-    given(uftpException.getMessage()).willReturn(ERROR_MESSAGE);
-    given(uftpException.getHttpStatusCode()).willReturn(HttpStatusCode.CONFLICT);
 
     var result = testSubject.postUftpMessage(TRANSPORT_XML);
 
-    assertThat(result.getStatusCode().value()).isEqualTo(409);
+    assertThat(result.getStatusCode().value()).isEqualTo(400);
+    assertThat(result.getBody()).isEqualTo("Failed to process received UFTP message. Error: ERROR_MESSAGE");
+    verify(errorProcessor).onErrorDuringReceivedMessageReading(TRANSPORT_XML, uftpException);
+  }
+
+  @Test
+  void receiveUftpMessageUftpVerifyException() {
+    var uftpException = new UftpVerifyException(ERROR_MESSAGE);
+    given(deserializer.fromSignedXml(TRANSPORT_XML)).willThrow(uftpException);
+
+    var result = testSubject.postUftpMessage(TRANSPORT_XML);
+
+    assertThat(result.getStatusCode().value()).isEqualTo(401);
+    assertThat(result.getBody()).isEqualTo("Failed to process received UFTP message. Error: ERROR_MESSAGE");
+    verify(errorProcessor).onErrorDuringReceivedMessageReading(TRANSPORT_XML, uftpException);
+  }
+
+  @Test
+  void receiveUftpMessageUftpNotImplementedException() {
+    var uftpException = new UftpVerifyException(ERROR_MESSAGE);
+    given(deserializer.fromSignedXml(TRANSPORT_XML)).willThrow(uftpException);
+
+    var result = testSubject.postUftpMessage(TRANSPORT_XML);
+
+    assertThat(result.getStatusCode().value()).isEqualTo(501);
+    assertThat(result.getBody()).isEqualTo("Failed to process received UFTP message. Error: ERROR_MESSAGE");
+    verify(errorProcessor).onErrorDuringReceivedMessageReading(TRANSPORT_XML, uftpException);
+  }
+
+  @Test
+  void receiveUftpMessageUftpConnectorException() {
+    var uftpException = new UftpConnectorException(ERROR_MESSAGE);
+    given(deserializer.fromSignedXml(TRANSPORT_XML)).willThrow(uftpException);
+
+    var result = testSubject.postUftpMessage(TRANSPORT_XML);
+
+    assertThat(result.getStatusCode().value()).isEqualTo(500);
     assertThat(result.getBody()).isEqualTo("Failed to process received UFTP message. Error: ERROR_MESSAGE");
     verify(errorProcessor).onErrorDuringReceivedMessageReading(TRANSPORT_XML, uftpException);
   }
 
   @Test
   void receiveUftpMessageOtherException() {
-    given(deserializer.fromSignedXml(TRANSPORT_XML)).willThrow(runtimeException);
-    given(runtimeException.getMessage()).willReturn(ERROR_MESSAGE);
+    var exception = new RuntimeException(ERROR_MESSAGE);
+    given(deserializer.fromSignedXml(TRANSPORT_XML)).willThrow(exception);
 
     var result = testSubject.postUftpMessage(TRANSPORT_XML);
 
@@ -102,10 +132,7 @@ class UftpInternalControllerTest {
     verify(errorProcessor).onErrorDuringReceivedMessageReading(eq(TRANSPORT_XML), uftpExceptionCaptor.capture());
 
     assertThat(uftpExceptionCaptor.getAllValues()).hasSize(1);
-    assertThat(uftpExceptionCaptor.getValue())
-        .hasMessage(ERROR_MESSAGE)
-        .hasCause(runtimeException)
-        .satisfies(exception -> assertThat(exception.getHttpStatusCode()).isEqualTo(HttpStatusCode.INTERNAL_SERVER_ERROR));
+    assertThat(uftpExceptionCaptor.getValue()).isSameAs(exception);
   }
 
   @Test

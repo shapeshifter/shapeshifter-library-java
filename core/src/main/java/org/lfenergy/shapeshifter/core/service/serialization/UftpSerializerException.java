@@ -4,7 +4,6 @@
 
 package org.lfenergy.shapeshifter.core.service.serialization;
 
-import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 
 /**
@@ -12,8 +11,8 @@ import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
  */
 public class UftpSerializerException extends UftpConnectorException {
 
-  public UftpSerializerException(String message, Throwable cause, HttpStatusCode status) {
-    super(message, status, cause);
+  public UftpSerializerException(String message, Throwable cause) {
+    super(message, cause);
   }
 
 }
