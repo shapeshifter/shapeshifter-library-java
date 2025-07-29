@@ -5,13 +5,12 @@
 package org.lfenergy.shapeshifter.core.service.crypto;
 
 import com.goterl.lazysodium.LazySodiumJava;
-import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import org.lfenergy.shapeshifter.api.SignedMessage;
-import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
-import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.participant.ParticipantResolutionService;
+
+import java.util.Base64;
 
 @RequiredArgsConstructor
 public class UftpCryptoService {
@@ -33,7 +32,7 @@ public class UftpCryptoService {
 
       return signedMessage;
     } catch (Exception cause) {
-      throw new UftpConnectorException("Failed to sign message.", cause);
+      throw new UftpSignException("Failed to sign message.", cause);
     } finally {
       lazySodiumInstancePool.release(lazySodium);
     }
@@ -44,7 +43,7 @@ public class UftpCryptoService {
       String publicKey = participantService.getPublicKey(signedMessage.getSenderRole(), signedMessage.getSenderDomain());
       return verifySignedMessage(signedMessage, publicKey);
     } catch (Exception cause) {
-      throw new UftpConnectorException("Failed to verify message.", HttpStatusCode.UNAUTHORIZED, cause);
+      throw new UftpVerifyException("Failed to verify message.", cause);
     }
   }
 
@@ -57,7 +56,7 @@ public class UftpCryptoService {
       var unsealed = lazySodium.cryptoSignOpen(base64Body, factory.keyFromBase64String(publicKey));
 
       if (unsealed == null) {
-        throw new UftpConnectorException("Failed to verify message. Message is not validly signed for given public key.");
+        throw new UftpVerifyException("Failed to verify message. Message is not validly signed for given public key.");
       }
 
       return unsealed;
