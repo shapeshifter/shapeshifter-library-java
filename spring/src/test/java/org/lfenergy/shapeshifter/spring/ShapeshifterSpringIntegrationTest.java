@@ -26,10 +26,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Duration;
@@ -76,23 +76,23 @@ class ShapeshifterSpringIntegrationTest {
   static class TestConfig {
   }
 
-  @MockBean
+  @MockitoBean
   private UftpParticipantService uftpParticipantService;
-  @MockBean
+  @MockitoBean
   private UftpValidatorSupport uftpValidatorSupport;
-  @MockBean
+  @MockitoBean
   private ParticipantSupport participantSupport;
-  @MockBean
+  @MockitoBean
   private UftpMessageSupport uftpMessageSupport;
-  @MockBean
+  @MockitoBean
   private ContractSupport contractSupport;
-  @MockBean
+  @MockitoBean
   private CongestionPointSupport congestionPointSupport;
-  @MockBean
+  @MockitoBean
   private UftpIncomingHandler<PayloadMessageType> uftpIncomingHandler;
-  @MockBean
+  @MockitoBean
   private UftpOutgoingHandler<PayloadMessageType> uftpOutgoingHandler;
-  @MockBean
+  @MockitoBean
   private UftpErrorProcessor uftpErrorProcessor;
 
   @Autowired
