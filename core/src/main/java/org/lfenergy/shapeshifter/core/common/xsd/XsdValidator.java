@@ -11,8 +11,6 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Validator;
 import lombok.RequiredArgsConstructor;
-import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
-import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 import org.xml.sax.SAXException;
 
 @RequiredArgsConstructor
@@ -26,7 +24,7 @@ public class XsdValidator {
       final Validator validator = schemaProvider.getValidator(xsd);
       validator.validate(xmlSource);
     } catch (SAXException | IOException cause) {
-      throw new UftpConnectorException("XSD validation failed: " + cause.getMessage(), HttpStatusCode.BAD_REQUEST, cause);
+      throw new XsdValidationException("XSD validation failed: " + cause.getMessage(), cause);
     }
   }
 }

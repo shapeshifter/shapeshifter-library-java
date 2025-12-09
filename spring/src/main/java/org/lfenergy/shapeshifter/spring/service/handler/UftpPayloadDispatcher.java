@@ -6,8 +6,6 @@ package org.lfenergy.shapeshifter.spring.service.handler;
 
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
-import org.lfenergy.shapeshifter.core.common.HttpStatusCode;
-import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 import org.lfenergy.shapeshifter.core.model.IncomingUftpMessage;
 import org.lfenergy.shapeshifter.core.model.OutgoingUftpMessage;
 import org.lfenergy.shapeshifter.core.service.handler.UftpPayloadHandler;
@@ -54,7 +52,7 @@ class UftpPayloadDispatcher implements UftpPayloadHandler {
                                            .toList();
 
     if (matchingHandlers.isEmpty()) {
-      throw new UftpConnectorException("No incoming handler for message type: " + messageType.getSimpleName(), HttpStatusCode.NOT_IMPLEMENTED);
+      throw new UftpNotImplementedException("No incoming handler for message type: " + messageType.getSimpleName());
     }
 
     for (var handler : matchingHandlers) {
@@ -74,7 +72,7 @@ class UftpPayloadDispatcher implements UftpPayloadHandler {
                                            .toList();
 
     if (matchingHandlers.isEmpty()) {
-      throw new UftpConnectorException("No outgoing handler for message type: " + messageType.getSimpleName());
+      throw new UftpNotImplementedException("No outgoing handler for message type: " + messageType.getSimpleName());
     }
 
     for (var handler : matchingHandlers) {
