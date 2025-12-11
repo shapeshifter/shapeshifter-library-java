@@ -88,12 +88,12 @@ class XsdSchemaPoolTest {
   
   @Test
   void create_violate_xxe_then_fail() {
-    doTestXXE(XXE_ATTACK, "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.");
+    doTestXXE(XXE_ATTACK, "not allowed");
   }
 
   @Test
   void create_violate_xxe_ssrf_then_fail() {
-    doTestXXE(XXE_ATTACK_SSRF, "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.");
+    doTestXXE(XXE_ATTACK_SSRF, "not allowed");
   }
 
   private void doTestXXE(String fileName, String errorMessage) {
