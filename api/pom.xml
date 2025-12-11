@@ -79,7 +79,6 @@
               <bindingIncludes>
                 <include>uftp.xjb</include>
               </bindingIncludes>
-              <forceRegenerate>true</forceRegenerate>
               <removeOldOutput>true</removeOldOutput>
               <generatePackage>org.lfenergy.shapeshifter.api</generatePackage>
               <generateDirectory>${project.build.directory}/generated-sources</generateDirectory>
