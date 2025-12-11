@@ -32,7 +32,7 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
-        java-version: '17'
+        java-version: '25'
         distribution: 'temurin'
         server-id: central
         server-username: MAVEN_CENTRAL_TOKEN_USERNAME
