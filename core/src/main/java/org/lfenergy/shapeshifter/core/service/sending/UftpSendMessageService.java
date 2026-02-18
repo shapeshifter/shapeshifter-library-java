@@ -12,10 +12,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.text.MessageFormat;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.time.Duration;
+import java.util.*;
 
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
@@ -59,6 +57,7 @@ public class UftpSendMessageService {
     private static final String MSG_INTERRUPTED = "Interrupted while sending UFTP message to {0}: {1}";
     private static final String MSG_TOO_MANY_REDIRECTS = "Too many redirects while sending UFTP message to {0}";
     private static final String MSG_MISSING_REDIRECT_LOCATION = "Redirect received without " + REDIRECT_LOCATION_HEADER_NAME + " header while sending UFTP message to {0}";
+    private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(3600);
 
     private final UftpSerializer serializer;
     private final UftpCryptoService cryptoService;
@@ -66,6 +65,7 @@ public class UftpSendMessageService {
     private final ParticipantAuthorizationProvider participantAuthorizationProvider;
     private final UftpValidationService uftpValidationService;
     private final HttpClient httpClient;
+    private final Duration readTimeout;
 
     /**
      * Creates a new {@link UftpSendMessageService} with default HttpClient.
@@ -75,7 +75,7 @@ public class UftpSendMessageService {
                                   @NonNull ParticipantResolutionService participantService,
                                   @NonNull ParticipantAuthorizationProvider participantAuthorizationProvider,
                                   @NonNull UftpValidationService uftpValidationService) {
-        this(serializer, cryptoService, participantService, participantAuthorizationProvider, uftpValidationService, HttpClient.newHttpClient());
+        this(serializer, cryptoService, participantService, participantAuthorizationProvider, uftpValidationService, HttpClient.newHttpClient(), DEFAULT_READ_TIMEOUT);
     }
 
     /**
@@ -87,12 +87,26 @@ public class UftpSendMessageService {
                                   @NonNull ParticipantAuthorizationProvider participantAuthorizationProvider,
                                   @NonNull UftpValidationService uftpValidationService,
                                   @NonNull HttpClient httpClient) {
+        this(serializer, cryptoService, participantService, participantAuthorizationProvider, uftpValidationService, httpClient, DEFAULT_READ_TIMEOUT);
+    }
+
+    /**
+     * Creates a new {@link UftpSendMessageService} with a given {@link HttpClient} and {@link Duration readTimeout}.
+     */
+    public UftpSendMessageService(@NonNull UftpSerializer serializer,
+                                  @NonNull UftpCryptoService cryptoService,
+                                  @NonNull ParticipantResolutionService participantService,
+                                  @NonNull ParticipantAuthorizationProvider participantAuthorizationProvider,
+                                  @NonNull UftpValidationService uftpValidationService,
+                                  @NonNull HttpClient httpClient,
+                                  Duration readTimeout) {
         this.serializer = serializer;
         this.cryptoService = cryptoService;
         this.participantService = participantService;
         this.participantAuthorizationProvider = participantAuthorizationProvider;
         this.uftpValidationService = uftpValidationService;
         this.httpClient = httpClient;
+        this.readTimeout = readTimeout != null ? readTimeout : DEFAULT_READ_TIMEOUT;
     }
 
     /**
@@ -144,6 +158,7 @@ public class UftpSendMessageService {
 
             var requestBuilder = HttpRequest.newBuilder()
                     .uri(new URI(url))
+                    .timeout(readTimeout)
                     .POST(BodyPublishers.ofString(signedXml))
                     .setHeader("Content-Type", "text/xml");
             for (var header : additionalHeaders.entrySet()) {

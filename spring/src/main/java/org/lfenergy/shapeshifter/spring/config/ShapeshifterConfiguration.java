@@ -66,7 +66,8 @@ public class ShapeshifterConfiguration {
                                                          ParticipantResolutionService participantService,
                                                          ParticipantAuthorizationProvider participantAuthorizationProvider,
                                                          UftpValidationService uftpValidationService) {
-        return new UftpSendMessageService(serializer, cryptoService, participantService, participantAuthorizationProvider, uftpValidationService, httpClient());
+        var readTimeout = properties.http() != null ? properties.http().readTimeout() : null;
+        return new UftpSendMessageService(serializer, cryptoService, participantService, participantAuthorizationProvider, uftpValidationService, httpClient(), readTimeout);
     }
 
     @ConditionalOnMissingBean
@@ -219,6 +220,14 @@ public class ShapeshifterConfiguration {
         if (properties.tls() != null) {
             log.info("Detected TLS configuration");
             builder.sslContext(SSLContextFactory.createSSLContext(properties.tls()));
+        }
+
+        if (properties.http() != null) {
+            log.info("Detected HTTP configuration");
+
+            if (properties.http().connectionTimeout() != null) {
+                builder.connectTimeout(properties.http().connectionTimeout());
+            }
         }
 
         return builder.build();
