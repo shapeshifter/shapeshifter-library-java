@@ -13,6 +13,7 @@ public class HttpStatusCode {
 
   public static final HttpStatusCode BAD_REQUEST =  new HttpStatusCode(400);
   public static final HttpStatusCode UNAUTHORIZED =  new HttpStatusCode(401);
+  public static final HttpStatusCode CONFLICT =  new HttpStatusCode(409);
 
   public static final HttpStatusCode INTERNAL_SERVER_ERROR =  new HttpStatusCode(500);
   public static final HttpStatusCode NOT_IMPLEMENTED =  new HttpStatusCode(501);
