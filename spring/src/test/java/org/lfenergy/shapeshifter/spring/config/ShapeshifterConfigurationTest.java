@@ -1,94 +1,119 @@
+
 package org.lfenergy.shapeshifter.spring.config;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.lfenergy.shapeshifter.core.service.ParticipantAuthorizationProvider;
+import org.lfenergy.shapeshifter.core.service.UftpErrorProcessor;
 import org.lfenergy.shapeshifter.core.service.crypto.UftpCryptoService;
 import org.lfenergy.shapeshifter.core.service.participant.ParticipantResolutionService;
+import org.lfenergy.shapeshifter.core.service.sending.RequestInterceptor;
 import org.lfenergy.shapeshifter.core.service.sending.UftpSendMessageService;
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
+import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidationService;
-import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.time.Duration;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
+
+@SpringBootTest(classes = ShapeshifterConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class ShapeshifterConfigurationTest {
 
-    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(ShapeshifterConfiguration.class))
-            .withUserConfiguration(MockConfig.class)
-            .withPropertyValues("spring.main.web-application-type=servlet");
+    @MockitoBean UftpSerializer uftpSerializer;
+    @MockitoBean UftpCryptoService uftpCryptoService;
+    @MockitoBean ParticipantResolutionService participantResolutionService;
+    @MockitoBean ParticipantAuthorizationProvider participantAuthorizationProvider;
+    @MockitoBean UftpValidationService uftpValidationService;
+    @MockitoBean UftpMessageSupport uftpMessageSupport;
+    @MockitoBean UftpErrorProcessor uftpErrorProcessor;
 
-    @Configuration
-    @EnableConfigurationProperties(ShapeshifterProperties.class)
-    static class MockConfig {
-        @Bean UftpSerializer uftpSerializer() { return mock(UftpSerializer.class); }
-        @Bean UftpCryptoService uftpCryptoService() { return mock(UftpCryptoService.class); }
-        @Bean ParticipantResolutionService participantResolutionService() { return mock(ParticipantResolutionService.class); }
-        @Bean ParticipantAuthorizationProvider participantAuthorizationProvider() { return mock(ParticipantAuthorizationProvider.class); }
-        @Bean UftpValidationService uftpValidationService() { return mock(UftpValidationService.class); }
-    }
 
-    @Test
-    void shouldConfigureTimeouts() {
-        contextRunner.withPropertyValues(
-                "shapeshifter.http.connection-timeout=5s",
-                "shapeshifter.http.read-timeout=10s"
-        ).run(context -> {
-            assertThat(context).hasSingleBean(ShapeshifterProperties.class);
-            ShapeshifterProperties properties = context.getBean(ShapeshifterProperties.class);
-            assertThat(properties.http()).isNotNull();
-            assertThat(properties.http().connectionTimeout()).isEqualTo(Duration.ofSeconds(5));
-            assertThat(properties.http().readTimeout()).isEqualTo(Duration.ofSeconds(10));
-            
-            UftpSendMessageService service = new ShapeshifterConfiguration(properties).uftpSendMessageService(
-                    context.getBean(UftpSerializer.class),
-                    context.getBean(UftpCryptoService.class),
-                    context.getBean(ParticipantResolutionService.class),
-                    context.getBean(ParticipantAuthorizationProvider.class),
-                    context.getBean(UftpValidationService.class)
-            );
-            
-            var readTimeoutField = UftpSendMessageService.class.getDeclaredField("readTimeout");
-            readTimeoutField.setAccessible(true);
-            assertThat(readTimeoutField.get(service)).isEqualTo(Duration.ofSeconds(10));
+    @Nested
+    @TestPropertySource(properties = "shapeshifter.http.connect-timeout=5s")
+    class ConnectTimeoutPropertiesSet {
 
-            var httpClientMethod = ShapeshifterConfiguration.class.getDeclaredMethod("httpClient");
-            httpClientMethod.setAccessible(true);
-            HttpClient httpClient = (HttpClient) httpClientMethod.invoke(new ShapeshifterConfiguration(properties));
+        @Autowired
+        private ShapeshifterProperties properties;
+
+        @Test
+        void shouldConfigureConnectTimeout() throws Exception {
+            var service = new ShapeshifterConfiguration(properties).uftpSendMessageService(
+                    uftpSerializer, uftpCryptoService, participantResolutionService,
+                    participantAuthorizationProvider, uftpValidationService);
+
+            var httpClientField = UftpSendMessageService.class.getDeclaredField("httpClient");
+            httpClientField.setAccessible(true);
+            var httpClient = (HttpClient) httpClientField.get(service);
+
             assertThat(httpClient.connectTimeout()).isPresent().contains(Duration.ofSeconds(5));
-        });
+        }
     }
 
-    @Test
-    void shouldConfigureDefaultTimeouts() {
-        contextRunner.run(context -> {
-            assertThat(context).hasSingleBean(ShapeshifterProperties.class);
-            ShapeshifterProperties properties = context.getBean(ShapeshifterProperties.class);
+    @Nested
+    @TestPropertySource(properties = {"shapeshifter.http.read-timeout=10s"})
+    class ReadTimeoutPropertiesSet {
 
-            UftpSendMessageService service = new ShapeshifterConfiguration(properties).uftpSendMessageService(
-                    context.getBean(UftpSerializer.class),
-                    context.getBean(UftpCryptoService.class),
-                    context.getBean(ParticipantResolutionService.class),
-                    context.getBean(ParticipantAuthorizationProvider.class),
-                    context.getBean(UftpValidationService.class)
-            );
-            
-            var readTimeoutField = UftpSendMessageService.class.getDeclaredField("readTimeout");
-            readTimeoutField.setAccessible(true);
-            assertThat(readTimeoutField.get(service)).isEqualTo(Duration.ofSeconds(3600));
+        @Autowired
+        private ShapeshifterProperties properties;
 
-            var httpClientMethod = ShapeshifterConfiguration.class.getDeclaredMethod("httpClient");
-            httpClientMethod.setAccessible(true);
-            HttpClient httpClient = (HttpClient) httpClientMethod.invoke(new ShapeshifterConfiguration(properties));
+        @Test
+        void shouldRegisterReadTimeoutInterceptor() throws Exception {
+            var service = new ShapeshifterConfiguration(properties).uftpSendMessageService(
+                    uftpSerializer, uftpCryptoService, participantResolutionService,
+                    participantAuthorizationProvider, uftpValidationService);
+
+            var requestBuilder = HttpRequest.newBuilder().uri(new URI("http://localhost"));
+            var interceptorsField = UftpSendMessageService.class.getDeclaredField("requestInterceptors");
+            interceptorsField.setAccessible(true);
+            var interceptors = (List<RequestInterceptor>) interceptorsField.get(service);
+            interceptors.forEach(i -> i.accept(requestBuilder));
+
+            assertThat(requestBuilder.build().timeout()).isPresent().contains(Duration.ofSeconds(10));
+        }
+    }
+
+
+    @Nested
+    class NoPropertiesSet {
+
+        @Autowired
+        private ShapeshifterProperties properties;
+
+        @Test
+        void shouldNotConfigureConnectTimeoutByDefault() throws Exception {
+            var service = new ShapeshifterConfiguration(properties).uftpSendMessageService(
+                    uftpSerializer, uftpCryptoService, participantResolutionService,
+                    participantAuthorizationProvider, uftpValidationService);
+
+            var httpClientField = UftpSendMessageService.class.getDeclaredField("httpClient");
+            httpClientField.setAccessible(true);
+            var httpClient = (HttpClient) httpClientField.get(service);
+
             assertThat(httpClient.connectTimeout()).isEmpty();
-        });
+        }
+
+        @Test
+        void shouldNotRegisterReadTimeoutInterceptorByDefault() throws Exception {
+            var service = new ShapeshifterConfiguration(properties).uftpSendMessageService(
+                    uftpSerializer, uftpCryptoService, participantResolutionService,
+                    participantAuthorizationProvider, uftpValidationService);
+
+            var interceptorsField = UftpSendMessageService.class.getDeclaredField("requestInterceptors");
+            interceptorsField.setAccessible(true);
+            var interceptors = (List<?>) interceptorsField.get(service);
+
+            assertThat(interceptors).isEmpty();
+        }
     }
+
 }

@@ -432,7 +432,9 @@ class UftpSendMessageServiceTest {
 
         var readTimeout = Duration.ofSeconds(42);
 
-        testSubject = new UftpSendMessageService(serializer, cryptoService, participantService, authorizationProvider, uftpValidationService, httpClient, readTimeout);
+        testSubject = new UftpSendMessageService(serializer, cryptoService, participantService, authorizationProvider, uftpValidationService, httpClient);
+
+        testSubject.addRequestInterceptor(request -> request.timeout(readTimeout));
 
         given(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).willReturn(httpResponse);
         given(httpResponse.statusCode()).willReturn(200);
@@ -447,7 +449,7 @@ class UftpSendMessageServiceTest {
     }
 
     @Test
-    void attemptToSendMessage_appliesDefaultReadTimeoutToRequest() throws IOException, InterruptedException {
+    void attemptToSendMessage_noTimeoutByDefault() throws IOException, InterruptedException {
         mockSerialisation();
         mockSending();
         mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_HAPPY_FLOW));
@@ -462,8 +464,7 @@ class UftpSendMessageServiceTest {
         ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
         verify(httpClient).send(requestCaptor.capture(), any());
 
-        HttpRequest capturedRequest = requestCaptor.getValue();
-        assertThat(capturedRequest.timeout()).isPresent().contains(Duration.ofSeconds(3600));
+        assertThat(requestCaptor.getValue().timeout()).isEmpty();
     }
 
 

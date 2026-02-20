@@ -36,7 +36,7 @@ public record ShapeshifterProperties(
     }
 
     public record HttpProperties(
-            Duration connectionTimeout,
+            Duration connectTimeout,
             Duration readTimeout
     ) { }
 }
