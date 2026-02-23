@@ -16,8 +16,8 @@
   <url>https://www.lfenergy.org/projects/shapeshifter/</url>
 
   <properties>
-    <spring-boot.version>4.0.2</spring-boot.version>
-    <swagger-annotations.version>2.2.42</swagger-annotations.version>
+    <spring-boot.version>4.0.3</spring-boot.version>
+    <swagger-annotations.version>2.2.43</swagger-annotations.version>
   </properties>
 
   <dependencyManagement>
