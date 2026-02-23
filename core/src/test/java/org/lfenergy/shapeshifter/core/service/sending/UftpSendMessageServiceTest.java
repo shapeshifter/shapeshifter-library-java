@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestResponse;
 import org.lfenergy.shapeshifter.api.SignedMessage;
@@ -187,14 +187,14 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
-    void attemptToSendMessage_3xx_followRedirect(HttpStatusCode statusCode) {
+    @ValueSource(ints =  {307, 308})
+    void attemptToSendMessage_3xx_followRedirect(int statusCode) {
         mockSerialisation();
         mockSending();
 
         stubFor(post(urlPathMatching(PATH_3XX + ".*"))
                 .willReturn(aResponse()
-                        .withStatus(statusCode.getValue())
+                        .withStatus(statusCode)
                         .withHeader("Location", getEndpointURL(PATH_HAPPY_FLOW))));
 
         mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_3XX));
@@ -207,14 +207,14 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
-    void attemptToSendMessage_3xx_followRedirect_thenError(HttpStatusCode statusCode) {
+    @ValueSource(ints =  {307, 308})
+    void attemptToSendMessage_3xx_followRedirect_thenError(int statusCode) {
         mockSerialisation();
         mockSending();
 
         stubFor(post(urlPathMatching(PATH_3XX + ".*"))
                 .willReturn(aResponse()
-                        .withStatus(statusCode.getValue())
+                        .withStatus(statusCode)
                         .withHeader("Location", getEndpointURL(PATH_BAD_REQUEST))));
 
         mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_3XX));
@@ -233,14 +233,14 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
-    void attemptToSendMessage_3xx_followRedirect_locationHeaderMissing(HttpStatusCode statusCode) {
+    @ValueSource(ints =  {307, 308})
+    void attemptToSendMessage_3xx_followRedirect_locationHeaderMissing(int statusCode) {
         mockSerialisation();
         mockSending();
 
         stubFor(post(urlPathMatching(PATH_3XX + ".*"))
                 .willReturn(aResponse()
-                        .withStatus(statusCode.getValue())));
+                        .withStatus(statusCode)));
 
         mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_3XX));
 
@@ -252,18 +252,18 @@ class UftpSendMessageServiceTest {
         assertThat(actual)
                 .isInstanceOf(UftpServerErrorException.class)
                 .hasMessage("Redirect received without Location header while sending UFTP message to " + getEndpointURL(PATH_3XX));
-        assertThat(actual.getHttpStatusCode()).isEqualTo(statusCode);
+        assertThat(actual.getHttpStatusCode().getValue()).isEqualTo(statusCode);
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"TEMPORARY_REDIRECT", "PERMANENT_REDIRECT"})
-    void attemptToSendMessage_3xx_followRedirect_tooManyRedirects(HttpStatusCode statusCode) {
+    @ValueSource(ints =  {307, 308})
+    void attemptToSendMessage_3xx_followRedirect_tooManyRedirects(int statusCode) {
         mockSerialisation();
         mockSending();
 
         stubFor(post(urlPathMatching(PATH_3XX + ".*"))
                 .willReturn(aResponse()
-                        .withStatus(statusCode.getValue())
+                        .withStatus(statusCode)
                         .withHeader("Location", getEndpointURL(PATH_3XX))));
 
         var endpoint = getEndpointURL(PATH_3XX);
@@ -283,14 +283,14 @@ class UftpSendMessageServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatusCode.class, names = {"MOVED_PERMANENTLY", "FOUND", "SEE_OTHER", "MULTIPLE_CHOICES", "USE_PROXY", "NOT_MODIFIED"})
-    void attemptToSendMessage_3xx_doNotFollowRedirect(HttpStatusCode statusCode) {
+    @ValueSource(ints =  {300, 301, 302, 303, 304, 305})
+    void attemptToSendMessage_3xx_doNotFollowRedirect(int statusCode) {
         mockSerialisation();
         mockSending();
 
         stubFor(post(urlPathMatching(PATH_3XX + ".*"))
                 .willReturn(aResponse()
-                        .withStatus(statusCode.getValue())
+                        .withStatus(statusCode)
                         .withHeader("Location", getEndpointURL(PATH_HAPPY_FLOW))));
 
         var endpoint = getEndpointURL(PATH_3XX);
@@ -303,8 +303,8 @@ class UftpSendMessageServiceTest {
 
         assertThat(actual)
                 .isInstanceOf(UftpSendException.class)
-                .hasMessageContaining("Unexpected response status " + statusCode.getValue() + " received while sending UFTP message to " + endpoint);
-        assertThat(actual.getHttpStatusCode()).isEqualTo(statusCode);
+                .hasMessageContaining("Unexpected response status " + statusCode + " received while sending UFTP message to " + endpoint);
+        assertThat(actual.getHttpStatusCode().getValue()).isEqualTo(statusCode);
     }
 
     @Test

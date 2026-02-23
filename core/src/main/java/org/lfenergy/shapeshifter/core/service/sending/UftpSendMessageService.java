@@ -4,15 +4,6 @@
 
 package org.lfenergy.shapeshifter.core.service.sending;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.text.MessageFormat;
-import java.util.*;
 
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
@@ -28,6 +19,16 @@ import org.lfenergy.shapeshifter.core.service.participant.ParticipantResolutionS
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidationService;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.text.MessageFormat;
+import java.util.*;
+
 /**
  * Sends UFTP messages to recipients
  */
@@ -35,7 +36,7 @@ import org.lfenergy.shapeshifter.core.service.validation.UftpValidationService;
 public class UftpSendMessageService {
 
     private static final int MAX_FOLLOW_REDIRECTS = 2;
-    private static final Set<HttpStatusCode> FOLLOW_REDIRECT_STATUS_CODES = EnumSet.of(
+    private static final Set<HttpStatusCode> FOLLOW_REDIRECT_STATUS_CODES = Set.of(
             // These redirect status codes are not followed:
             // - 300 Multiple Choices: not applicable to Shapeshifter
             // - 301 Moved Permanently: only for GET and HEAD
@@ -166,7 +167,7 @@ public class UftpSendMessageService {
 
             var response = httpClient.send(request, BodyHandlers.ofString());
 
-            var httpStatusCode = HttpStatusCode.getByValue(response.statusCode());
+            var httpStatusCode = HttpStatusCode.valueOf(response.statusCode());
 
             if (!httpStatusCode.isSuccess()) {
                 // According to the specification: redirects (responses with status code 3xx) should be honored in order to support load balancing
