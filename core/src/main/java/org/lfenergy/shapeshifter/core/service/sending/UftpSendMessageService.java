@@ -4,6 +4,7 @@
 
 package org.lfenergy.shapeshifter.core.service.sending;
 
+
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
@@ -26,9 +27,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Sends UFTP messages to recipients
@@ -65,6 +64,9 @@ public class UftpSendMessageService {
     private final ParticipantAuthorizationProvider participantAuthorizationProvider;
     private final UftpValidationService uftpValidationService;
     private final HttpClient httpClient;
+
+    private final List<RequestInterceptor> requestInterceptors = new ArrayList<>();
+
 
     /**
      * Creates a new {@link UftpSendMessageService} with default HttpClient.
@@ -120,6 +122,16 @@ public class UftpSendMessageService {
         doSend(payloadMessage, details);
     }
 
+    /**
+     * Registers a request interceptor that can modify each outgoing {@link HttpRequest.Builder}
+     * before the request is built and sent.
+     *
+     * @param interceptor the interceptor to add
+     */
+    public void addRequestInterceptor(@NonNull RequestInterceptor interceptor) {
+        requestInterceptors.add(interceptor);
+    }
+
     private void doSend(PayloadMessageType payloadMessage, SigningDetails details) {
         String signedXml = getSignedXml(payloadMessage, details);
         UftpParticipantInformation participantInformation = participantService.getParticipantInformation(details.recipient());
@@ -148,6 +160,9 @@ public class UftpSendMessageService {
             for (var header : additionalHeaders.entrySet()) {
                 requestBuilder.setHeader(header.getKey(), header.getValue());
             }
+
+            requestInterceptors.forEach(interceptor -> interceptor.accept(requestBuilder));
+
             var request = requestBuilder.build();
 
             var response = httpClient.send(request, BodyHandlers.ofString());

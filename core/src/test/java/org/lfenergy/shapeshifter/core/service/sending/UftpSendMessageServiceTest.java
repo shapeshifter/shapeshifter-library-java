@@ -37,9 +37,15 @@ import org.lfenergy.shapeshifter.core.service.participant.UftpParticipantInforma
 import org.lfenergy.shapeshifter.core.service.serialization.UftpSerializer;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidationService;
 import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.IOException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Locale;
 
 @ExtendWith(MockitoExtension.class)
@@ -85,6 +91,11 @@ class UftpSendMessageServiceTest {
     private UftpParticipant sender;
     @Mock
     private SignedMessage signedMessage;
+
+    @Mock
+    private HttpClient httpClient;
+    @Mock
+    private HttpResponse<String> httpResponse;
 
     @BeforeAll
     public static void setupWireMockServer() {
@@ -412,6 +423,50 @@ class UftpSendMessageServiceTest {
         testSubject.attemptToValidateAndSendMessage(flexRequestResponse, details);
         verifyNoValidations();
     }
+
+    @Test
+    void attemptToSendMessage_appliesReadTimeoutToRequest() throws IOException, InterruptedException {
+        mockSerialisation();
+        mockSending();
+        mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_HAPPY_FLOW));
+
+        var readTimeout = Duration.ofSeconds(42);
+
+        testSubject = new UftpSendMessageService(serializer, cryptoService, participantService, authorizationProvider, uftpValidationService, httpClient);
+
+        testSubject.addRequestInterceptor(request -> request.timeout(readTimeout));
+
+        given(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).willReturn(httpResponse);
+        given(httpResponse.statusCode()).willReturn(200);
+
+        testSubject.attemptToSendMessage(flexRequest, details);
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(httpClient).send(requestCaptor.capture(), any());
+
+        HttpRequest capturedRequest = requestCaptor.getValue();
+        assertThat(capturedRequest.timeout()).isPresent().contains(readTimeout);
+    }
+
+    @Test
+    void attemptToSendMessage_noTimeoutByDefault() throws IOException, InterruptedException {
+        mockSerialisation();
+        mockSending();
+        mockParticipantServiceWithoutAuthorization(getEndpointURL(PATH_HAPPY_FLOW));
+
+        testSubject = new UftpSendMessageService(serializer, cryptoService, participantService, authorizationProvider, uftpValidationService, httpClient);
+
+        given(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).willReturn(httpResponse);
+        given(httpResponse.statusCode()).willReturn(200);
+
+        testSubject.attemptToSendMessage(flexRequest, details);
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(httpClient).send(requestCaptor.capture(), any());
+
+        assertThat(requestCaptor.getValue().timeout()).isEmpty();
+    }
+
 
     private void mockParticipantServiceWithAuthorization(String endpointUrl) {
         UftpParticipantInformation recipientInformation = uftpParticipantInformationBuilder.withEndpoint(endpointUrl).withRequiresAuthorization(true).build();

@@ -42,6 +42,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import javax.net.ssl.SSLContext;
 import java.net.http.HttpClient;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Configuration
@@ -66,7 +67,14 @@ public class ShapeshifterConfiguration {
                                                          ParticipantResolutionService participantService,
                                                          ParticipantAuthorizationProvider participantAuthorizationProvider,
                                                          UftpValidationService uftpValidationService) {
-        return new UftpSendMessageService(serializer, cryptoService, participantService, participantAuthorizationProvider, uftpValidationService, httpClient());
+
+        var service = new UftpSendMessageService(serializer, cryptoService, participantService, participantAuthorizationProvider, uftpValidationService, httpClient());
+
+        Optional.ofNullable(properties.http())
+                .map(ShapeshifterProperties.HttpProperties::readTimeout)
+                .ifPresent(timeout -> service.addRequestInterceptor(rb -> rb.timeout(timeout)));
+
+        return service;
     }
 
     @ConditionalOnMissingBean
@@ -219,6 +227,14 @@ public class ShapeshifterConfiguration {
         if (properties.tls() != null) {
             log.info("Detected TLS configuration");
             builder.sslContext(SSLContextFactory.createSSLContext(properties.tls()));
+        }
+
+        if (properties.http() != null) {
+            log.info("Detected HTTP configuration");
+
+            if (properties.http().connectTimeout() != null) {
+                builder.connectTimeout(properties.http().connectTimeout());
+            }
         }
 
         return builder.build();

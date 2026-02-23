@@ -8,10 +8,13 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.io.Resource;
 
+import java.time.Duration;
+
 @ConfigurationProperties(prefix = "shapeshifter")
 public record ShapeshifterProperties(
         ValidationProperties validation,
-        TlsProperties tls
+        TlsProperties tls,
+        HttpProperties http
 ) {
     public record ValidationProperties(
             boolean enabled
@@ -31,4 +34,9 @@ public record ShapeshifterProperties(
         public static final String DEFAULT_TLS_VERSION = "TLSv1.3";
 
     }
+
+    public record HttpProperties(
+            Duration connectTimeout,
+            Duration readTimeout
+    ) { }
 }
