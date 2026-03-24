@@ -49,6 +49,13 @@ class XmlSerializerTest {
   }
 
   @Test
+  void fromXml_attributesTrailingSpaces() {
+    var flexRequest = xmlSerializer.fromXml("<FlexRequest ContractID=\"abc \"/>", FlexRequest.class);
+
+    assertThat(flexRequest.getContractID()).isEqualTo("abc");
+  }
+
+  @Test
   void fromXml_PayloadMessage_with_prolog() {
     var flexRequest = xmlSerializer.fromXml(XML_PROLOG + FLEX_REQUEST_XML, FlexRequest.class);
 
