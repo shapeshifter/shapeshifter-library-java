@@ -5,14 +5,16 @@
 package org.lfenergy.shapeshifter.core.common.xml;
 
 import jakarta.xml.bind.JAXBException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.sax.SAXSource;
 import org.lfenergy.shapeshifter.core.common.exception.UftpConnectorException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.sax.SAXSource;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 public class XmlSerializer {
 
@@ -32,13 +34,22 @@ public class XmlSerializer {
 
   public <T> T fromXml(String xmlString, Class<T> typeToUnmarshal) {
     try {
-      var xmlSource = new SAXSource(SAX_PARSER_FACTORY.newSAXParser().getXMLReader(),
-                                    new InputSource(new StringReader(xmlString)));
+      var xmlSource = new SAXSource(xmlReader(),
+              new InputSource(new StringReader(xmlString)));
       var unmarshaller = jaxbTools.createUnmarshaller(typeToUnmarshal);
       return typeToUnmarshal.cast(unmarshaller.unmarshal(xmlSource));
     } catch (JAXBException | ParserConfigurationException | SAXException cause) {
       throw new UftpConnectorException("Failed to unmarshal XML to " + typeToUnmarshal.getSimpleName() + " instance.", cause);
     }
+  }
+
+  private static XMLReader xmlReader() throws ParserConfigurationException, SAXException {
+    var parser = SAX_PARSER_FACTORY.newSAXParser();
+
+    var attributeTrimmingFilter = new AttributeTrimmingFilter();
+    attributeTrimmingFilter.setParent(parser.getXMLReader());
+
+    return attributeTrimmingFilter;
   }
 
   /**
