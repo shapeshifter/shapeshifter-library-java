@@ -43,10 +43,10 @@
     <maven.compiler.release>21</maven.compiler.release>
 
     <jaxb.version>4.0.5</jaxb.version>
-    <lombok.version>1.18.44</lombok.version>
+    <lombok.version>1.18.46</lombok.version>
 
     <!-- Test dependency versions -->
-    <junit.version>5.14.3</junit.version>
+    <junit.version>5.14.4</junit.version>
     <assertj.version>3.27.7</assertj.version>
     <mockito.version>5.11.0</mockito.version>
 
