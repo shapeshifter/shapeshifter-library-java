@@ -17,7 +17,7 @@
 
   <properties>
     <spring-boot.version>4.0.6</spring-boot.version>
-    <swagger-annotations.version>2.2.48</swagger-annotations.version>
+    <swagger-annotations.version>2.2.49</swagger-annotations.version>
   </properties>
 
   <dependencyManagement>
