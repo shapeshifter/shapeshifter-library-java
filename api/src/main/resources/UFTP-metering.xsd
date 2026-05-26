@@ -8,7 +8,7 @@
     <!-- -->
     <xs:simpleType name="EANType">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[Ee][0-9]{16}"/>
+            <xs:pattern value="[Ee][0-9]{18}"/>
         </xs:restriction>
     </xs:simpleType>
     <!-- -->
