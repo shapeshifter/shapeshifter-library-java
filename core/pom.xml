@@ -24,7 +24,7 @@
     <resource-loader.version>2.1.0</resource-loader.version>
     <swagger-annotations.version>2.2.52</swagger-annotations.version>
     <wiremock.version>3.13.2</wiremock.version>
-    <xmlunit.verion>2.12.0</xmlunit.verion>
+    <xmlunit.verion>2.13.0</xmlunit.verion>
     <commons-logging.version>1.4.0</commons-logging.version>
     <jakarta-annotation.version>3.0.0</jakarta-annotation.version>
     <awaitility.version>4.3.0</awaitility.version>
