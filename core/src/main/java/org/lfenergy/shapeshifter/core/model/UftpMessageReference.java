@@ -4,25 +4,32 @@
 
 package org.lfenergy.shapeshifter.core.model;
 
+import lombok.NonNull;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 
 /**
  * Reference to a previously sent or received UFTP message.
  *
- * @param messageID The MessageID of the UFTP message.
- * @param conversationID The Conversation ID of the UFTP message.
- * @param direction The direction of the UFTP message, whether it's incoming or outgoing.
- * @param senderDomain The SenderDomain of the UFTP message.
+ * @param messageID       The MessageID of the UFTP message.
+ * @param conversationID  The Conversation ID of the UFTP message.
+ * @param direction       The direction of the UFTP message, whether it's incoming or outgoing.
+ * @param senderDomain    The SenderDomain of the UFTP message.
  * @param recipientDomain The RecipientDomain of the UFTP message.
- * @param type The class of the payload message.
- * @param <T> The type of the payload message.
+ * @param type            The class of the payload message.
+ * @param <T>             The type of the payload message.
  */
 public record UftpMessageReference<T extends PayloadMessageType>(
-    String messageID,
-    String conversationID,
-    UftpMessageDirection direction,
-    String senderDomain,
-    String recipientDomain,
-    Class<T> type
+        @NonNull
+        String messageID,
+        @NonNull
+        String conversationID,
+        @NonNull
+        UftpMessageDirection direction,
+        @NonNull
+        String senderDomain,
+        @NonNull
+        String recipientDomain,
+        @NonNull
+        Class<T> type
 ) {
 }

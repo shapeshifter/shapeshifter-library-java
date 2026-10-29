@@ -30,6 +30,8 @@ public class TestDataHelper {
   public static final String DEFAULT_CONTRACT_ID = "CONTRACT-ID";
   public static final String DEFAULT_BASE_LINE_REFERENCE = "BASELINE_REFERENCE";
   public static final String DEFAULT_CURRENCY = "EUR";
+  public static final String DEFAULT_SENDER_DOMAIN = "sender.domain.eu";
+  public static final String DEFAULT_RECIPIENT_DOMAIN = "recipient.domain.eu";
 
   /*********************************************************
    * FLEX REQUEST
@@ -40,6 +42,8 @@ public class TestDataHelper {
 
   public static FlexRequest flexRequest(String messageId, OffsetDateTime expirationDateTime) {
     var flexRequest = new FlexRequest();
+    flexRequest.setSenderDomain(DEFAULT_SENDER_DOMAIN);
+    flexRequest.setRecipientDomain(DEFAULT_RECIPIENT_DOMAIN);
     flexRequest.setMessageID(messageId);
     flexRequest.setContractID(DEFAULT_CONTRACT_ID);
     flexRequest.setRevision(1);
@@ -77,6 +81,8 @@ public class TestDataHelper {
 
   public static FlexOffer flexOffer(String flexRequestMessageId, String conversationId, List<FlexOfferOptionType> flexOfferOptions, OffsetDateTime expirationDate) {
     var flexOffer = new FlexOffer();
+    flexOffer.setSenderDomain(DEFAULT_SENDER_DOMAIN);
+    flexOffer.setRecipientDomain(DEFAULT_RECIPIENT_DOMAIN);
     flexOffer.setConversationID(conversationId);
     flexOffer.setContractID(DEFAULT_CONTRACT_ID);
     flexOffer.setBaselineReference(DEFAULT_BASE_LINE_REFERENCE);
@@ -162,6 +168,8 @@ public class TestDataHelper {
 
   public static FlexOrder flexOrder(String flexOfferMessageId, String conversationId, BigDecimal price, String optionReference) {
     var flexOrder = new FlexOrder();
+    flexOrder.setSenderDomain(DEFAULT_SENDER_DOMAIN);
+    flexOrder.setRecipientDomain(DEFAULT_RECIPIENT_DOMAIN);
     flexOrder.setContractID(DEFAULT_CONTRACT_ID);
     flexOrder.setBaselineReference(DEFAULT_BASE_LINE_REFERENCE);
     flexOrder.setCurrency(DEFAULT_CURRENCY);

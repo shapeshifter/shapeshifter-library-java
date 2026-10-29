@@ -17,6 +17,7 @@ import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHel
 import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.flexOrderIsps;
 import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.messageId;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,6 +59,17 @@ class FlexOrderIspMatchValidatorTest {
   @Test
   void notAppliesTo() {
     assertThat(testSubject.appliesTo(FlexRequest.class)).isFalse();
+  }
+
+  @Test
+  void test_unsolicited_flex_order_is_valid() {
+    var flexOrder = flexOrder(null, conversationId());
+    flexOrder.setFlexOfferMessageID(null);
+
+    var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
+
+    assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    verifyNoInteractions(messageSupport);
   }
 
   @Test

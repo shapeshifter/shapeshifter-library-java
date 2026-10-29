@@ -33,12 +33,17 @@ public class ReferencedFlexOrderOptionReferenceValidator implements UftpValidato
     public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
         var flexOrder = uftpMessage.payloadMessage();
 
+        var flexOfferMessageID = flexOrder.getFlexOfferMessageID();
+        if (flexOfferMessageID == null) {
+            return true; // Unsolicited FlexOrder, thus no matching with FlexOffer period.
+        }
+
         var optionReference = flexOrder.getOptionReference();
         if (optionReference == null || optionReference.isEmpty()) {
             return true;
         }
 
-        return messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(),
+        return messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexOfferMessageID,
                         uftpMessage.payloadMessage().getConversationID(), FlexOffer.class))
                 .map(flexOffer -> flexOffer.getOfferOptions()
                         .stream()

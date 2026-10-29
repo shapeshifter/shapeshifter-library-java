@@ -39,7 +39,12 @@ public class FlexOrderFlexibilityMatchValidator implements UftpValidator<FlexOrd
     public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
         var flexOrder = uftpMessage.payloadMessage();
 
-        var flexOffer = uftpMessageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(),
+        var flexOfferMessageID = flexOrder.getFlexOfferMessageID();
+        if (flexOfferMessageID == null) {
+            return true; // Unsolicited FlexOrder, thus no matching with FlexOffer period.
+        }
+
+        var flexOffer = uftpMessageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexOfferMessageID,
                 flexOrder.getConversationID(), FlexOffer.class));
         if (flexOffer.isEmpty()) {
             return false;

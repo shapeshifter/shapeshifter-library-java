@@ -8,10 +8,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper.conversationId;
+
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,136 +40,162 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class PeriodReferenceValidatorTest {
 
-  private static final String MATCHING_MESSAGE_ID = "MATCHING_MESSAGE_ID";
-  private static final String CONVERSATION_ID = conversationId();
-  private static final LocalDate PERIOD = LocalDate.of(2022, 11, 22);
-  private static final LocalDate OTHER = LocalDate.of(2023, 12, 28);
+    private static final String MATCHING_MESSAGE_ID = "MATCHING_MESSAGE_ID";
+    private static final String CONVERSATION_ID = conversationId();
+    private static final LocalDate PERIOD = LocalDate.of(2022, 11, 22);
+    private static final LocalDate OTHER = LocalDate.of(2023, 12, 28);
 
-  @Mock
-  private UftpMessageSupport messageSupport;
+    @Mock
+    private UftpMessageSupport messageSupport;
 
-  @InjectMocks
-  private PeriodReferenceValidator testSubject;
+    @InjectMocks
+    private PeriodReferenceValidator testSubject;
 
-  @Mock
-  private UftpParticipant sender;
+    @Mock
+    private UftpParticipant sender;
 
-  @AfterEach
-  void noMore() {
-    verifyNoMoreInteractions(
-        messageSupport,
-        sender
-    );
-  }
-
-  @Test
-  void appliesTo() {
-    assertThat(testSubject.appliesTo(AGRPortfolioQueryResponse.class)).isTrue();
-    assertThat(testSubject.appliesTo(DSOPortfolioQueryResponse.class)).isTrue();
-    assertThat(testSubject.appliesTo(FlexOffer.class)).isTrue();
-    assertThat(testSubject.appliesTo(FlexOrder.class)).isTrue();
-  }
-
-  @Test
-  void notAppliesTo() {
-    assertThat(testSubject.appliesTo(TestMessage.class)).isFalse();
-  }
-
-  public static Stream<Arguments> withParameter() {
-
-    AGRPortfolioQueryResponse agrQueryResp = new AGRPortfolioQueryResponse();
-    agrQueryResp.setAGRPortfolioQueryMessageID(MATCHING_MESSAGE_ID);
-    agrQueryResp.setConversationID(CONVERSATION_ID);
-    agrQueryResp.setPeriod(PERIOD);
-
-    DSOPortfolioQueryResponse dsoQueryResp = new DSOPortfolioQueryResponse();
-    dsoQueryResp.setDSOPortfolioQueryMessageID(MATCHING_MESSAGE_ID);
-    dsoQueryResp.setConversationID(CONVERSATION_ID);
-    dsoQueryResp.setPeriod(PERIOD);
-
-    FlexOffer flexOffer = new FlexOffer();
-    flexOffer.setFlexRequestMessageID(MATCHING_MESSAGE_ID);
-    flexOffer.setConversationID(CONVERSATION_ID);
-    flexOffer.setPeriod(PERIOD);
-
-    FlexOrder flexOrder = new FlexOrder();
-    flexOrder.setFlexOfferMessageID(MATCHING_MESSAGE_ID);
-    flexOrder.setConversationID(CONVERSATION_ID);
-    flexOrder.setPeriod(PERIOD);
-
-    return Stream.of(
-        Arguments.of(agrQueryResp, AGRPortfolioQuery.class, new AGRPortfolioQuery()),
-        Arguments.of(dsoQueryResp, DSOPortfolioQuery.class, new DSOPortfolioQuery()),
-        Arguments.of(flexOffer, FlexRequest.class, new FlexRequest()),
-        Arguments.of(flexOrder, FlexOffer.class, new FlexOffer())
-    );
-  }
-
-  @Test
-  void valid_true_whenFlexOfferTypeWhenThereIsNoFlexRequestMessageID() {
-    // Matching Message ID is mandatory except for FlexOffer's FlexRequestMessageID
-    FlexOffer flexOffer = new FlexOffer();
-    flexOffer.setFlexRequestMessageID(null);
-    flexOffer.setPeriod(PERIOD);
-
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
-  }
-
-  @ParameterizedTest
-  @MethodSource("withParameter")
-  <T extends PayloadMessageType> void valid_true_matchingMessageNotFound(
-      PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
-  ) {
-    var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-
-    given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
-            matchingMessageType))).willReturn(Optional.empty());
-
-    // Matching message may not be found, although it should be there. This returns valid() == true
-    // because that is not the purpose of this validation. It is checked in Referenced******MessageIdValidation classes.
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
-  }
-
-  @ParameterizedTest
-  @MethodSource("withParameter")
-  <T extends PayloadMessageType> void valid_true_matchingMessageFoundPeriodMatches(
-      PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
-  ) throws Exception {
-    var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-
-    setPeriod(matchingMessageType, matchingMessage, PERIOD);
-    given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
-            matchingMessageType))).willReturn(Optional.of(matchingMessage));
-
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
-  }
-
-  @ParameterizedTest
-  @MethodSource("withParameter")
-  <T extends PayloadMessageType> void valid_false_matchingMessageFoundPeriodDoesNotMatch(
-      PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
-  ) throws Exception {
-    var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
-
-    setPeriod(matchingMessageType, matchingMessage, OTHER);
-    given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
-            matchingMessageType))).willReturn(Optional.of(matchingMessage));
-
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
-  }
-
-  private <T extends PayloadMessageType> void setPeriod(Class<T> matchingMessageType, T matchingMessage, LocalDate value) throws Exception {
-    Method setter;
-    try {
-      setter = matchingMessageType.getDeclaredMethod("setPeriod", LocalDate.class);
-    } catch (NoSuchMethodException e) {
-      setter = matchingMessageType.getSuperclass().getDeclaredMethod("setPeriod", LocalDate.class);
+    @AfterEach
+    void noMore() {
+        verifyNoMoreInteractions(
+                messageSupport,
+                sender
+        );
     }
-    setter.invoke(matchingMessage, value);
-  }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Reference Period mismatch");
-  }
+    @Test
+    void appliesTo() {
+        assertThat(testSubject.appliesTo(AGRPortfolioQueryResponse.class)).isTrue();
+        assertThat(testSubject.appliesTo(DSOPortfolioQueryResponse.class)).isTrue();
+        assertThat(testSubject.appliesTo(FlexOffer.class)).isTrue();
+        assertThat(testSubject.appliesTo(FlexOrder.class)).isTrue();
+    }
+
+    @Test
+    void notAppliesTo() {
+        assertThat(testSubject.appliesTo(TestMessage.class)).isFalse();
+    }
+
+    public static Stream<Arguments> withParameter() {
+
+        AGRPortfolioQueryResponse agrQueryResp = new AGRPortfolioQueryResponse();
+        agrQueryResp.setConversationID(UUID.randomUUID().toString());
+        agrQueryResp.setMessageID(UUID.randomUUID().toString());
+        agrQueryResp.setSenderDomain("agr.tld");
+        agrQueryResp.setRecipientDomain("dso.tld");
+        agrQueryResp.setAGRPortfolioQueryMessageID(MATCHING_MESSAGE_ID);
+        agrQueryResp.setConversationID(CONVERSATION_ID);
+        agrQueryResp.setPeriod(PERIOD);
+
+        DSOPortfolioQueryResponse dsoQueryResp = new DSOPortfolioQueryResponse();
+        dsoQueryResp.setConversationID(UUID.randomUUID().toString());
+        dsoQueryResp.setMessageID(UUID.randomUUID().toString());
+        dsoQueryResp.setSenderDomain("dso.tld");
+        dsoQueryResp.setRecipientDomain("agr.tld");
+        dsoQueryResp.setDSOPortfolioQueryMessageID(MATCHING_MESSAGE_ID);
+        dsoQueryResp.setConversationID(CONVERSATION_ID);
+        dsoQueryResp.setPeriod(PERIOD);
+
+        FlexOffer flexOffer = new FlexOffer();
+        flexOffer.setConversationID(UUID.randomUUID().toString());
+        flexOffer.setMessageID(UUID.randomUUID().toString());
+        flexOffer.setSenderDomain("agr.tld");
+        flexOffer.setRecipientDomain("dso.tld");
+        flexOffer.setFlexRequestMessageID(MATCHING_MESSAGE_ID);
+        flexOffer.setConversationID(CONVERSATION_ID);
+        flexOffer.setPeriod(PERIOD);
+
+        FlexOrder flexOrder = new FlexOrder();
+        flexOrder.setConversationID(UUID.randomUUID().toString());
+        flexOrder.setMessageID(UUID.randomUUID().toString());
+        flexOrder.setSenderDomain("dso.tld");
+        flexOrder.setRecipientDomain("agr.tld");
+        flexOrder.setFlexOfferMessageID(MATCHING_MESSAGE_ID);
+        flexOrder.setConversationID(CONVERSATION_ID);
+        flexOrder.setPeriod(PERIOD);
+
+        return Stream.of(
+                Arguments.of(agrQueryResp, AGRPortfolioQuery.class, new AGRPortfolioQuery()),
+                Arguments.of(dsoQueryResp, DSOPortfolioQuery.class, new DSOPortfolioQuery()),
+                Arguments.of(flexOffer, FlexRequest.class, new FlexRequest()),
+                Arguments.of(flexOrder, FlexOffer.class, new FlexOffer())
+        );
+    }
+
+    @Test
+    void valid_true_whenFlexOfferTypeWhenThereIsNoFlexRequestMessageID() {
+        // Matching Message ID is mandatory except for FlexOffer's FlexRequestMessageID
+        FlexOffer flexOffer = new FlexOffer();
+        flexOffer.setFlexRequestMessageID(null);
+        flexOffer.setPeriod(PERIOD);
+
+        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
+    }
+
+    @Test
+    void valid_true_whenFlexOrderTypeWhenThereIsNoFlexOfferMessageID() {
+        // Unsolicited FlexOrder has no FlexOfferMessageID
+        FlexOrder flexOrder = new FlexOrder();
+        flexOrder.setFlexOfferMessageID(null);
+        flexOrder.setPeriod(PERIOD);
+
+        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
+    }
+
+    @ParameterizedTest
+    @MethodSource("withParameter")
+    <T extends PayloadMessageType> void valid_true_matchingMessageNotFound(
+            PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
+    ) {
+        var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
+
+        given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+                matchingMessageType))).willReturn(Optional.empty());
+
+        // Matching message may not be found, although it should be there. This returns valid() == true
+        // because that is not the purpose of this validation. It is checked in Referenced******MessageIdValidation classes.
+        assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    }
+
+    @ParameterizedTest
+    @MethodSource("withParameter")
+    <T extends PayloadMessageType> void valid_true_matchingMessageFoundPeriodMatches(
+            PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
+    ) throws Exception {
+        var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
+
+        setPeriod(matchingMessageType, matchingMessage, PERIOD);
+        given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+                matchingMessageType))).willReturn(Optional.of(matchingMessage));
+
+        assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    }
+
+    @ParameterizedTest
+    @MethodSource("withParameter")
+    <T extends PayloadMessageType> void valid_false_matchingMessageFoundPeriodDoesNotMatch(
+            PayloadMessageType payloadMessage, Class<T> matchingMessageType, T matchingMessage
+    ) throws Exception {
+        var uftpMessage = UftpMessageFixture.createOutgoing(sender, payloadMessage);
+
+        setPeriod(matchingMessageType, matchingMessage, OTHER);
+        given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
+                matchingMessageType))).willReturn(Optional.of(matchingMessage));
+
+        assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    }
+
+    private <T extends PayloadMessageType> void setPeriod(Class<T> matchingMessageType, T matchingMessage, LocalDate value) throws Exception {
+        Method setter;
+        try {
+            setter = matchingMessageType.getDeclaredMethod("setPeriod", LocalDate.class);
+        } catch (NoSuchMethodException e) {
+            setter = matchingMessageType.getSuperclass().getDeclaredMethod("setPeriod", LocalDate.class);
+        }
+        setter.invoke(matchingMessage, value);
+    }
+
+    @Test
+    void getReason() {
+        assertThat(testSubject.getReason()).isEqualTo("Reference Period mismatch");
+    }
 }

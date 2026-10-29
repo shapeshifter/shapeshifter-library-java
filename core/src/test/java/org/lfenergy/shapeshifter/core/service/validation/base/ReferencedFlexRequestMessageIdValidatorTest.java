@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexOffer;
@@ -36,6 +37,12 @@ class ReferencedFlexRequestMessageIdValidatorTest {
   private final FlexOffer flexOffer = new FlexOffer();
   private final FlexRequest flexRequest = new FlexRequest();
 
+  @BeforeEach
+  void setUp() {
+    flexOffer.setSenderDomain("example.com");
+    flexOffer.setRecipientDomain("recipient.com");
+  }
+
   @Test
   void appliesTo() {
     assertThat(testSubject.appliesTo(FlexOffer.class)).isTrue();
@@ -48,7 +55,7 @@ class ReferencedFlexRequestMessageIdValidatorTest {
 
   @Test
   void valid_whenNoReferenceInRequest() {
-    given(flexOffer.getFlexRequestMessageID()).willReturn(null);
+    flexOffer.setFlexRequestMessageID(null);
 
     assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
   }

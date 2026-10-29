@@ -75,18 +75,24 @@ class NotExpiredValidatorTest {
     public static Stream<Arguments> withParameter() {
         FlexRequest flexRequest = new FlexRequest();
         flexRequest.setTimeZone(TIME_ZONE_AMSTERDAM);
+        flexRequest.setSenderDomain("agr.tld");
+        flexRequest.setRecipientDomain("dso.tld");
 
         FlexOffer flexOffer = new FlexOffer();
         flexOffer.setTimeZone(TIME_ZONE_AMSTERDAM);
         flexOffer.setFlexRequestMessageID(MATCHING_MESSAGE_ID);
         flexOffer.setPeriod(PERIOD);
         flexOffer.setConversationID(CONVERSATION_ID);
+        flexOffer.setSenderDomain("agr.tld");
+        flexOffer.setRecipientDomain("dso.tld");
 
         FlexOrder flexOrder = new FlexOrder();
         flexOrder.setTimeZone(TIME_ZONE_AMSTERDAM);
         flexOrder.setFlexOfferMessageID(MATCHING_MESSAGE_ID);
         flexOrder.setPeriod(PERIOD);
         flexOrder.setConversationID(CONVERSATION_ID);
+        flexOrder.setSenderDomain("dso.tld");
+        flexOrder.setRecipientDomain("agr.tld");
 
         return Stream.of(
                 Arguments.of(flexOffer, FlexRequest.class, flexRequest),
@@ -105,6 +111,16 @@ class NotExpiredValidatorTest {
     }
 
     @Test
+    void valid_true_whenFlexOrderTypeWhenThereIsNoFlexOfferMessageID() {
+        // Unsolicited FlexOrder has no FlexOfferMessageID
+        FlexOrder flexOrder = new FlexOrder();
+        flexOrder.setFlexOfferMessageID(null);
+        flexOrder.setPeriod(PERIOD);
+
+        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
+    }
+
+    @Test
     void valid_flexOffer_true_whenFlexRequestIsSentFromMexicoCity() {
         TimeZone.setDefault(TimeZone.getTimeZone(TIME_ZONE_AMSTERDAM));
 
@@ -113,6 +129,8 @@ class NotExpiredValidatorTest {
         flexRequest.setTimeZone(TIME_ZONE_MEXICO_CITY);
 
         var flexOffer = new FlexOffer();
+        flexOffer.setSenderDomain("agr.tld");
+        flexOffer.setRecipientDomain("dso.tld");
         flexOffer.setFlexRequestMessageID(MATCHING_MESSAGE_ID);
         flexOffer.setConversationID(CONVERSATION_ID);
         var uftpMessage = UftpMessageFixture.<PayloadMessageType>createOutgoing(sender, flexOffer);
@@ -133,6 +151,8 @@ class NotExpiredValidatorTest {
         flexOffer.setConversationID(CONVERSATION_ID);
 
         var flexOrder = new FlexOrder();
+        flexOrder.setSenderDomain("dso.tld");
+        flexOrder.setRecipientDomain("agr.tld");
         flexOrder.setFlexOfferMessageID(MATCHING_MESSAGE_ID);
         flexOrder.setConversationID(CONVERSATION_ID);
 

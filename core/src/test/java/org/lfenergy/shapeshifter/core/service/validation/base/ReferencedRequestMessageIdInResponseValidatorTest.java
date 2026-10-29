@@ -1,5 +1,6 @@
 package org.lfenergy.shapeshifter.core.service.validation.base;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexOffer;
@@ -38,6 +39,14 @@ class ReferencedRequestMessageIdInResponseValidatorTest {
     private final PayloadMessageResponseType flexOfferResponse = new FlexOfferResponse();
     private final FlexRequest flexRequest = new FlexRequest();
     private final FlexOffer flexOffer = new FlexOffer();
+
+    @BeforeEach
+    void setUp() {
+        flexRequestResponse.setSenderDomain("example.com");
+        flexRequestResponse.setRecipientDomain("recipient.com");
+        flexOfferResponse.setSenderDomain("example.com");
+        flexOfferResponse.setRecipientDomain("recipient.com");
+    }
 
     @Test
     void appliesTo() {
