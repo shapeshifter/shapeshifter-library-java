@@ -61,8 +61,17 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
     }
 
     @Test
+    void valid_true_whenFlexOfferMessageIDIsNull() {
+        flexOrder.setFlexOfferMessageID(null);
+        flexOrder.setOptionReference(OPTION_REFERENCE);
+
+        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
+    }
+
+    @Test
     void valid_true_whenNoValueIsPresent() {
-        flexOrder.setOrderReference(null);
+        flexOrder.setFlexOfferMessageID(FLEX_OFFER_ID);
+        flexOrder.setOptionReference(null);
 
         assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
     }

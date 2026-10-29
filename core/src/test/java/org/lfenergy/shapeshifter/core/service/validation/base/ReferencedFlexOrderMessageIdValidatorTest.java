@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.DPrognosisResponse;
@@ -45,6 +46,12 @@ class ReferencedFlexOrderMessageIdValidatorTest {
   private final FlexOrderStatusType status2 = new FlexOrderStatusType();
   private final FlexOrder flexOrder1 = new FlexOrder();
   private final FlexOrder flexOrder2 = new FlexOrder();
+
+  @BeforeEach
+  void setUp() {
+    prognosisResponse.setSenderDomain("example.com");
+    prognosisResponse.setRecipientDomain("recipient.com");
+  }
 
   @AfterEach
   void noMore() {

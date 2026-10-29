@@ -37,7 +37,13 @@ public class FlexOrderPriceMatchValidator implements UftpValidator<FlexOrder> {
     @Override
     public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
         var flexOrder = uftpMessage.payloadMessage();
-        var flexOffer = messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexOrder.getFlexOfferMessageID(),
+
+        var flexOfferMessageID = flexOrder.getFlexOfferMessageID();
+        if (flexOfferMessageID == null) {
+            return true; // Unsolicited FlexOrder, thus no matching with FlexOffer period.
+        }
+
+        var flexOffer = messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexOfferMessageID,
                 flexOrder.getConversationID(), FlexOffer.class));
         return flexOffer.map(offer -> offer.getOfferOptions().stream().allMatch(it -> priceMatches(it, flexOrder.getPrice()))).orElse(false);
     }

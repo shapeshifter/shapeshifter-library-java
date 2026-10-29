@@ -77,10 +77,14 @@ class ReferencedFlexOfferMessageIdValidatorTest {
   public static Stream<Arguments> withParameter() {
 
     FlexOfferRevocation revocation = new FlexOfferRevocation();
+    revocation.setSenderDomain("agr.tld");
+    revocation.setRecipientDomain("dso.tld");
     revocation.setFlexOfferMessageID(FLEX_OFFER_MESSAGE_ID);
     revocation.setConversationID(CONVERSATION_ID);
 
     FlexOrder flexOrder = new FlexOrder();
+    flexOrder.setSenderDomain("dso.tld");
+    flexOrder.setRecipientDomain("agr.tld");
     flexOrder.setFlexOfferMessageID(FLEX_OFFER_MESSAGE_ID);
     flexOrder.setConversationID(CONVERSATION_ID);
 

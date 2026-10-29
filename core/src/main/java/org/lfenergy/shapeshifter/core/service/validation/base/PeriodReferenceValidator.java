@@ -102,7 +102,12 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
 
     private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, FlexOrder msg) {
         var period = msg.getPeriod();
-        var offer = messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(msg.getFlexOfferMessageID(),
+        var flexOfferMessageID = msg.getFlexOfferMessageID();
+        if (flexOfferMessageID == null) {
+            return true; // Unsolicited FlexOrder, thus no matching with FlexOffer period.
+        }
+
+        var offer = messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexOfferMessageID,
                 msg.getConversationID(), FlexOffer.class));
         if (offer.isEmpty()) {
             return true; // validated in ReferencedFlexOfferMessageIdValidation

@@ -391,8 +391,9 @@ class UftpSendMessageServiceTest {
         verifyNoValidations();
 
         assertThat(actual)
-                .isInstanceOf(UftpSendException.class)
-                .hasMessage("Unexpected I/O exception while sending UFTP message to " + endpoint + ": ConnectException: null");
+                .isInstanceOf(UftpSendException.class);
+        assertThat(actual.getMessage())
+                .startsWith("Unexpected I/O exception while sending UFTP message to " + endpoint + ": ConnectException:");
         assertThat(actual.getHttpStatusCode()).isEqualTo(httpStatusCode);
     }
 

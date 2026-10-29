@@ -91,12 +91,17 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   public static Stream<Arguments> withParameter() {
 
     FlexOffer flexOffer = new FlexOffer();
+    flexOffer.setSenderDomain("agr.tld");
+    flexOffer.setRecipientDomain("dso.tld");
     flexOffer.setDPrognosisMessageID(DPROGNOSIS_MESSAGE_ID1);
     flexOffer.setConversationID(CONVERSATION_ID);
+
     FlexOrder flexOrder = new FlexOrder();
+    flexOrder.setSenderDomain("dso.tld");
+    flexOrder.setRecipientDomain("agr.tld");
     flexOrder.setDPrognosisMessageID(DPROGNOSIS_MESSAGE_ID1);
-    flexOffer.setConversationID(CONVERSATION_ID);
     flexOrder.setConversationID(CONVERSATION_ID);
+
     FlexOrderSettlementType os1 = new FlexOrderSettlementType();
     os1.setDPrognosisMessageID(DPROGNOSIS_MESSAGE_ID1);
     FlexOrderSettlementType os2 = new FlexOrderSettlementType();
@@ -104,6 +109,8 @@ class ReferencedDPrognosisMessageIdValidatorTest {
     FlexOrderSettlementType os3WithoutDPorgMsgId = new FlexOrderSettlementType();
 
     FlexSettlement flexSettlement = new FlexSettlement();
+    flexSettlement.setSenderDomain("agr.tld");
+    flexSettlement.setRecipientDomain("dso.tld");
     flexSettlement.getFlexOrderSettlements().addAll(List.of(os1, os2, os3WithoutDPorgMsgId));
     flexSettlement.setConversationID(CONVERSATION_ID);
 

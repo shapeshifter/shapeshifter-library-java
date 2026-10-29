@@ -30,6 +30,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
 
     private static final String ORDER_REFERENCE1 = "ORDER_REFERENCE1";
     private static final String ORDER_REFERENCE2 = "ORDER_REFERENCE2";
+    private static final String SENDER_DOMAIN = "SENDER_DOMAIN";
     private static final String RECIPIENT_DOMAIN = "RECIPIENT_DOMAIN";
     private static final String CONVERSATION_ID = conversationId();
     @Mock
@@ -78,6 +79,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
 
     @Test
     void valid_whenAllReferencesInListAreKnown() {
+        given(settlementResponse.getSenderDomain()).willReturn(SENDER_DOMAIN);
         given(settlementResponse.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
         given(settlementResponse.getFlexOrderSettlementStatuses()).willReturn(List.of(
                 status1, status2
@@ -96,6 +98,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
 
     @Test
     void invalid_whenSingleReferenceInListIsUnknown() {
+        given(settlementResponse.getSenderDomain()).willReturn(SENDER_DOMAIN);
         given(settlementResponse.getRecipientDomain()).willReturn(RECIPIENT_DOMAIN);
         given(settlementResponse.getFlexOrderSettlementStatuses()).willReturn(List.of(
                 status1, status2
