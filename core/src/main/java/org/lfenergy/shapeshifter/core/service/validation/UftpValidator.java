@@ -6,6 +6,7 @@ package org.lfenergy.shapeshifter.core.service.validation;
 
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 /**
  * Validator that validates incoming (and outgoing) UFTP payload messages.
@@ -18,6 +19,17 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
  * @param <T> The type of UFTP payload message that can be validated by this class.
  */
 public interface UftpValidator<T extends PayloadMessageType> {
+
+  /**
+   * Validates a UFTP message with the specified payload message type and returns a {@link ValidationResult} object that
+   * indicates whether the validation was successful or not.
+   *
+   * @param uftpMessage The UFTP message to validate.
+   * @return A {@link ValidationResult} object indicating the result of the validation.
+   */
+  default ValidationResult validate(UftpMessage<T> uftpMessage) {
+    return isValid(uftpMessage) ? ValidationResult.ok() : ValidationResult.rejection(getReason());
+  }
 
   /**
    * Checks if this validator can validate the specified UFTP payload message type.
