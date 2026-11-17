@@ -47,8 +47,8 @@ public final class UftpValidationService {
   @SuppressWarnings("unchecked")
   // There is an unchecked cast to type T. However, this has already been verified by the appliesTo method of the validator.
   private <T extends PayloadMessageType> ValidationResult validate(UftpValidator<T> validator, UftpMessage<? extends PayloadMessageType> uftpMessage) {
-    if (validator.appliesTo(uftpMessage.payloadMessage().getClass()) && !validator.isValid((UftpMessage<T>) uftpMessage)) {
-      return ValidationResult.rejection(validator.getReason());
+    if (validator.appliesTo(uftpMessage.payloadMessage().getClass())) {
+      return validator.validate((UftpMessage<T>) uftpMessage);
     }
     return ValidationResult.ok();
   }
