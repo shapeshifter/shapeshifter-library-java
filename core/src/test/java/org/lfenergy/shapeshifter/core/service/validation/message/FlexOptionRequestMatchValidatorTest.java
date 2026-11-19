@@ -27,6 +27,7 @@ import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,11 +42,6 @@ class FlexOptionRequestMatchValidatorTest {
   private UftpMessageSupport messageSupport;
   @InjectMocks
   private FlexOptionRequestMatchValidator testSubject;
-
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("None of the ISPs with a 'requested' disposition in the referred FlexRequest, is mentioned in the FlexOffer");
-  }
 
   @Test
   void appliesTo() {
@@ -71,7 +67,7 @@ class FlexOptionRequestMatchValidatorTest {
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
   }
 
   @Test
@@ -82,7 +78,7 @@ class FlexOptionRequestMatchValidatorTest {
     flexOffer.setFlexRequestMessageID(null);
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOffer)).valid()).isTrue();
 
     verifyNoInteractions(messageSupport);
   }
@@ -96,7 +92,7 @@ class FlexOptionRequestMatchValidatorTest {
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexRequest.class))).willReturn(Optional.empty());
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
   }
 
   @Test
@@ -113,7 +109,8 @@ class FlexOptionRequestMatchValidatorTest {
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+        .isEqualTo(ValidationResult.rejection("None of the ISPs with a 'requested' disposition in the referred FlexRequest, is mentioned in the FlexOffer"));
   }
 
   @Test
@@ -130,6 +127,7 @@ class FlexOptionRequestMatchValidatorTest {
     flexOffer.getOfferOptions().add(flexOfferOption("REFERENCE_1", BigDecimal.valueOf(1.0), BigDecimal.valueOf(50.0)));
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOffer);
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexRequest.class))).willReturn(Optional.of(flexRequest));
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+        .isEqualTo(ValidationResult.rejection("None of the ISPs with a 'requested' disposition in the referred FlexRequest, is mentioned in the FlexOffer"));
   }
 }

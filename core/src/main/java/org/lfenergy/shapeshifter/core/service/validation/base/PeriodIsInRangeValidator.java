@@ -19,11 +19,13 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.service.validation.tools.PayloadMessagePropertyRetriever;
-
 
 @RequiredArgsConstructor
 public class PeriodIsInRangeValidator implements UftpValidator<PayloadMessageType> {
+
+  private static final String REJECTION_REASON = "Period out of bounds";
 
   private final PayloadMessagePropertyRetriever<PayloadMessageType, Boolean> retriever = new PayloadMessagePropertyRetriever<>(
       Map.of(
@@ -43,13 +45,22 @@ public class PeriodIsInRangeValidator implements UftpValidator<PayloadMessageTyp
   }
 
   @Override
+  public ValidationResult validate(UftpMessage<PayloadMessageType> uftpMessage) {
+    return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+  }
+
+  @Override
   public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
-    return retriever.getProperty(uftpMessage.payloadMessage());
+    return isMessageValid(uftpMessage);
   }
 
   @Override
   public String getReason() {
-    return "Period out of bounds";
+    return REJECTION_REASON;
+  }
+
+  private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
+    return retriever.getProperty(uftpMessage.payloadMessage());
   }
 
   private boolean periodsAreInRange(FlexSettlement msg) {

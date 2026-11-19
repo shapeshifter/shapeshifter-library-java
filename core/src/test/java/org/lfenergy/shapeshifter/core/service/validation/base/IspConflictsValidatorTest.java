@@ -10,6 +10,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.lfenergy.shapeshifter.api.*;
 
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
+
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,25 +29,22 @@ class IspConflictsValidatorTest {
 
     private final IspConflictsValidator testSubject = new IspConflictsValidator();
 
-    @Test
-    void getReason() {
-        assertThat(testSubject.getReason()).isEqualTo("Overlapping ISPs conflict");
-    }
-
     @ParameterizedTest
     @MethodSource("testCases")
-    void isValid(PayloadMessageType msg, List<IspInfo> ispList, boolean expectedResult) {
+    void validate(PayloadMessageType msg, List<IspInfo> ispList, boolean expectedResult) {
         setISPs(msg, ispList);
 
-        assertThat(testSubject.isValid(createIncoming(DSO, msg, "<SignedMessage/>", "<Payload/>"))).isEqualTo(expectedResult);
+        assertThat(testSubject.validate(createIncoming(DSO, msg, "<SignedMessage/>", "<Payload/>")))
+                .isEqualTo(expectedResult ? ValidationResult.ok() : ValidationResult.rejection("Overlapping ISPs conflict"));
     }
 
     @ParameterizedTest
     @MethodSource("overlapDueToDuration")
-    void isValid_overlapDueToDuration(PayloadMessageType msg, List<IspInfo> ispList, boolean expectedResult) {
+    void validate_overlapDueToDuration(PayloadMessageType msg, List<IspInfo> ispList, boolean expectedResult) {
         setISPs(msg, ispList);
 
-        assertThat(testSubject.isValid(createIncoming(DSO, msg, "<SignedMessage/>", "<Payload/>"))).isEqualTo(expectedResult);
+        assertThat(testSubject.validate(createIncoming(DSO, msg, "<SignedMessage/>", "<Payload/>")))
+                .isEqualTo(expectedResult ? ValidationResult.ok() : ValidationResult.rejection("Overlapping ISPs conflict"));
     }
 
     private static Stream<Arguments> testCases() {

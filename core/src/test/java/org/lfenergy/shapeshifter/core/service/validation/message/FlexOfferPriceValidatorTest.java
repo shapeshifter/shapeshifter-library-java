@@ -34,8 +34,8 @@ class FlexOfferPriceValidatorTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideIsValidArguments")
-    void isValid(String currency, BigDecimal price, boolean expectedResult) {
+    @MethodSource("provideValidateArguments")
+    void validate(String currency, BigDecimal price, boolean expectedResult) {
         var flexOffer = new FlexOffer();
         flexOffer.setCurrency(currency);
 
@@ -43,12 +43,12 @@ class FlexOfferPriceValidatorTest {
         offerOption.setPrice(price);
         flexOffer.getOfferOptions().add(offerOption);
 
-        var result = flexOfferPriceValidator.isValid(UftpMessageFixture.createIncoming(DSO, flexOffer));
+        var result = flexOfferPriceValidator.validate(UftpMessageFixture.createIncoming(DSO, flexOffer)).valid();
 
         assertThat(result).isEqualTo(expectedResult);
     }
 
-    private static Stream<Arguments> provideIsValidArguments() {
+    private static Stream<Arguments> provideValidateArguments() {
         return Stream.of(
                 Arguments.of(null, BigDecimal.ZERO, false),
                 Arguments.of(null, null, false),

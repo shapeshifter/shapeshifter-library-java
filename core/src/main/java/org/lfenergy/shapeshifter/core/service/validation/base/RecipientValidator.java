@@ -13,10 +13,12 @@ import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.ParticipantSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
-
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 @RequiredArgsConstructor
 public class RecipientValidator implements UftpValidator<PayloadMessageType> {
+
+  private static final String REJECTION_REASON = "Unknown Recipient";
 
   private final ParticipantSupport participantSupport;
 
@@ -31,13 +33,23 @@ public class RecipientValidator implements UftpValidator<PayloadMessageType> {
   }
 
   @Override
+  public ValidationResult validate(UftpMessage<PayloadMessageType> uftpMessage) {
+    return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+  }
+
+  @Override
   public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
-    var recipient = new UftpParticipant(uftpMessage.payloadMessage().getRecipientDomain(), getRecipientRoleBySenderRole(uftpMessage.sender().role()));
-    return participantSupport.isHandledRecipient(recipient);
+    return isMessageValid(uftpMessage);
   }
 
   @Override
   public String getReason() {
-    return "Unknown Recipient";
+    return REJECTION_REASON;
   }
+
+  private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
+    var recipient = new UftpParticipant(uftpMessage.payloadMessage().getRecipientDomain(), getRecipientRoleBySenderRole(uftpMessage.sender().role()));
+    return participantSupport.isHandledRecipient(recipient);
+  }
+
 }

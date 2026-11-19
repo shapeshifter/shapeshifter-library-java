@@ -10,9 +10,12 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 @RequiredArgsConstructor
 public class UnsolicitedFlexOfferValidator implements UftpValidator<FlexOffer> {
+
+    private static final String REJECTION_REASON = "FlexRequestMessageID must (only) be present if not unsolicited";
 
     @Override
     public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -25,14 +28,24 @@ public class UnsolicitedFlexOfferValidator implements UftpValidator<FlexOffer> {
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<FlexOffer> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<FlexOffer> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<FlexOffer> uftpMessage) {
         var flexOffer = uftpMessage.payloadMessage();
 
         return flexOffer.isUnsolicited() == null || (flexOffer.getFlexRequestMessageID() == null) == flexOffer.isUnsolicited();
     }
 
-    @Override
-    public String getReason() {
-        return "FlexRequestMessageID must (only) be present if not unsolicited";
-    }
 }

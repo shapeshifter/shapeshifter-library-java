@@ -24,6 +24,7 @@ import org.lfenergy.shapeshifter.api.DSOPortfolioUpdateConnectionType;
 import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.mockito.InjectMocks;
@@ -132,7 +133,7 @@ class PeriodStartBeforeOrEqualsToEndValidatorTest {
   @ParameterizedTest
   @MethodSource("validStartEndPeriodsOnly")
   void valid_true_whenStartAlwaysEqualsToOrBeforeEnd(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   public static Stream<Arguments> invalidStartEndPeriodsAsWell() {
@@ -257,11 +258,8 @@ class PeriodStartBeforeOrEqualsToEndValidatorTest {
   @ParameterizedTest
   @MethodSource("invalidStartEndPeriodsAsWell")
   void valid_false_whenThereIsAStartLaterThenEnd(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+        .isEqualTo(ValidationResult.rejection("Period out of bounds"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Period out of bounds");
-  }
 }

@@ -31,17 +31,17 @@ class FlexOfferCurrencyValidatorTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideIsValidArguments")
-    void isValid(String currency, boolean expectedResult) {
+    @MethodSource("provideValidateArguments")
+    void validate(String currency, boolean expectedResult) {
         var flexOffer = new FlexOffer();
         flexOffer.setCurrency(currency);
 
-        var result = flexOfferCurrencyValidator.isValid(UftpMessageFixture.createIncoming(AGR, flexOffer));
+        var result = flexOfferCurrencyValidator.validate(UftpMessageFixture.createIncoming(AGR, flexOffer)).valid();
 
         assertThat(result).isEqualTo(expectedResult);
     }
 
-    private static Stream<Arguments> provideIsValidArguments() {
+    private static Stream<Arguments> provideValidateArguments() {
         return Stream.of(
                 Arguments.of(null, false),
                 Arguments.of("", false),

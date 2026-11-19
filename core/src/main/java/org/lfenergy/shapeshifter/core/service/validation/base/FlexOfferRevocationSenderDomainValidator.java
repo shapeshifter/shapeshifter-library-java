@@ -12,9 +12,12 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 @RequiredArgsConstructor
 public class FlexOfferRevocationSenderDomainValidator implements UftpValidator<FlexOfferRevocation> {
+
+    private static final String REJECTION_REASON = "Flex Offer revocation can only be sent by the same Sender Domain that sent the Flex Offer";
     private UftpMessageSupport uftpMessageSupport;
 
     @Override
@@ -28,15 +31,25 @@ public class FlexOfferRevocationSenderDomainValidator implements UftpValidator<F
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<FlexOfferRevocation> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<FlexOfferRevocation> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<FlexOfferRevocation> uftpMessage) {
         var msg = uftpMessage.payloadMessage();
         var originalFlexOffer = uftpMessageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(msg.getConversationID(),
                 msg.getFlexOfferMessageID(), FlexOffer.class));
         return originalFlexOffer.isPresent() && msg.getSenderDomain().equals(originalFlexOffer.get().getSenderDomain());
     }
 
-    @Override
-    public String getReason() {
-        return "Flex Offer revocation can only be sent by the same Sender Domain that sent the Flex Offer";
-    }
 }

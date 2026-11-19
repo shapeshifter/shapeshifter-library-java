@@ -15,6 +15,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.receiving.DuplicateMessageDetection;
@@ -54,25 +55,23 @@ class DuplicateIdentifierValidatorTest {
   void valid_true_whenNewMessage() {
     given(duplicateDetection.isDuplicate(payloadMessage)).willReturn(NEW_MESSAGE);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   @Test
   void valid_true_whenDuplicateMessage() {
     given(duplicateDetection.isDuplicate(payloadMessage)).willReturn(DUPLICATE_MESSAGE);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   @Test
   void valid_false_whenReusedIdDiffContent() {
     given(duplicateDetection.isDuplicate(payloadMessage)).willReturn(REUSED_ID_DIFFERENT_CONTENT);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("Duplicate Identifier"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Duplicate Identifier");
-  }
 }

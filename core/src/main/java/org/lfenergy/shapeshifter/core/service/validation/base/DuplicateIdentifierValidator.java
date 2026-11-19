@@ -13,10 +13,12 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.receiving.DuplicateMessageDetection;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
-
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 @RequiredArgsConstructor
 public class DuplicateIdentifierValidator implements UftpValidator<PayloadMessageType> {
+
+  private static final String REJECTION_REASON = "Duplicate Identifier";
 
   private final DuplicateMessageDetection duplicateDetection;
 
@@ -31,13 +33,23 @@ public class DuplicateIdentifierValidator implements UftpValidator<PayloadMessag
   }
 
   @Override
+  public ValidationResult validate(UftpMessage<PayloadMessageType> uftpMessage) {
+    return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+  }
+
+  @Override
   public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
-    var result = duplicateDetection.isDuplicate(uftpMessage.payloadMessage());
-    return NEW_MESSAGE == result || DUPLICATE_MESSAGE == result;
+    return isMessageValid(uftpMessage);
   }
 
   @Override
   public String getReason() {
-    return "Duplicate Identifier";
+    return REJECTION_REASON;
   }
+
+  private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
+    var result = duplicateDetection.isDuplicate(uftpMessage.payloadMessage());
+    return NEW_MESSAGE == result || DUPLICATE_MESSAGE == result;
+  }
+
 }

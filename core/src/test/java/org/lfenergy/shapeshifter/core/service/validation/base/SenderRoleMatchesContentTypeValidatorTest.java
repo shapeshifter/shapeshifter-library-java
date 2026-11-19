@@ -43,6 +43,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.api.TestMessageResponse;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.mockito.InjectMocks;
@@ -93,7 +94,7 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_agr_matches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.AGR);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   public static Stream<Arguments> agr_notMatching() {
@@ -120,7 +121,9 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_agr_notMatches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.AGR);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("Invalid Sender (not matching role)"));
   }
 
   public static Stream<Arguments> dso_matching() {
@@ -148,7 +151,7 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_dso_matches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.DSO);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   public static Stream<Arguments> dso_notMatching() {
@@ -176,7 +179,9 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_dso_notMatches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.DSO);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("Invalid Sender (not matching role)"));
   }
 
   public static Stream<Arguments> cro_matching() {
@@ -198,7 +203,7 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_cro_matches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.CRO);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   public static Stream<Arguments> cro_notMatching() {
@@ -232,11 +237,9 @@ class SenderRoleMatchesContentTypeValidatorTest {
   void valid_cro_notMatches(PayloadMessageType payloadMessage) {
     given(sender.role()).willReturn(USEFRoleType.CRO);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("Invalid Sender (not matching role)"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Invalid Sender (not matching role)");
-  }
 }

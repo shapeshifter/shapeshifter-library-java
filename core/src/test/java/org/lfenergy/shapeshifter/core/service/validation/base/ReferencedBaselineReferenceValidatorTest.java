@@ -25,6 +25,7 @@ import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -99,7 +100,7 @@ class ReferencedBaselineReferenceValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   @ParameterizedTest
@@ -112,7 +113,7 @@ class ReferencedBaselineReferenceValidatorTest {
       given(support.isValidBaselineReference(BASELINE_REFERENCE2)).willReturn(true);
     }
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   @ParameterizedTest
@@ -120,11 +121,9 @@ class ReferencedBaselineReferenceValidatorTest {
   void valid_false_whenFoundValueIsFirstNotSupported(PayloadMessageType payloadMessage, List<String> baselineRefs) {
     given(support.isValidBaselineReference(BASELINE_REFERENCE1)).willReturn(false);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("Unknown reference BaselineReference"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Unknown reference BaselineReference");
-  }
 }

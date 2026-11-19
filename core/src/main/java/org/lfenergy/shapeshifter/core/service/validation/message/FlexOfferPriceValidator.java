@@ -11,6 +11,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -20,6 +21,8 @@ import java.util.Currency;
  */
 @RequiredArgsConstructor
 public class FlexOfferPriceValidator implements UftpValidator<FlexOffer> {
+
+    private static final String REJECTION_REASON = "Price in FlexOffer option is not valid for the given currency";
 
     @Override
     public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -33,7 +36,21 @@ public class FlexOfferPriceValidator implements UftpValidator<FlexOffer> {
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<FlexOffer> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<FlexOffer> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<FlexOffer> uftpMessage) {
         var flexOffer = uftpMessage.payloadMessage();
 
         if (flexOffer.getCurrency() == null || flexOffer.getCurrency().isBlank()) {
@@ -53,8 +70,4 @@ public class FlexOfferPriceValidator implements UftpValidator<FlexOffer> {
                 .allMatch(offerOption -> offerOption.getPrice().scale() == currency.getDefaultFractionDigits());
     }
 
-    @Override
-    public String getReason() {
-        return "Price in FlexOffer option is not valid for the given currency";
-    }
 }

@@ -14,6 +14,7 @@ import org.lfenergy.shapeshifter.api.TestMessageResponse;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -74,7 +75,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
     void valid_whenNoReferencesInResponse() {
         given(settlementResponse.getFlexOrderSettlementStatuses()).willReturn(List.of());
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isTrue();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, settlementResponse)).valid()).isTrue();
     }
 
     @Test
@@ -93,7 +94,7 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(ORDER_REFERENCE2, CONVERSATION_ID,
                 FlexOrder.class))).willReturn(Optional.of(order2));
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isTrue();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, settlementResponse)).valid()).isTrue();
     }
 
     @Test
@@ -112,11 +113,9 @@ class ReferencedFlexSettlementResponseOrderReferenceValidatorTest {
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(ORDER_REFERENCE2, CONVERSATION_ID,
                 FlexOrder.class))).willReturn(Optional.empty());
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, settlementResponse))).isFalse();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, settlementResponse)))
+
+            .isEqualTo(ValidationResult.rejection("Unknown reference OrderReference in FlexSettlementResponse"));
     }
 
-    @Test
-    void getReason() {
-        assertThat(testSubject.getReason()).isEqualTo("Unknown reference OrderReference in FlexSettlementResponse");
-    }
 }

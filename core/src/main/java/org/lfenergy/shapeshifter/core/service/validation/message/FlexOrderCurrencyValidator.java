@@ -10,6 +10,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 import java.util.Currency;
 
@@ -18,6 +19,8 @@ import java.util.Currency;
  */
 @RequiredArgsConstructor
 public class FlexOrderCurrencyValidator implements UftpValidator<FlexOrder> {
+
+  private static final String REJECTION_REASON = "Currency in FlexOrder is not a known ISO 4217 currency";
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -30,7 +33,21 @@ public class FlexOrderCurrencyValidator implements UftpValidator<FlexOrder> {
   }
 
   @Override
+  public ValidationResult validate(UftpMessage<FlexOrder> uftpMessage) {
+    return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+  }
+
+  @Override
   public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
+    return isMessageValid(uftpMessage);
+  }
+
+  @Override
+  public String getReason() {
+    return REJECTION_REASON;
+  }
+
+  private boolean isMessageValid(UftpMessage<FlexOrder> uftpMessage) {
     var flexOrder = uftpMessage.payloadMessage();
 
     if (flexOrder.getCurrency() == null || flexOrder.getCurrency().isBlank()) {
@@ -45,8 +62,4 @@ public class FlexOrderCurrencyValidator implements UftpValidator<FlexOrder> {
     }
   }
 
-  @Override
-  public String getReason() {
-    return "Currency in FlexOrder is not a known ISO 4217 currency";
-  }
 }

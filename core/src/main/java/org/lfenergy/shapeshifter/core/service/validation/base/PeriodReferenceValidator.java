@@ -17,12 +17,14 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 import java.util.Optional;
 
-
 @RequiredArgsConstructor
 public class PeriodReferenceValidator implements UftpValidator<PayloadMessageType> {
+
+    private static final String REJECTION_REASON = "Reference Period mismatch";
 
     private final UftpMessageSupport messageSupport;
 
@@ -40,7 +42,21 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<PayloadMessageType> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
         var payloadMessage = uftpMessage.payloadMessage();
 
         if (payloadMessage instanceof AGRPortfolioQueryResponse agrPortfolioQueryResponse) {
@@ -57,11 +73,6 @@ public class PeriodReferenceValidator implements UftpValidator<PayloadMessageTyp
         }
 
         return true;
-    }
-
-    @Override
-    public String getReason() {
-        return "Reference Period mismatch";
     }
 
     private boolean validatePeriod(UftpMessage<PayloadMessageType> uftpMessage, AGRPortfolioQueryResponse msg) {

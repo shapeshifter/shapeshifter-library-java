@@ -11,11 +11,14 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 /**
  * Validates that each flex request has at least one ISP with disposition REQUESTED
  */
 public class IspRequestedDispositionValidator implements UftpValidator<FlexRequest> {
+
+  private static final String REJECTION_REASON = "Lacking Requested disposition";
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -28,7 +31,21 @@ public class IspRequestedDispositionValidator implements UftpValidator<FlexReque
   }
 
   @Override
+  public ValidationResult validate(UftpMessage<FlexRequest> uftpMessage) {
+    return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+  }
+
+  @Override
   public boolean isValid(UftpMessage<FlexRequest> uftpMessage) {
+    return isMessageValid(uftpMessage);
+  }
+
+  @Override
+  public String getReason() {
+    return REJECTION_REASON;
+  }
+
+  private boolean isMessageValid(UftpMessage<FlexRequest> uftpMessage) {
     var flexRequest = uftpMessage.payloadMessage();
     return flexRequest.getISPS().stream().anyMatch(this::dispositionEqualsRequested);
   }
@@ -37,8 +54,4 @@ public class IspRequestedDispositionValidator implements UftpValidator<FlexReque
     return isp.getDisposition().equals(AvailableRequestedType.REQUESTED);
   }
 
-  @Override
-  public String getReason() {
-    return "Lacking Requested disposition";
-  }
 }

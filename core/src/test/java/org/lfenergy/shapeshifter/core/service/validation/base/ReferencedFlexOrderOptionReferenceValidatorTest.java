@@ -17,6 +17,7 @@ import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpMessageReference;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -65,7 +66,7 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
         flexOrder.setFlexOfferMessageID(null);
         flexOrder.setOptionReference(OPTION_REFERENCE);
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOrder)).valid()).isTrue();
     }
 
     @Test
@@ -73,7 +74,7 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
         flexOrder.setFlexOfferMessageID(FLEX_OFFER_ID);
         flexOrder.setOptionReference(null);
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOrder)).valid()).isTrue();
     }
 
     @Test
@@ -86,7 +87,7 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
 
         given(messageSupport.findReferencedMessage(any(UftpMessageReference.class))).willReturn(Optional.empty());
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOrder)).valid()).isTrue();
     }
 
     @Test
@@ -105,7 +106,7 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
                 UftpMessageDirection.OUTGOING, AGR_DOMAIN, DSO_DOMAIN, FlexOffer.class))).willReturn(
                 Optional.of(flexOffer));
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createIncoming(sender, flexOrder))).isTrue();
+        assertThat(testSubject.validate(UftpMessageFixture.createIncoming(sender, flexOrder)).valid()).isTrue();
     }
 
     @Test
@@ -124,11 +125,9 @@ class ReferencedFlexOrderOptionReferenceValidatorTest {
                 UftpMessageDirection.OUTGOING, AGR_DOMAIN, DSO_DOMAIN, FlexOffer.class))).willReturn(
                 Optional.of(flexOffer));
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createIncoming(sender, flexOrder))).isFalse();
+        assertThat(testSubject.validate(UftpMessageFixture.createIncoming(sender, flexOrder)))
+
+            .isEqualTo(ValidationResult.rejection("Unknown reference OptionReference in FlexOrder"));
     }
 
-    @Test
-    void getReason() {
-        assertThat(testSubject.getReason()).isEqualTo("Unknown reference OptionReference in FlexOrder");
-    }
 }

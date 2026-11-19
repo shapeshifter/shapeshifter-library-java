@@ -302,41 +302,43 @@ contract administration to verify that you have a active, valid contract with th
 
 ## Custom validations
 
-Add one or more classes (or beans, if you use Spring) to your application that
-implement `UftpUserDefinedValidator`: if
-you want to add additional validation, than you can add bean classes that
-implement `UftpUserDefinedValidator`. next we show an example of `UftpUserDefinedValidator` (if you
-use Spring, you can add a `@Component` or `@Service` annotation)
+Add one or more classes (or beans, if you use Spring) to your application that implement
+`UftpUserDefinedValidator` to add custom validation. If you use Spring, you can add a `@Component`
+or `@Service` annotation.
 
 ```java
+import org.lfenergy.shapeshifter.api.FlexRequest;
+import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.core.model.UftpMessage;
+import org.lfenergy.shapeshifter.core.service.validation.UftpUserDefinedValidator;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 public class MyCustomValidator implements UftpUserDefinedValidator<FlexRequest> {
 
   @Override
-  public boolean appliesTo(Class<? extends FlexRequest> clazz) {
-    // here you can filter on the message type that you want to validate on
+  public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
     return clazz.equals(FlexRequest.class);
   }
 
   @Override
-  public boolean valid(UftpMessage<T> uftpMessage) {
-    // implement your validation logic here; return true if valid, false otherwise
+  public ValidationResult validate(UftpMessage<FlexRequest> uftpMessage) {
+    if (isMessageValid(uftpMessage)) {
+      return ValidationResult.ok();
+    }
+    return ValidationResult.rejection("My custom validation failed");
   }
 
-  @Override
-  public String getReason() {
-    // this is the reason of the validation failure, this is returned to the sender if validation fails
-    return "My custom validation failed";
+  private boolean isMessageValid(UftpMessage<FlexRequest> uftpMessage) {
+    // Add application-specific validation checks here.
+    return true;
   }
 }
 ```
 
-The `appliesTo` methods checks whether to apply the validation; you can specify whether you want to
-validate only flex requests, or flex offers, etc. the `valid` method should contain the actual
-validation logic; here you can check one or more properties of the message and return `true` if the
-message is valid, or `false` otherwise. In the `getReason` method you can specify the reason of the
-validation failure, this will be returned to the sender if a message validation fails.
-Any custom validations are picked up and called automatically after the standard validations.
+The `appliesTo` method selects which payload message types this validator handles. Implement
+`validate` with your application-specific checks, returning `ValidationResult.ok()` for a valid
+message or `ValidationResult.rejection(reason)` when validation fails. Custom validators are picked
+up and called automatically after the standard validations.
 
 ### Sending UFTP messages
 

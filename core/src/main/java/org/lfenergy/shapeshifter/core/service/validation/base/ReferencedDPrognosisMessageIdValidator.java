@@ -15,6 +15,7 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.service.validation.tools.PayloadMessagePropertyRetriever;
 
 import java.util.Map;
@@ -23,9 +24,10 @@ import java.util.Set;
 import static org.lfenergy.shapeshifter.core.service.validation.tools.NullablesToLinkedSet.toSetIgnoreNulls;
 import static org.lfenergy.shapeshifter.core.service.validation.tools.SetOf.setOfNullable;
 
-
 @RequiredArgsConstructor
 public class ReferencedDPrognosisMessageIdValidator implements UftpValidator<PayloadMessageType> {
+
+    private static final String REJECTION_REASON = "Unknown reference D-PrognosisMessageID";
 
     private final UftpMessageSupport messageSupport;
     private final PayloadMessagePropertyRetriever<PayloadMessageType, Set<String>> retriever = new PayloadMessagePropertyRetriever<>(
@@ -47,17 +49,26 @@ public class ReferencedDPrognosisMessageIdValidator implements UftpValidator<Pay
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<PayloadMessageType> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
         var value = retriever.getProperty(uftpMessage.payloadMessage());
         return value.isEmpty() || value.stream().allMatch(
                 msgId -> messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(msgId, uftpMessage.payloadMessage().getConversationID(),
                         DPrognosis.class)).isPresent()
         );
-    }
-
-    @Override
-    public String getReason() {
-        return "Unknown reference D-PrognosisMessageID";
     }
 
     private Set<String> collectDPrognosisMessageId(FlexSettlement m) {

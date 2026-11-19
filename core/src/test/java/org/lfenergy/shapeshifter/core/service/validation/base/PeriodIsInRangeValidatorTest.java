@@ -25,6 +25,7 @@ import org.lfenergy.shapeshifter.api.FlexOrderSettlementType;
 import org.lfenergy.shapeshifter.api.FlexSettlement;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.mockito.InjectMocks;
@@ -155,7 +156,7 @@ class PeriodIsInRangeValidatorTest {
   @ParameterizedTest
   @MethodSource("inRange")
   void valid_allInRange(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   public static Stream<Arguments> notInRange() {
@@ -258,11 +259,8 @@ class PeriodIsInRangeValidatorTest {
   @ParameterizedTest
   @MethodSource("notInRange")
   void valid_false_notInRange(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+        .isEqualTo(ValidationResult.rejection("Period out of bounds"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Period out of bounds");
-  }
 }

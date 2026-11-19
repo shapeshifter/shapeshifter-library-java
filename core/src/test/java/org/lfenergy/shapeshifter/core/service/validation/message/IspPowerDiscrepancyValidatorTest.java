@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.AvailableRequestedType;
 import org.lfenergy.shapeshifter.api.FlexOrder;
 import org.lfenergy.shapeshifter.api.FlexRequest;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.mockito.InjectMocks;
@@ -28,11 +29,6 @@ class IspPowerDiscrepancyValidatorTest {
 
   @InjectMocks
   private IspPowerDiscrepancyValidator testSubject;
-
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("One or more ISPs with a 'Requested' disposition has no direction");
-  }
 
   @Test
   void appliesTo() {
@@ -52,7 +48,7 @@ class IspPowerDiscrepancyValidatorTest {
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 2, 1, 0, 5000000),
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 3, 1, -5000000, 5000000)
     ));
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexRequest)).valid()).isTrue();
   }
 
   @Test
@@ -63,7 +59,7 @@ class IspPowerDiscrepancyValidatorTest {
         flexRequestIsp(AvailableRequestedType.REQUESTED, 2, 1, 0, 5000000),
         flexRequestIsp(AvailableRequestedType.REQUESTED, 3, 1, -5000000, 0)
     ));
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexRequest)).valid()).isTrue();
   }
 
   // IDCONS-6422: should be able to send an ISP with only 0
@@ -75,7 +71,7 @@ class IspPowerDiscrepancyValidatorTest {
         flexRequestIsp(AvailableRequestedType.REQUESTED, 2, 1, 0, 0),
         flexRequestIsp(AvailableRequestedType.REQUESTED, 3, 1, 0, 0)
     ));
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexRequest)).valid()).isTrue();
   }
 
   @Test
@@ -87,7 +83,8 @@ class IspPowerDiscrepancyValidatorTest {
         flexRequestIsp(AvailableRequestedType.AVAILABLE, 3, 1, -5000000, 5000000),
         flexRequestIsp(AvailableRequestedType.REQUESTED, 4, 1, -5000000, 5000000)
     ));
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexRequest)))
+        .isEqualTo(ValidationResult.rejection("One or more ISPs with a 'Requested' disposition has no direction"));
   }
 
 }

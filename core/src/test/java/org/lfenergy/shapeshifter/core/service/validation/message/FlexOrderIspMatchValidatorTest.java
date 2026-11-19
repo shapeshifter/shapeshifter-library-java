@@ -31,6 +31,7 @@ import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -45,11 +46,6 @@ class FlexOrderIspMatchValidatorTest {
   private UftpMessageSupport messageSupport;
   @InjectMocks
   private FlexOrderIspMatchValidator testSubject;
-
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("ISPs from the FlexOrder do not match the ISPs given in the FlexOffer");
-  }
 
   @Test
   void appliesTo() {
@@ -68,7 +64,7 @@ class FlexOrderIspMatchValidatorTest {
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
     verifyNoInteractions(messageSupport);
   }
 
@@ -88,7 +84,7 @@ class FlexOrderIspMatchValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
   }
 
   @Test
@@ -98,7 +94,8 @@ class FlexOrderIspMatchValidatorTest {
     var flexOrder = flexOrder(messageId, conversationId);
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(messageId, conversationId, FlexOffer.class))).willReturn(Optional.empty());
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+        .isEqualTo(ValidationResult.rejection("ISPs from the FlexOrder do not match the ISPs given in the FlexOffer"));
   }
 
   @Test
@@ -117,7 +114,8 @@ class FlexOrderIspMatchValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+        .isEqualTo(ValidationResult.rejection("ISPs from the FlexOrder do not match the ISPs given in the FlexOffer"));
   }
 
   @Test
@@ -137,9 +135,9 @@ class FlexOrderIspMatchValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+        .isEqualTo(ValidationResult.rejection("ISPs from the FlexOrder do not match the ISPs given in the FlexOffer"));
   }
-
 
   @Test
   void test_one_offer_option_isp_missing_then_fail() {
@@ -157,7 +155,8 @@ class FlexOrderIspMatchValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+        .isEqualTo(ValidationResult.rejection("ISPs from the FlexOrder do not match the ISPs given in the FlexOffer"));
   }
 
   @Test
@@ -179,7 +178,8 @@ class FlexOrderIspMatchValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+        .isEqualTo(ValidationResult.rejection("ISPs from the FlexOrder do not match the ISPs given in the FlexOffer"));
   }
 
   @Test
@@ -201,7 +201,8 @@ class FlexOrderIspMatchValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+        .isEqualTo(ValidationResult.rejection("ISPs from the FlexOrder do not match the ISPs given in the FlexOffer"));
   }
 
   private FlexOfferOptionType getFlexOfferOption(List<FlexOfferOptionISPType> flexOfferOptionIsps) {

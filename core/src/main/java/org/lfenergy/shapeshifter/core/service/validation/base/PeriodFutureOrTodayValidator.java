@@ -14,10 +14,12 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
-
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 @RequiredArgsConstructor
 public class PeriodFutureOrTodayValidator implements UftpValidator<FlexMessageType> {
+
+  private static final String REJECTION_REASON = "Period out of bounds";
 
   @Override
   public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
@@ -30,18 +32,27 @@ public class PeriodFutureOrTodayValidator implements UftpValidator<FlexMessageTy
   }
 
   @Override
+  public ValidationResult validate(UftpMessage<FlexMessageType> uftpMessage) {
+    return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+  }
+
+  @Override
   public boolean isValid(UftpMessage<FlexMessageType> uftpMessage) {
+    return isMessageValid(uftpMessage);
+  }
+
+  @Override
+  public String getReason() {
+    return REJECTION_REASON;
+  }
+
+  private boolean isMessageValid(UftpMessage<FlexMessageType> uftpMessage) {
     var period = Optional.ofNullable(uftpMessage.payloadMessage().getPeriod());
     var timeZone = Optional.ofNullable(uftpMessage.payloadMessage().getTimeZone());
 
     return period.isEmpty() ||
         timeZone.isEmpty() ||
         isInFutureOrIsToday(period.get(), timeZone.get());
-  }
-
-  @Override
-  public String getReason() {
-    return "Period out of bounds";
   }
 
   private boolean isInFutureOrIsToday(LocalDate value, String ianaTimeZone) {

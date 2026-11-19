@@ -27,6 +27,7 @@ import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.base.TestDataHelper;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,11 +42,6 @@ class FlexOrderPriceMatchValidatorTest {
   private UftpMessageSupport messageSupport;
   @InjectMocks
   private FlexOrderPriceMatchValidator testSubject;
-
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Price in the order does not match the price given in the offer");
-  }
 
   @Test
   void appliesTo() {
@@ -64,7 +60,7 @@ class FlexOrderPriceMatchValidatorTest {
 
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
     verifyNoInteractions(messageSupport);
   }
 
@@ -79,7 +75,7 @@ class FlexOrderPriceMatchValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
   }
 
   @Test
@@ -94,7 +90,8 @@ class FlexOrderPriceMatchValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+        .isEqualTo(ValidationResult.rejection("Price in the order does not match the price given in the offer"));
   }
 
   @Test
@@ -104,7 +101,8 @@ class FlexOrderPriceMatchValidatorTest {
     var flexOrder = flexOrder(messageId, conversationId);
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(messageId, conversationId, FlexOffer.class))).willReturn(Optional.empty());
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+        .isEqualTo(ValidationResult.rejection("Price in the order does not match the price given in the offer"));
   }
 
   @Test
@@ -119,6 +117,6 @@ class FlexOrderPriceMatchValidatorTest {
     var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
   }
 }
