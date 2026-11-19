@@ -409,7 +409,7 @@ Useful tools for creating a key pair, signing and verifying UFTP messages:
 
 * `org.lfenergy.shapeshifter.core.tools.UftpKeyPairTool`
 * `org.lfenergy.shapeshifter.core.tools.UftpSignTool`
-* `org.lfenergy.shapeshifter.core.tools.UftpVerifyTool`
+* `org.lfenergy.shapeshifter.core.tools.UftpVerifySignedMessageTool`
 
 Each payload message `*.xml` has a `*Signed.xml` counterpart which contains the same message but
 signed (encrypted using the private key) in a `SignedMessage`.

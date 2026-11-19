@@ -6,9 +6,7 @@ package org.lfenergy.shapeshifter.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import net.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.StringUtils;
 
 import java.util.Random;
 

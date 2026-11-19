@@ -3,6 +3,18 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.0.0
+### Removed (breaking)
+- `UftpValidator#isValid` and `UftpValidator#getReason`. `UftpValidator#validate` is now abstract.
+- `UftpPayloadHandler#notifyNewIncomingMessage(UftpParticipant, PayloadMessageType)` and `UftpPayloadHandler#notifyNewOutgoingMessage(UftpParticipant, PayloadMessageType)`. The methods that take an `IncomingUftpMessage` or `OutgoingUftpMessage` are now abstract.
+- `UftpIncomingHandler#handle(UftpParticipant, T)` and `UftpOutgoingHandler#handle(UftpParticipant, T)`. `handle(IncomingUftpMessage<T>)` and `handle(OutgoingUftpMessage<T>)` are now abstract.
+- `UftpReceivedMessageService#process(UftpParticipant, PayloadMessageType)`. Use `process(IncomingUftpMessage)`.
+
+### Fixed
+- README: wrong class name `UftpVerifyTool`, the class is `UftpVerifySignedMessageTool`.
+
+See the [migration guide](migration.md#version-40).
+
 ## 3.7.0
 ### Added
 - `UftpValidator#validate` returns a `ValidationResult`, so a validator can return a rejection reason with details. The default implementation uses `isValid` and `getReason`, so existing validators keep working.
@@ -12,20 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `UftpValidator#isValid` and `UftpValidator#getReason` are deprecated; implement `UftpValidator#validate` instead. They are planned for removal in the next major release.
 - Built-in validators now implement `UftpValidator#validate` directly and return their rejection reason in the `ValidationResult`.
 
-### Migration guide
-Replace `isValid` and `getReason` with one `validate` method that returns both the validity and rejection reason:
-
-```java
-@Override
-public ValidationResult validate(UftpMessage<MyMessage> message) {
-  if (isMessageValid(message)) {
-    return ValidationResult.ok();
-  }
-  return ValidationResult.rejection("My validation failed");
-}
-```
-
-Return `ValidationResult.ok()` for a valid message. For an invalid message, return `ValidationResult.rejection(reason)` with a non-blank reason.
+See the [migration guide](migration.md#version-37).
 
 ## 3.6.0
 ### Fixed

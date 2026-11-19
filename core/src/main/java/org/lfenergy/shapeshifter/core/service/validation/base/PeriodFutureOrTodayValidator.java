@@ -36,16 +36,6 @@ public class PeriodFutureOrTodayValidator implements UftpValidator<FlexMessageTy
     return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
   }
 
-  @Override
-  public boolean isValid(UftpMessage<FlexMessageType> uftpMessage) {
-    return isMessageValid(uftpMessage);
-  }
-
-  @Override
-  public String getReason() {
-    return REJECTION_REASON;
-  }
-
   private boolean isMessageValid(UftpMessage<FlexMessageType> uftpMessage) {
     var period = Optional.ofNullable(uftpMessage.payloadMessage().getPeriod());
     var timeZone = Optional.ofNullable(uftpMessage.payloadMessage().getTimeZone());

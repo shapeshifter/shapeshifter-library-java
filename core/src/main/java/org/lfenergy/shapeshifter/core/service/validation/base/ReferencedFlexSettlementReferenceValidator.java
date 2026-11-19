@@ -36,16 +36,6 @@ public class ReferencedFlexSettlementReferenceValidator implements UftpValidator
       return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
     }
 
-    @Override
-    public boolean isValid(UftpMessage<FlexSettlementResponse> uftpMessage) {
-      return isMessageValid(uftpMessage);
-    }
-
-    @Override
-    public String getReason() {
-      return REJECTION_REASON;
-    }
-
     private boolean isMessageValid(UftpMessage<FlexSettlementResponse> uftpMessage) {
         var flexSettlementResponse = uftpMessage.payloadMessage();
         return messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexSettlementResponse.getFlexSettlementMessageID(),

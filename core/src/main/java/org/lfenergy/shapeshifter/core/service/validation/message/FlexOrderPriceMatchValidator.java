@@ -42,16 +42,6 @@ public class FlexOrderPriceMatchValidator implements UftpValidator<FlexOrder> {
       return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
     }
 
-    @Override
-    public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
-      return isMessageValid(uftpMessage);
-    }
-
-    @Override
-    public String getReason() {
-      return REJECTION_REASON;
-    }
-
     private boolean isMessageValid(UftpMessage<FlexOrder> uftpMessage) {
         var flexOrder = uftpMessage.payloadMessage();
 
