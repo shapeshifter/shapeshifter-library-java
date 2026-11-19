@@ -12,10 +12,12 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
-
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 @RequiredArgsConstructor
 public class ReferencedFlexSettlementReferenceValidator implements UftpValidator<FlexSettlementResponse> {
+
+    private static final String REJECTION_REASON = "Flex Settlement Response refers to unknown Flex Settlement";
 
     private final UftpMessageSupport messageSupport;
 
@@ -30,15 +32,25 @@ public class ReferencedFlexSettlementReferenceValidator implements UftpValidator
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<FlexSettlementResponse> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<FlexSettlementResponse> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<FlexSettlementResponse> uftpMessage) {
         var flexSettlementResponse = uftpMessage.payloadMessage();
         return messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexSettlementResponse.getFlexSettlementMessageID(),
                 uftpMessage.payloadMessage().getConversationID(),
                 FlexSettlement.class)).isPresent();
     }
 
-    @Override
-    public String getReason() {
-        return "Flex Settlement Response refers to unknown Flex Settlement";
-    }
 }

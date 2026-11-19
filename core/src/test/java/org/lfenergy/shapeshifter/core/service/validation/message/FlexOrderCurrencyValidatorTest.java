@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class FlexOrderCurrencyValidatorTest {
 
-
     private static final UftpParticipant DSO = UftpParticipantFixture.AGR;
 
     private final FlexOrderCurrencyValidator flexOrderCurrencyValidator = new FlexOrderCurrencyValidator();
@@ -32,17 +31,17 @@ class FlexOrderCurrencyValidatorTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideIsValidArguments")
-    void isValid(String currency, boolean expectedResult) {
+    @MethodSource("provideValidateArguments")
+    void validate(String currency, boolean expectedResult) {
         var flexOrder = new FlexOrder();
         flexOrder.setCurrency(currency);
 
-        var result = flexOrderCurrencyValidator.isValid(UftpMessageFixture.createIncoming(DSO, flexOrder));
+        var result = flexOrderCurrencyValidator.validate(UftpMessageFixture.createIncoming(DSO, flexOrder)).valid();
 
         assertThat(result).isEqualTo(expectedResult);
     }
 
-    private static Stream<Arguments> provideIsValidArguments() {
+    private static Stream<Arguments> provideValidateArguments() {
         return Stream.of(
                 Arguments.of(null, false),
                 Arguments.of("", false),

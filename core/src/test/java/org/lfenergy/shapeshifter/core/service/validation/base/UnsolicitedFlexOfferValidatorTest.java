@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,7 +42,7 @@ class UnsolicitedFlexOfferValidatorTest {
         flexOffer.setUnsolicited(null);
         flexOffer.setFlexRequestMessageID(null);
 
-        assertThat(validator.isValid(createUftpMessage(flexOffer))).isTrue();
+        assertThat(validator.validate(createUftpMessage(flexOffer)).valid()).isTrue();
     }
 
     @Test
@@ -50,7 +51,7 @@ class UnsolicitedFlexOfferValidatorTest {
         flexOffer.setUnsolicited(null);
         flexOffer.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
 
-        assertThat(validator.isValid(createUftpMessage(flexOffer))).isTrue();
+        assertThat(validator.validate(createUftpMessage(flexOffer)).valid()).isTrue();
     }
 
     @Test
@@ -59,7 +60,7 @@ class UnsolicitedFlexOfferValidatorTest {
         flexOffer.setUnsolicited(true);
         flexOffer.setFlexRequestMessageID(null);
 
-        assertThat(validator.isValid(createUftpMessage(flexOffer))).isTrue();
+        assertThat(validator.validate(createUftpMessage(flexOffer)).valid()).isTrue();
     }
 
     @Test
@@ -68,7 +69,9 @@ class UnsolicitedFlexOfferValidatorTest {
         flexOffer.setUnsolicited(true);
         flexOffer.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
 
-        assertThat(validator.isValid(createUftpMessage(flexOffer))).isFalse();
+        assertThat(validator.validate(createUftpMessage(flexOffer)))
+
+            .isEqualTo(ValidationResult.rejection("FlexRequestMessageID must (only) be present if not unsolicited"));
     }
 
     @Test
@@ -77,7 +80,9 @@ class UnsolicitedFlexOfferValidatorTest {
         flexOffer.setUnsolicited(false);
         flexOffer.setFlexRequestMessageID(null);
 
-        assertThat(validator.isValid(createUftpMessage(flexOffer))).isFalse();
+        assertThat(validator.validate(createUftpMessage(flexOffer)))
+
+            .isEqualTo(ValidationResult.rejection("FlexRequestMessageID must (only) be present if not unsolicited"));
     }
 
     @Test
@@ -86,7 +91,7 @@ class UnsolicitedFlexOfferValidatorTest {
         flexOffer.setUnsolicited(false);
         flexOffer.setFlexRequestMessageID(FLEX_REQUEST_MESSAGE_ID);
 
-        assertThat(validator.isValid(createUftpMessage(flexOffer))).isTrue();
+        assertThat(validator.validate(createUftpMessage(flexOffer)).valid()).isTrue();
     }
 
     private UftpMessage<FlexOffer> createUftpMessage(FlexOffer flexOffer) {

@@ -17,6 +17,7 @@ import org.lfenergy.shapeshifter.api.USEFRoleType;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.ParticipantSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -60,7 +61,7 @@ class RecipientValidatorTest {
     given(sender.role()).willReturn(USEFRoleType.DSO);
     given(participantSupport.isHandledRecipient(RECIPIENT_AGR)).willReturn(true);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
     verify(participantSupport).isHandledRecipient(RECIPIENT_AGR);
   }
 
@@ -70,7 +71,7 @@ class RecipientValidatorTest {
     given(sender.role()).willReturn(USEFRoleType.AGR);
     given(participantSupport.isHandledRecipient(RECIPIENT_DSO)).willReturn(true);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
     verify(participantSupport).isHandledRecipient(RECIPIENT_DSO);
   }
 
@@ -80,7 +81,9 @@ class RecipientValidatorTest {
     given(sender.role()).willReturn(USEFRoleType.DSO);
     given(participantSupport.isHandledRecipient(RECIPIENT_AGR)).willReturn(false);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("Unknown Recipient"));
     verify(participantSupport).isHandledRecipient(RECIPIENT_AGR);
   }
 
@@ -90,12 +93,10 @@ class RecipientValidatorTest {
     given(sender.role()).willReturn(USEFRoleType.AGR);
     given(participantSupport.isHandledRecipient(RECIPIENT_DSO)).willReturn(false);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("Unknown Recipient"));
     verify(participantSupport).isHandledRecipient(RECIPIENT_DSO);
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Unknown Recipient");
-  }
 }

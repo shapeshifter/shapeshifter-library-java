@@ -32,6 +32,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.CongestionPointSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -111,12 +112,12 @@ class CongestionPointValidatorTest {
     if (payloadMessage instanceof FlexRequest) {
       var thrown = assertThrows(
           IllegalArgumentException.class,
-          () -> testSubject.isValid(outgoingMessage)
+          () -> testSubject.validate(outgoingMessage).valid()
       );
       assertThat(thrown.getMessage()).isEqualTo("Can not parse an Entity Address from null");
     }
     if (payloadMessage instanceof FlexSettlement) {
-      assertThat(testSubject.isValid(createOutgoing(sender, payloadMessage))).isTrue();
+      assertThat(testSubject.validate(createOutgoing(sender, payloadMessage)).valid()).isTrue();
     }
   }
 
@@ -125,7 +126,7 @@ class CongestionPointValidatorTest {
   void valid_true_whenFoundValueIsSupported(PayloadMessageType payloadMessage, Set<EntityAddress> congestionPoints) {
     given(congestionPointSupport.areKnownCongestionPoints(congestionPoints)).willReturn(true);
 
-    assertThat(testSubject.isValid(createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   @ParameterizedTest
@@ -133,11 +134,9 @@ class CongestionPointValidatorTest {
   void valid_false_whenFoundValueIsNotSupported(PayloadMessageType payloadMessage, Set<EntityAddress> congestionPoints) {
     given(congestionPointSupport.areKnownCongestionPoints(congestionPoints)).willReturn(false);
 
-    assertThat(testSubject.isValid(createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(createOutgoing(sender, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("Invalid congestion point"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Invalid congestion point");
-  }
 }

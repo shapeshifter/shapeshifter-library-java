@@ -29,6 +29,7 @@ import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.FlexRequestISPType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.mockito.InjectMocks;
@@ -112,7 +113,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
     flexMessage.setISPDuration(DURATION_15_MINUTES);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexMessage)).valid()).isTrue();
   }
 
   @Test
@@ -129,7 +130,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     flexRequest.setISPDuration(DURATION_15_MINUTES);
     flexRequest.getISPS().add(isp);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexRequest))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexRequest)).valid()).isTrue();
   }
 
   public static Stream<Arguments> valid_whenExpirationEqualToLastIspEnd() {
@@ -175,7 +176,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
     flexMessage.setISPDuration(DURATION_15_MINUTES);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexMessage)).valid()).isTrue();
   }
 
   public static Stream<Arguments> valid_false_whenExpirationAfterLastIspEnd() {
@@ -214,7 +215,9 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     flexMessage.setTimeZone(TIME_ZONE_AMSTERDAM);
     flexMessage.setISPDuration(DURATION_15_MINUTES);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexMessage)))
+
+        .isEqualTo(ValidationResult.rejection("ExpirationDateTime out of bounds (ISPs related)"));
   }
 
   @Test
@@ -223,7 +226,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
 
     var uftpMessage = UftpMessageFixture.<PayloadMessageType>createOutgoing(sender, flexRequest);
     IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
-        testSubject.isValid(uftpMessage));
+        testSubject.validate(uftpMessage).valid());
 
     assertThat(thrown.getMessage()).isEqualTo("No ISPs found");
   }
@@ -234,7 +237,7 @@ class ExpirationBeforeIspsListedEndValidatorTest {
 
     var uftpMessage = UftpMessageFixture.<PayloadMessageType>createOutgoing(sender, flexOffer);
     IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
-        testSubject.isValid(uftpMessage));
+        testSubject.validate(uftpMessage).valid());
 
     assertThat(thrown.getMessage()).isEqualTo("No ISPs found");
   }
@@ -251,8 +254,4 @@ class ExpirationBeforeIspsListedEndValidatorTest {
     return instance;
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("ExpirationDateTime out of bounds (ISPs related)");
-  }
 }

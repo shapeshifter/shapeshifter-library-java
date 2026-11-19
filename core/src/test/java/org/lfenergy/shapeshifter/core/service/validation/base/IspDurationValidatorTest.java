@@ -26,6 +26,7 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidatorSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -105,7 +106,7 @@ class IspDurationValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoDurationIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   @ParameterizedTest
@@ -113,7 +114,7 @@ class IspDurationValidatorTest {
   void valid_true_whenFoundDurationIsSupported(PayloadMessageType payloadMessage) {
     given(support.isSupportedIspDuration(DURATION)).willReturn(true);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   @ParameterizedTest
@@ -121,11 +122,9 @@ class IspDurationValidatorTest {
   void valid_false_whenFoundDurationIsNotSupported(PayloadMessageType payloadMessage) {
     given(support.isSupportedIspDuration(DURATION)).willReturn(false);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("ISP duration rejected"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("ISP duration rejected");
-  }
 }

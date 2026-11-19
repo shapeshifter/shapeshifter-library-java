@@ -13,13 +13,15 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-
 @RequiredArgsConstructor
 public class NotExpiredValidator implements UftpValidator<PayloadMessageType> {
+
+    private static final String REJECTION_REASON = "Reference message expired";
 
     private final UftpMessageSupport messageSupport;
 
@@ -34,7 +36,21 @@ public class NotExpiredValidator implements UftpValidator<PayloadMessageType> {
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<PayloadMessageType> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
         var payloadMessage = uftpMessage.payloadMessage();
 
         if (payloadMessage instanceof FlexOffer flexOffer) {
@@ -45,11 +61,6 @@ public class NotExpiredValidator implements UftpValidator<PayloadMessageType> {
         }
 
         return true;
-    }
-
-    @Override
-    public String getReason() {
-        return "Reference message expired";
     }
 
     private boolean validateFlexRequestNotExpired(UftpMessage<PayloadMessageType> uftpMessage, FlexOffer msg) {

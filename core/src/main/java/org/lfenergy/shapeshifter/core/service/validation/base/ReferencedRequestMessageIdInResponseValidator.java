@@ -1,6 +1,5 @@
 package org.lfenergy.shapeshifter.core.service.validation.base;
 
-
 import lombok.RequiredArgsConstructor;
 import org.lfenergy.shapeshifter.api.PayloadMessageResponseType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
@@ -8,10 +7,12 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpRequestResponseMapping;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
-
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 @RequiredArgsConstructor
 public class ReferencedRequestMessageIdInResponseValidator implements UftpValidator<PayloadMessageResponseType> {
+
+    private static final String REJECTION_REASON = "Unknown reference Request message ID";
 
     private final UftpMessageSupport support;
 
@@ -26,7 +27,21 @@ public class ReferencedRequestMessageIdInResponseValidator implements UftpValida
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<PayloadMessageResponseType> message) {
+      return ValidationResult.of(isMessageValid(message), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<PayloadMessageResponseType> message) {
+      return isMessageValid(message);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<PayloadMessageResponseType> message) {
         var value = UftpRequestResponseMapping.getReferencedRequestMessageId(message.payloadMessage());
         return value.isPresent() && support.findReferencedMessage(
                 message.referenceToPreviousMessage(
@@ -37,8 +52,4 @@ public class ReferencedRequestMessageIdInResponseValidator implements UftpValida
         ).isPresent();
     }
 
-    @Override
-    public String getReason() {
-        return "Unknown reference Request message ID";
-    }
 }

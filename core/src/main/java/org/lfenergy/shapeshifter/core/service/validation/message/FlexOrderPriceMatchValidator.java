@@ -13,6 +13,7 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 import java.math.BigDecimal;
 
@@ -21,6 +22,8 @@ import java.math.BigDecimal;
  */
 @RequiredArgsConstructor
 public class FlexOrderPriceMatchValidator implements UftpValidator<FlexOrder> {
+
+    private static final String REJECTION_REASON = "Price in the order does not match the price given in the offer";
 
     private final UftpMessageSupport messageSupport;
 
@@ -35,7 +38,21 @@ public class FlexOrderPriceMatchValidator implements UftpValidator<FlexOrder> {
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<FlexOrder> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<FlexOrder> uftpMessage) {
         var flexOrder = uftpMessage.payloadMessage();
 
         var flexOfferMessageID = flexOrder.getFlexOfferMessageID();
@@ -52,8 +69,4 @@ public class FlexOrderPriceMatchValidator implements UftpValidator<FlexOrder> {
         return flexOfferOption.getPrice().compareTo(orderPrice) == 0;
     }
 
-    @Override
-    public String getReason() {
-        return "Price in the order does not match the price given in the offer";
-    }
 }

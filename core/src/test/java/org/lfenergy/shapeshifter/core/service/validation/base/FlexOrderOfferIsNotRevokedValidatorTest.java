@@ -13,6 +13,7 @@ import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -71,7 +72,7 @@ class FlexOrderOfferIsNotRevokedValidatorTest {
 
         given(messageSupport.findFlexRevocation(CONVERSATION_ID, MATCHING_NESSAGE_ID, SENDER_DOMAIN, RECIPIENT_DOMAIN)).willReturn(Optional.empty());
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOrder)).valid()).isTrue();
     }
 
     @Test
@@ -83,11 +84,9 @@ class FlexOrderOfferIsNotRevokedValidatorTest {
 
         given(messageSupport.findFlexRevocation(CONVERSATION_ID, MATCHING_NESSAGE_ID, SENDER_DOMAIN, RECIPIENT_DOMAIN)).willReturn(Optional.of(mock(FlexOfferRevocation.class)));
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isFalse();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOrder)))
+
+            .isEqualTo(ValidationResult.rejection("Reference message revoked"));
     }
 
-    @Test
-    void getReason() {
-        assertThat(testSubject.getReason()).isEqualTo("Reference message revoked");
-    }
 }

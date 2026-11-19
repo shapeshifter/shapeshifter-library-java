@@ -18,6 +18,7 @@ import org.lfenergy.shapeshifter.api.USEFRoleType;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.ParticipantSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -73,7 +74,7 @@ class AllowedSenderValidatorTest {
     mockSender();
     given(participantSupport.isAllowedSender(any(UftpParticipant.class))).willReturn(true);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(uftpParticipant, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(uftpParticipant, payloadMessage)).valid()).isTrue();
 
     verifySender();
   }
@@ -83,13 +84,11 @@ class AllowedSenderValidatorTest {
     mockSender();
     given(participantSupport.isAllowedSender(any(UftpParticipant.class))).willReturn(false);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(uftpParticipant, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(uftpParticipant, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("Barred Sender"));
 
     verifySender();
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Barred Sender");
-  }
 }

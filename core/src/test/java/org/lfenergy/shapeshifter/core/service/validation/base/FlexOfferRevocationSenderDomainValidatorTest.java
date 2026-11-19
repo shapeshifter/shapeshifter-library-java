@@ -14,6 +14,7 @@ import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpMessageReference;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -77,7 +78,7 @@ class FlexOfferRevocationSenderDomainValidatorTest {
 
         given(messageSupport.findReferencedMessage(any(UftpMessageReference.class))).willReturn(Optional.of(flexOffer));
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOfferRevocation))).isTrue();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOfferRevocation)).valid()).isTrue();
     }
 
     @Test
@@ -91,7 +92,9 @@ class FlexOfferRevocationSenderDomainValidatorTest {
 
         given(messageSupport.findReferencedMessage(any(UftpMessageReference.class))).willReturn(Optional.of(flexOffer));
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOfferRevocation))).isFalse();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOfferRevocation)))
+
+            .isEqualTo(ValidationResult.rejection("Flex Offer revocation can only be sent by the same Sender Domain that sent the Flex Offer"));
     }
 
     @Test
@@ -103,11 +106,9 @@ class FlexOfferRevocationSenderDomainValidatorTest {
 
         given(messageSupport.findReferencedMessage(any(UftpMessageReference.class))).willReturn(Optional.empty());
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOfferRevocation))).isFalse();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOfferRevocation)))
+
+            .isEqualTo(ValidationResult.rejection("Flex Offer revocation can only be sent by the same Sender Domain that sent the Flex Offer"));
     }
 
-    @Test
-    void getReason() {
-        assertThat(testSubject.getReason()).isEqualTo("Flex Offer revocation can only be sent by the same Sender Domain that sent the Flex Offer");
-    }
 }

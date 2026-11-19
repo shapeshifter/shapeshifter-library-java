@@ -12,6 +12,7 @@ import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -43,11 +44,6 @@ class FlexOrderFlexibilityMatchValidatorTest {
     private FlexOrderFlexibilityMatchValidator testSubject;
 
     @Test
-    void getReason() {
-        assertThat(testSubject.getReason()).isEqualTo("Ordered flexibility does not match the offered flexibility");
-    }
-
-    @Test
     void appliesTo() {
         assertThat(testSubject.appliesTo(FlexOrder.class)).isTrue();
     }
@@ -64,7 +60,7 @@ class FlexOrderFlexibilityMatchValidatorTest {
 
         var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
-        assertThat(testSubject.isValid(uftpMessage)).isTrue();
+        assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
         verifyNoInteractions(messageSupport);
     }
 
@@ -84,7 +80,7 @@ class FlexOrderFlexibilityMatchValidatorTest {
         var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
 
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId, FlexOffer.class))).willReturn(Optional.of(flexOffer));
-        assertThat(testSubject.isValid(uftpMessage)).isTrue();
+        assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
     }
 
     @Test
@@ -94,7 +90,8 @@ class FlexOrderFlexibilityMatchValidatorTest {
         var flexOrder = flexOrder(messageId, conversationId);
         var uftpMessage = UftpMessageFixture.createOutgoing(sender, flexOrder);
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(messageId, conversationId, FlexOffer.class))).willReturn(Optional.empty());
-        assertThat(testSubject.isValid(uftpMessage)).isFalse();
+        assertThat(testSubject.validate(uftpMessage))
+            .isEqualTo(ValidationResult.rejection("Ordered flexibility does not match the offered flexibility"));
     }
 
     @Test
@@ -114,7 +111,8 @@ class FlexOrderFlexibilityMatchValidatorTest {
 
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId,
                 FlexOffer.class))).willReturn(Optional.of(flexOffer));
-        assertThat(testSubject.isValid(uftpMessage)).isFalse();
+        assertThat(testSubject.validate(uftpMessage))
+            .isEqualTo(ValidationResult.rejection("Ordered flexibility does not match the offered flexibility"));
     }
 
     @Test
@@ -134,6 +132,7 @@ class FlexOrderFlexibilityMatchValidatorTest {
 
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexMessageId, conversationId,
                 FlexOffer.class))).willReturn(Optional.of(flexOffer));
-        assertThat(testSubject.isValid(uftpMessage)).isFalse();
+        assertThat(testSubject.validate(uftpMessage))
+            .isEqualTo(ValidationResult.rejection("Ordered flexibility does not match the offered flexibility"));
     }
 }

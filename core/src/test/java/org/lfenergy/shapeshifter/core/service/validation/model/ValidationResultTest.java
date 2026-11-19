@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class ValidationResultTest {
@@ -27,6 +28,23 @@ class ValidationResultTest {
 
     assertThat(result.valid()).isFalse();
     assertThat(result.rejectionReason()).isEqualTo("reason");
+  }
+
+  @Test
+  void of_valid_returnsOkAndIgnoresReason() {
+    assertThat(ValidationResult.of(true, null)).isEqualTo(ValidationResult.ok());
+  }
+
+  @Test
+  void of_invalid_returnsRejection() {
+    assertThat(ValidationResult.of(false, "reason")).isEqualTo(ValidationResult.rejection("reason"));
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {" ", "\t"})
+  void of_invalidWithBlankReason_throws(String rejectionReason) {
+    assertThrows(IllegalArgumentException.class, () -> ValidationResult.of(false, rejectionReason));
   }
 
   @Test

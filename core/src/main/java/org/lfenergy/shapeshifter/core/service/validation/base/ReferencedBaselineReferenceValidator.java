@@ -19,11 +19,13 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidatorSupport;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.service.validation.tools.PayloadMessagePropertyRetriever;
-
 
 @RequiredArgsConstructor
 public class ReferencedBaselineReferenceValidator implements UftpValidator<PayloadMessageType> {
+
+  private static final String REJECTION_REASON = "Unknown reference BaselineReference";
 
   private final UftpValidatorSupport support;
 
@@ -46,14 +48,23 @@ public class ReferencedBaselineReferenceValidator implements UftpValidator<Paylo
   }
 
   @Override
+  public ValidationResult validate(UftpMessage<PayloadMessageType> uftpMessage) {
+    return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+  }
+
+  @Override
   public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
-    var value = retriever.getProperty(uftpMessage.payloadMessage());
-    return value.isEmpty() || value.stream().allMatch(support::isValidBaselineReference);
+    return isMessageValid(uftpMessage);
   }
 
   @Override
   public String getReason() {
-    return "Unknown reference BaselineReference";
+    return REJECTION_REASON;
+  }
+
+  private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
+    var value = retriever.getProperty(uftpMessage.payloadMessage());
+    return value.isEmpty() || value.stream().allMatch(support::isValidBaselineReference);
   }
 
   private Set<String> collectBaselineReferences(FlexSettlement m) {

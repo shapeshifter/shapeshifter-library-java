@@ -12,12 +12,14 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 import java.util.Optional;
 
-
 @RequiredArgsConstructor
 public class ReferencedFlexRequestMessageIdValidator implements UftpValidator<FlexOffer> {
+
+    private static final String REJECTION_REASON = "Unknown reference FlexRequestMessageID";
 
     private final UftpMessageSupport messageSupport;
 
@@ -32,14 +34,24 @@ public class ReferencedFlexRequestMessageIdValidator implements UftpValidator<Fl
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<FlexOffer> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<FlexOffer> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<FlexOffer> uftpMessage) {
         var flexRequestMessageID = Optional.ofNullable(uftpMessage.payloadMessage().getFlexRequestMessageID());
         return flexRequestMessageID.isEmpty() || messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(flexRequestMessageID.get(),
                 uftpMessage.payloadMessage().getConversationID(), FlexRequest.class)).isPresent();
     }
 
-    @Override
-    public String getReason() {
-        return "Unknown reference FlexRequestMessageID";
-    }
 }

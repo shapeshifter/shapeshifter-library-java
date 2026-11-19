@@ -12,6 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.mockito.InjectMocks;
@@ -50,7 +51,7 @@ class SenderMatchesEnvelopeValidatorTest {
     given(sender.domain()).willReturn(SENDER_DOMAIN);
     given(payloadMessage.getSenderDomain()).willReturn(SENDER_DOMAIN);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   @Test
@@ -58,11 +59,9 @@ class SenderMatchesEnvelopeValidatorTest {
     given(sender.domain()).willReturn(SENDER_DOMAIN);
     given(payloadMessage.getSenderDomain()).willReturn(DIFFERENT);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+
+        .isEqualTo(ValidationResult.rejection("Invalid Sender (not matching envelope)"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Invalid Sender (not matching envelope)");
-  }
 }

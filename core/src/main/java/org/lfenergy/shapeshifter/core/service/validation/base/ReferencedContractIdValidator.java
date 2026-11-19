@@ -23,11 +23,13 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.ContractSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.service.validation.tools.PayloadMessagePropertyRetriever;
-
 
 @RequiredArgsConstructor
 public class ReferencedContractIdValidator implements UftpValidator<PayloadMessageType> {
+
+  private static final String REJECTION_REASON = "Unknown reference ContractID";
 
   private final ContractSupport contractSupport;
   private final PayloadMessagePropertyRetriever<PayloadMessageType, Set<String>> retriever = new PayloadMessagePropertyRetriever<>(
@@ -51,14 +53,23 @@ public class ReferencedContractIdValidator implements UftpValidator<PayloadMessa
   }
 
   @Override
+  public ValidationResult validate(UftpMessage<PayloadMessageType> uftpMessage) {
+    return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+  }
+
+  @Override
   public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
-    var value = retriever.getProperty(uftpMessage.payloadMessage());
-    return value.isEmpty() || value.stream().allMatch(contractSupport::isSupportedContractID);
+    return isMessageValid(uftpMessage);
   }
 
   @Override
   public String getReason() {
-    return "Unknown reference ContractID";
+    return REJECTION_REASON;
+  }
+
+  private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
+    var value = retriever.getProperty(uftpMessage.payloadMessage());
+    return value.isEmpty() || value.stream().allMatch(contractSupport::isSupportedContractID);
   }
 
   private Set<String> collectContractIds(FlexSettlement m) {

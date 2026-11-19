@@ -13,14 +13,16 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 import java.util.Set;
 
 import static org.lfenergy.shapeshifter.core.service.validation.tools.NullablesToLinkedSet.toSetIgnoreNulls;
 
-
 @RequiredArgsConstructor
 public class ReferencedFlexOrderMessageIdValidator implements UftpValidator<DPrognosisResponse> {
+
+    private static final String REJECTION_REASON = "Unknown reference FlexOrderMessageID";
 
     private final UftpMessageSupport messageSupport;
 
@@ -35,17 +37,26 @@ public class ReferencedFlexOrderMessageIdValidator implements UftpValidator<DPro
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<DPrognosisResponse> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<DPrognosisResponse> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<DPrognosisResponse> uftpMessage) {
         var value = collectFlexOrderMessageIDs(uftpMessage.payloadMessage());
         return value.isEmpty() || value.stream().allMatch(
                 msgId -> messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(msgId,
                         uftpMessage.payloadMessage().getConversationID(), FlexOrder.class)).isPresent()
         );
-    }
-
-    @Override
-    public String getReason() {
-        return "Unknown reference FlexOrderMessageID";
     }
 
     private Set<String> collectFlexOrderMessageIDs(DPrognosisResponse m) {

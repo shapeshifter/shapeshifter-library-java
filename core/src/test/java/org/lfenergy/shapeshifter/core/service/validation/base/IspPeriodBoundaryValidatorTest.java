@@ -10,6 +10,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.lfenergy.shapeshifter.api.*;
 
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
@@ -46,18 +48,13 @@ class IspPeriodBoundaryValidatorTest {
         assertThat(testSubject.appliesTo(TestMessage.class)).isFalse();
     }
 
-    @Test
-    void getReason() {
-        assertThat(testSubject.getReason()).isEqualTo("ISPs out of bounds");
-    }
-
     @ParameterizedTest
     @MethodSource("testCases")
-    void isValid(PayloadMessageType msg, LocalDate period, long isp1, long isp2, boolean expectedValid) {
+    void validate(PayloadMessageType msg, LocalDate period, long isp1, long isp2, boolean expectedValid) {
         setISPs(msg, period, List.of(new IspInfo(isp1, 1), new IspInfo(isp2, 1)));
 
-        assertThat(testSubject.isValid(createIncoming(DSO, msg)))
-                .isEqualTo(expectedValid);
+        assertThat(testSubject.validate(createIncoming(DSO, msg)))
+                .isEqualTo(expectedValid ? ValidationResult.ok() : ValidationResult.rejection("ISPs out of bounds"));
     }
 
     private static Stream<Arguments> testCases() {

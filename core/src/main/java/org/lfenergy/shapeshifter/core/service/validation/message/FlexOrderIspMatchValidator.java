@@ -15,6 +15,7 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 import java.util.List;
 
@@ -23,6 +24,8 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 public class FlexOrderIspMatchValidator implements UftpValidator<FlexOrder> {
+
+    private static final String REJECTION_REASON = "ISPs from the FlexOrder do not match the ISPs given in the FlexOffer";
 
     private final UftpMessageSupport messageSupport;
 
@@ -37,7 +40,21 @@ public class FlexOrderIspMatchValidator implements UftpValidator<FlexOrder> {
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<FlexOrder> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<FlexOrder> uftpMessage) {
         var flexOrder = uftpMessage.payloadMessage();
 
         var flexOfferMessageID = flexOrder.getFlexOfferMessageID();
@@ -68,11 +85,6 @@ public class FlexOrderIspMatchValidator implements UftpValidator<FlexOrder> {
     private boolean match(FlexOrderISPType ispInOrder, FlexOfferOptionISPType ispInOffer) {
         return ispInOrder.getStart().longValue() == ispInOffer.getStart().longValue() &&
                 ispInOrder.getDuration() == ispInOffer.getDuration();
-    }
-
-    @Override
-    public String getReason() {
-        return "ISPs from the FlexOrder do not match the ISPs given in the FlexOffer";
     }
 
     private List<FlexOfferOptionISPType> getAllOfferOptionISPs(FlexOffer flexOffer) {

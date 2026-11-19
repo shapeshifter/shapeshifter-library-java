@@ -15,6 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexOfferResponse;
+import org.lfenergy.shapeshifter.api.PayloadMessageType;
+import org.lfenergy.shapeshifter.api.USEFRoleType;
+import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
@@ -205,5 +208,35 @@ class UftpValidationServiceTest {
 
     assertThat(result.valid()).isFalse();
     assertThat(result.rejectionReason()).isEqualTo("userDefinedValidation2");
+  }
+
+  // TODO remove when moving to V4: isValid and getReason are removed then, together with this legacy support test.
+  @Test
+  void validate_legacyValidatorImplementingOnlyIsValidAndGetReason_stillWorks() {
+    var message = UftpMessage.createOutgoing(new UftpParticipant("sender", USEFRoleType.DSO), new FlexOffer());
+
+    assertThat(new UftpValidationService(List.of(new LegacyValidator(true))).validate(message))
+        .isEqualTo(ValidationResult.ok());
+    assertThat(new UftpValidationService(List.of(new LegacyValidator(false))).validate(message))
+        .isEqualTo(ValidationResult.rejection("legacy reason"));
+  }
+
+  @SuppressWarnings("removal")
+  private record LegacyValidator(boolean valid) implements UftpUserDefinedValidator<FlexOffer> {
+
+    @Override
+    public boolean appliesTo(Class<? extends PayloadMessageType> clazz) {
+      return clazz == FlexOffer.class;
+    }
+
+    @Override
+    public boolean isValid(UftpMessage<FlexOffer> uftpMessage) {
+      return valid;
+    }
+
+    @Override
+    public String getReason() {
+      return "legacy reason";
+    }
   }
 }

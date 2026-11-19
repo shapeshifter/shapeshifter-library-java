@@ -13,6 +13,7 @@ import org.lfenergy.shapeshifter.api.USEFRoleType;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -62,7 +63,9 @@ class ReferencedRequestMessageIdInResponseValidatorTest {
     void valid_whenNoFlexRequestReferenceInResponse() {
         ((FlexRequestResponse) flexRequestResponse).setFlexRequestMessageID(null);
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createIncomingResponse(sender, flexRequestResponse))).isFalse();
+        assertThat(testSubject.validate(UftpMessageFixture.createIncomingResponse(sender, flexRequestResponse)))
+
+            .isEqualTo(ValidationResult.rejection("Unknown reference Request message ID"));
     }
 
     @Test
@@ -74,7 +77,7 @@ class ReferencedRequestMessageIdInResponseValidatorTest {
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
                 FlexRequest.class))).willReturn(Optional.of(flexRequest));
 
-        assertThat(testSubject.isValid(uftpMessage)).isTrue();
+        assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
     }
 
     @Test
@@ -86,7 +89,7 @@ class ReferencedRequestMessageIdInResponseValidatorTest {
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, CONVERSATION_ID,
                 FlexOffer.class))).willReturn(Optional.of(flexOffer));
 
-        assertThat(testSubject.isValid(uftpMessage)).isTrue();
+        assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
     }
 
     @Test
@@ -98,7 +101,9 @@ class ReferencedRequestMessageIdInResponseValidatorTest {
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
                 FlexRequest.class))).willReturn(Optional.empty());
 
-        assertThat(testSubject.isValid(uftpMessage)).isFalse();
+        assertThat(testSubject.validate(uftpMessage))
+
+            .isEqualTo(ValidationResult.rejection("Unknown reference Request message ID"));
     }
 
     @Test
@@ -110,11 +115,9 @@ class ReferencedRequestMessageIdInResponseValidatorTest {
         given(messageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(FLEX_OFFER_MESSAGE_ID, CONVERSATION_ID,
                 FlexOffer.class))).willReturn(Optional.empty());
 
-        assertThat(testSubject.isValid(uftpMessage)).isFalse();
+        assertThat(testSubject.validate(uftpMessage))
+
+            .isEqualTo(ValidationResult.rejection("Unknown reference Request message ID"));
     }
 
-    @Test
-    void getReason() {
-        assertThat(testSubject.getReason()).isEqualTo("Unknown reference Request message ID");
-    }
 }

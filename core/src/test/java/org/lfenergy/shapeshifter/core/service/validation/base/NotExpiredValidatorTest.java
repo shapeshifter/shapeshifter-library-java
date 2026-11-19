@@ -33,6 +33,7 @@ import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -107,7 +108,7 @@ class NotExpiredValidatorTest {
         flexOffer.setFlexRequestMessageID(null);
         flexOffer.setPeriod(PERIOD);
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOffer)).valid()).isTrue();
     }
 
     @Test
@@ -117,7 +118,7 @@ class NotExpiredValidatorTest {
         flexOrder.setFlexOfferMessageID(null);
         flexOrder.setPeriod(PERIOD);
 
-        assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOrder))).isTrue();
+        assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOrder)).valid()).isTrue();
     }
 
     @Test
@@ -138,7 +139,7 @@ class NotExpiredValidatorTest {
         given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
                 FlexRequest.class))).willReturn(Optional.of(flexRequest));
 
-        assertThat(testSubject.isValid(uftpMessage)).isTrue();
+        assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
     }
 
     @Test
@@ -161,7 +162,7 @@ class NotExpiredValidatorTest {
         given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
                 FlexOffer.class))).willReturn(Optional.of(flexOffer));
 
-        assertThat(testSubject.isValid(uftpMessage)).isTrue();
+        assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
     }
 
     @ParameterizedTest
@@ -175,7 +176,7 @@ class NotExpiredValidatorTest {
 
         // Matching message may not be found, although it should be there. This returns valid() == true
         // because that is not the purpose of this validation. It is checked in Referenced******MessageIdValidation classes.
-        assertThat(testSubject.isValid(uftpMessage)).isTrue();
+        assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
     }
 
     @ParameterizedTest
@@ -188,7 +189,7 @@ class NotExpiredValidatorTest {
         given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
                 matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
-        assertThat(testSubject.isValid(uftpMessage)).isTrue();
+        assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
     }
 
     @ParameterizedTest
@@ -201,7 +202,9 @@ class NotExpiredValidatorTest {
         given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(MATCHING_MESSAGE_ID, CONVERSATION_ID,
                 matchingMessageType))).willReturn(Optional.of(matchingMessage));
 
-        assertThat(testSubject.isValid(uftpMessage)).isFalse();
+        assertThat(testSubject.validate(uftpMessage))
+
+            .isEqualTo(ValidationResult.rejection("Reference message expired"));
     }
 
     private <T extends PayloadMessageType> void setExpirationDateTime(Class<T> matchingMessageType, T matchingMessage,
@@ -210,8 +213,4 @@ class NotExpiredValidatorTest {
         setter.invoke(matchingMessage, value);
     }
 
-    @Test
-    void getReason() {
-        assertThat(testSubject.getReason()).isEqualTo("Reference message expired");
-    }
 }

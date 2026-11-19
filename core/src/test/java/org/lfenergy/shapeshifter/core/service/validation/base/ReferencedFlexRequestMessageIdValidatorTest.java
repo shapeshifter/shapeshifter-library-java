@@ -18,6 +18,7 @@ import org.lfenergy.shapeshifter.api.USEFRoleType;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -57,7 +58,7 @@ class ReferencedFlexRequestMessageIdValidatorTest {
   void valid_whenNoReferenceInRequest() {
     flexOffer.setFlexRequestMessageID(null);
 
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, flexOffer))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, flexOffer)).valid()).isTrue();
   }
 
   @Test
@@ -69,7 +70,7 @@ class ReferencedFlexRequestMessageIdValidatorTest {
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
             FlexRequest.class))).willReturn(Optional.of(flexRequest));
 
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
   }
 
   @Test
@@ -81,11 +82,9 @@ class ReferencedFlexRequestMessageIdValidatorTest {
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(FLEX_REQUEST_MESSAGE_ID, CONVERSATION_ID,
             FlexRequest.class))).willReturn(Optional.empty());
 
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+
+        .isEqualTo(ValidationResult.rejection("Unknown reference FlexRequestMessageID"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Unknown reference FlexRequestMessageID");
-  }
 }

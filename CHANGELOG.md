@@ -6,6 +6,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 3.7.0
 ### Added
 - `UftpValidator#validate` returns a `ValidationResult`, so a validator can return a rejection reason with details. The default implementation uses `isValid` and `getReason`, so existing validators keep working.
+- `ValidationResult.of(valid, rejectionReason)` creates an ok or rejection result in one call. The reason is only used when `valid` is false.
+
+### Changed
+- `UftpValidator#isValid` and `UftpValidator#getReason` are deprecated; implement `UftpValidator#validate` instead. They are planned for removal in the next major release.
+- Built-in validators now implement `UftpValidator#validate` directly and return their rejection reason in the `ValidationResult`.
+
+### Migration guide
+Replace `isValid` and `getReason` with one `validate` method that returns both the validity and rejection reason:
+
+```java
+@Override
+public ValidationResult validate(UftpMessage<MyMessage> message) {
+  if (isMessageValid(message)) {
+    return ValidationResult.ok();
+  }
+  return ValidationResult.rejection("My validation failed");
+}
+```
+
+Return `ValidationResult.ok()` for a valid message. For an invalid message, return `ValidationResult.rejection(reason)` with a non-blank reason.
+
+## 3.6.0
+### Fixed
+- Fixed the EAN length in the Metering message (#221).
 
 ## 3.5.0
 ### Changed

@@ -11,9 +11,12 @@ import org.lfenergy.shapeshifter.core.model.UftpMessage;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.ValidationOrder;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
 @RequiredArgsConstructor
 public class FlexOrderOfferIsNotRevokedValidator implements UftpValidator<FlexOrder> {
+
+    private static final String REJECTION_REASON = "Reference message revoked";
 
     private final UftpMessageSupport messageSupport;
 
@@ -28,14 +31,24 @@ public class FlexOrderOfferIsNotRevokedValidator implements UftpValidator<FlexOr
     }
 
     @Override
+    public ValidationResult validate(UftpMessage<FlexOrder> uftpMessage) {
+      return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
+    }
+
+    @Override
     public boolean isValid(UftpMessage<FlexOrder> uftpMessage) {
+      return isMessageValid(uftpMessage);
+    }
+
+    @Override
+    public String getReason() {
+      return REJECTION_REASON;
+    }
+
+    private boolean isMessageValid(UftpMessage<FlexOrder> uftpMessage) {
         var msg = uftpMessage.payloadMessage();
         return messageSupport.findFlexRevocation(msg.getConversationID(),
                 msg.getFlexOfferMessageID(), msg.getSenderDomain(), msg.getRecipientDomain()).isEmpty();
     }
 
-    @Override
-    public String getReason() {
-        return "Reference message revoked";
-    }
 }

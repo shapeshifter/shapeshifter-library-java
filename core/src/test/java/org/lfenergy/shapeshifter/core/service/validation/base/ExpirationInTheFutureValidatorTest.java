@@ -19,6 +19,7 @@ import org.lfenergy.shapeshifter.api.FlexOffer;
 import org.lfenergy.shapeshifter.api.FlexRequest;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.api.TestMessage;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.mockito.InjectMocks;
@@ -63,7 +64,7 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_whenNotPresent")
   void valid_whenNotPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   public static Stream<Arguments> valid_whenInTheFuture() {
@@ -82,7 +83,7 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_whenInTheFuture")
   void valid_whenInTheFuture(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   public static Stream<Arguments> valid_false_whenNow() {
@@ -101,7 +102,8 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_false_whenNow")
   void valid_false_whenNow(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+        .isEqualTo(ValidationResult.rejection("ExpirationDateTime out of bounds"));
   }
 
   public static Stream<Arguments> valid_whenInThePassed() {
@@ -120,11 +122,8 @@ class ExpirationInTheFutureValidatorTest {
   @ParameterizedTest
   @MethodSource("valid_whenInThePassed")
   void valid_whenInThePassed(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isFalse();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)))
+        .isEqualTo(ValidationResult.rejection("ExpirationDateTime out of bounds"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("ExpirationDateTime out of bounds");
-  }
 }

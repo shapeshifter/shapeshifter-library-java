@@ -20,27 +20,18 @@ import org.lfenergy.shapeshifter.api.PayloadMessageType;
  *   }
  *
  *   &#064;Override
- *   public boolean isValid(UftpMessage&lt;FlexRequest&gt; uftpMessage) {
- *     // implement your validation logic here; return true if valid, false otherwise
+ *   public ValidationResult validate(UftpMessage&lt;FlexRequest&gt; uftpMessage) {
+ *     if (isMessageValid(uftpMessage)) {
+ *       return ValidationResult.ok();
+ *     }
+ *     return ValidationResult.rejection("My custom validation failed");
  *   }
  *
- *   &#064;Override
- *   public String getReason() {
- *     // this is the reason of the validation failure, this is returned to the sender if validation fails
- *     return "My custom validation failed";
+ *   private boolean isMessageValid(UftpMessage&lt;FlexRequest&gt; uftpMessage) {
+ *     // Add application-specific validation checks here.
+ *     return true;
  *   }
  * }
- * </pre>
- *
- * <p>To return a rejection reason with details, override {@link UftpValidator#validate} instead:</p>
- *
- * <pre>
- *
- *   &#064;Override
- *   public ValidationResult validate(UftpMessage&lt;FlexRequest&gt; uftpMessage) {
- *     // return ValidationResult.ok() if valid
- *     return ValidationResult.rejection("My custom validation failed: ISP 12 exceeds contract capacity");
- *   }
  * </pre>
  *
  * @param <T> The type of UFTP payload message that can be validated by this class

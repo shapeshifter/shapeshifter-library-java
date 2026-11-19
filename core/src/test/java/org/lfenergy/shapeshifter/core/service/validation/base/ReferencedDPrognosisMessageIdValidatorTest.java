@@ -28,6 +28,7 @@ import org.lfenergy.shapeshifter.api.TestMessage;
 import org.lfenergy.shapeshifter.core.model.UftpMessageFixture;
 import org.lfenergy.shapeshifter.core.model.UftpParticipant;
 import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
+import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,7 +39,6 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   private static final String DPROGNOSIS_MESSAGE_ID1 = "DPROGNOSIS_MESSAGE_ID1";
   private static final String DPROGNOSIS_MESSAGE_ID2 = "DPROGNOSIS_MESSAGE_ID2";
   private static final String CONVERSATION_ID = conversationId();
-
 
   @Mock
   private UftpMessageSupport messageSupport;
@@ -124,7 +124,7 @@ class ReferencedDPrognosisMessageIdValidatorTest {
   @ParameterizedTest
   @MethodSource("withoutParameter")
   void valid_true_whenNoValueIsPresent(PayloadMessageType payloadMessage) {
-    assertThat(testSubject.isValid(UftpMessageFixture.createOutgoing(sender, payloadMessage))).isTrue();
+    assertThat(testSubject.validate(UftpMessageFixture.createOutgoing(sender, payloadMessage)).valid()).isTrue();
   }
 
   @ParameterizedTest
@@ -141,7 +141,7 @@ class ReferencedDPrognosisMessageIdValidatorTest {
               DPrognosis.class))).willReturn(Optional.of(dPrognosisType2));
     }
 
-    assertThat(testSubject.isValid(uftpMessage)).isTrue();
+    assertThat(testSubject.validate(uftpMessage).valid()).isTrue();
   }
 
   @ParameterizedTest
@@ -152,11 +152,9 @@ class ReferencedDPrognosisMessageIdValidatorTest {
     given(messageSupport.findReferencedMessage( uftpMessage.referenceToPreviousMessage(DPROGNOSIS_MESSAGE_ID1, CONVERSATION_ID,
             DPrognosis.class))).willReturn(Optional.empty());
 
-    assertThat(testSubject.isValid(uftpMessage)).isFalse();
+    assertThat(testSubject.validate(uftpMessage))
+
+        .isEqualTo(ValidationResult.rejection("Unknown reference D-PrognosisMessageID"));
   }
 
-  @Test
-  void getReason() {
-    assertThat(testSubject.getReason()).isEqualTo("Unknown reference D-PrognosisMessageID");
-  }
 }
