@@ -34,16 +34,6 @@ public class MinActivationFactorValidator implements UftpValidator<FlexOffer> {
     return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
   }
 
-  @Override
-  public boolean isValid(UftpMessage<FlexOffer> uftpMessage) {
-    return isMessageValid(uftpMessage);
-  }
-
-  @Override
-  public String getReason() {
-    return REJECTION_REASON;
-  }
-
   private boolean isMessageValid(UftpMessage<FlexOffer> uftpMessage) {
     var flexOffer = uftpMessage.payloadMessage();
     return flexOffer.getOfferOptions().stream().allMatch(

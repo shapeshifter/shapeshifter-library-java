@@ -35,16 +35,6 @@ public class IspRequestedDispositionValidator implements UftpValidator<FlexReque
     return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
   }
 
-  @Override
-  public boolean isValid(UftpMessage<FlexRequest> uftpMessage) {
-    return isMessageValid(uftpMessage);
-  }
-
-  @Override
-  public String getReason() {
-    return REJECTION_REASON;
-  }
-
   private boolean isMessageValid(UftpMessage<FlexRequest> uftpMessage) {
     var flexRequest = uftpMessage.payloadMessage();
     return flexRequest.getISPS().stream().anyMatch(this::dispositionEqualsRequested);

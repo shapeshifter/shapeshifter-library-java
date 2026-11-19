@@ -1,6 +1,39 @@
 # Migration
 This document registers all steps that need to be taken in order to upgrade from one version of the Shapeshifter Java library to another. Most updates to the Shapeshifter Java library will be backwards compatible, and require no additional steps from the library user, but sometimes a breaking change is applied, which requires action from the library user.
 
+# Version 4.0
+All methods that were deprecated in 2.3.0 and 3.7.0 are removed. The replacement methods are now abstract, so code that did not migrate yet no longer compiles.
+
+### `UftpValidator`
+`isValid` and `getReason` are removed and `validate` is abstract. See [Version 3.7](#version-37) for how to migrate.
+
+### `UftpPayloadHandler`
+| Removed                                                              | Use instead                                                |
+|----------------------------------------------------------------------|------------------------------------------------------------|
+| `notifyNewIncomingMessage(UftpParticipant, PayloadMessageType)`      | `notifyNewIncomingMessage(IncomingUftpMessage)` (abstract) |
+| `notifyNewOutgoingMessage(UftpParticipant, PayloadMessageType)`      | `notifyNewOutgoingMessage(OutgoingUftpMessage)` (abstract) |
+
+### `UftpIncomingHandler` and `UftpOutgoingHandler`
+`handle(UftpParticipant sender, T message)` is removed. Implement `handle(IncomingUftpMessage<T>)` or `handle(OutgoingUftpMessage<T>)`, which are now abstract. Get the sender with `message.sender()` and the payload with `message.payloadMessage()`.
+
+### `UftpReceivedMessageService`
+`process(UftpParticipant, PayloadMessageType)` is removed. Use `process(IncomingUftpMessage)`. If you only have a sender and a payload, create the message with `IncomingUftpMessage.create(from, payloadMessage, null, null)`.
+
+# Version 3.7
+`UftpValidator#isValid` and `UftpValidator#getReason` are deprecated. Replace them with one `validate` method that returns both the validity and the rejection reason:
+
+```java
+@Override
+public ValidationResult validate(UftpMessage<MyMessage> message) {
+  if (isMessageValid(message)) {
+    return ValidationResult.ok();
+  }
+  return ValidationResult.rejection("My validation failed");
+}
+```
+
+Return `ValidationResult.ok()` for a valid message. For an invalid message, return `ValidationResult.rejection(reason)` with a non-blank reason.
+
 # Version 2.0
 When upgrading to Shapeshifter Java library version 2.x from 1.x, you need to consider the following changes:
 
@@ -26,4 +59,3 @@ All methods in `UftpMessageSupport` have been renamed, some methods have one or 
 ## Non-breaking changes
 ### `FlexOfferRevocationSenderDomainValidator`
 This validator class is new, it validates that a flex offer revocation originates from the same `senderDomain` as the original flex offer.
-

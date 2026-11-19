@@ -49,16 +49,6 @@ public class PeriodIsInRangeValidator implements UftpValidator<PayloadMessageTyp
     return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
   }
 
-  @Override
-  public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
-    return isMessageValid(uftpMessage);
-  }
-
-  @Override
-  public String getReason() {
-    return REJECTION_REASON;
-  }
-
   private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
     return retriever.getProperty(uftpMessage.payloadMessage());
   }

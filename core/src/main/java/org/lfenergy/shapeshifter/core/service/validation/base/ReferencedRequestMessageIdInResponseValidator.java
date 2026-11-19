@@ -31,16 +31,6 @@ public class ReferencedRequestMessageIdInResponseValidator implements UftpValida
       return ValidationResult.of(isMessageValid(message), REJECTION_REASON);
     }
 
-    @Override
-    public boolean isValid(UftpMessage<PayloadMessageResponseType> message) {
-      return isMessageValid(message);
-    }
-
-    @Override
-    public String getReason() {
-      return REJECTION_REASON;
-    }
-
     private boolean isMessageValid(UftpMessage<PayloadMessageResponseType> message) {
         var value = UftpRequestResponseMapping.getReferencedRequestMessageId(message.payloadMessage());
         return value.isPresent() && support.findReferencedMessage(

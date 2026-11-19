@@ -37,16 +37,6 @@ public class DuplicateIdentifierValidator implements UftpValidator<PayloadMessag
     return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
   }
 
-  @Override
-  public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
-    return isMessageValid(uftpMessage);
-  }
-
-  @Override
-  public String getReason() {
-    return REJECTION_REASON;
-  }
-
   private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
     var result = duplicateDetection.isDuplicate(uftpMessage.payloadMessage());
     return NEW_MESSAGE == result || DUPLICATE_MESSAGE == result;

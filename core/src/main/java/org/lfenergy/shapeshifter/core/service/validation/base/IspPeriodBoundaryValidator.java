@@ -44,16 +44,6 @@ public class IspPeriodBoundaryValidator implements UftpValidator<PayloadMessageT
       return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
     }
 
-    @Override
-    public boolean isValid(UftpMessage<PayloadMessageType> uftpMessage) {
-      return isMessageValid(uftpMessage);
-    }
-
-    @Override
-    public String getReason() {
-      return REJECTION_REASON;
-    }
-
     private boolean isMessageValid(UftpMessage<PayloadMessageType> uftpMessage) {
         var payloadMessage = uftpMessage.payloadMessage();
 

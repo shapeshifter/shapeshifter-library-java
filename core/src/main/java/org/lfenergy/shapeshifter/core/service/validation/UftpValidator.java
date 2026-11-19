@@ -24,16 +24,10 @@ public interface UftpValidator<T extends PayloadMessageType> {
    * Validates a UFTP message with the specified payload message type and returns a {@link ValidationResult} object that
    * indicates whether the validation was successful or not.
    *
-   * @implNote This default method will become abstract in the next major release. Until then, implement this method.
-   *           Implement the deprecated {@link #isValid(UftpMessage)} and {@link #getReason()} only if direct callers
-   *           still need them, and keep them consistent with this method. Do not implement only one of them.
-   *
    * @param uftpMessage The UFTP message to validate.
    * @return A {@link ValidationResult} object indicating the result of the validation.
    */
-  default ValidationResult validate(UftpMessage<T> uftpMessage) {
-    return isValid(uftpMessage) ? ValidationResult.ok() : ValidationResult.rejection(getReason());
-  }
+  ValidationResult validate(UftpMessage<T> uftpMessage);
 
   /**
    * Checks if this validator can validate the specified UFTP payload message type.
@@ -51,31 +45,4 @@ public interface UftpValidator<T extends PayloadMessageType> {
    * values.
    */
   int order();
-
-  /**
-   * Validates a UFTP message with the specified payload message type.
-   *
-   * @param uftpMessage The UFTP message.
-   * @return <code>true</code> if the message is valid, <code>false</code> otherwise.
-   *
-   * @deprecated Use {@link #validate(UftpMessage)} instead, which returns a {@link ValidationResult} object that
-   *             indicates whether the validation was successful or not.
-   */
-  @Deprecated(since = "3.7.0", forRemoval = true)
-  default boolean isValid(UftpMessage<T> uftpMessage) {
-    throw new UnsupportedOperationException(
-        getClass().getName() + " must implement validate(UftpMessage) (or the deprecated isValid and getReason)");
-  }
-
-  /**
-   * @return The rejection reason that must be included in the response message if the validation failed.
-   *
-   * @deprecated Use {@link #validate(UftpMessage)} instead, which returns a {@link ValidationResult} object that
-   *             indicates whether the validation was successful or not.
-   */
-  @Deprecated(since = "3.7.0", forRemoval = true)
-  default String getReason() {
-    throw new UnsupportedOperationException(
-        getClass().getName() + " must implement validate(UftpMessage) (or the deprecated isValid and getReason)");
-  }
 }

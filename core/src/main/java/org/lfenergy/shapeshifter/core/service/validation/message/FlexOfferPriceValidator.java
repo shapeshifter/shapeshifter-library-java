@@ -6,14 +6,11 @@ package org.lfenergy.shapeshifter.core.service.validation.message;
 
 import lombok.RequiredArgsConstructor;
 import org.lfenergy.shapeshifter.api.FlexOffer;
-import org.lfenergy.shapeshifter.api.FlexOfferOptionType;
 import org.lfenergy.shapeshifter.api.PayloadMessageType;
 import org.lfenergy.shapeshifter.core.model.UftpMessage;
-import org.lfenergy.shapeshifter.core.service.validation.UftpMessageSupport;
 import org.lfenergy.shapeshifter.core.service.validation.UftpValidator;
 import org.lfenergy.shapeshifter.core.service.validation.model.ValidationResult;
 
-import java.math.BigDecimal;
 import java.util.Currency;
 
 /**
@@ -38,16 +35,6 @@ public class FlexOfferPriceValidator implements UftpValidator<FlexOffer> {
     @Override
     public ValidationResult validate(UftpMessage<FlexOffer> uftpMessage) {
       return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
-    }
-
-    @Override
-    public boolean isValid(UftpMessage<FlexOffer> uftpMessage) {
-      return isMessageValid(uftpMessage);
-    }
-
-    @Override
-    public String getReason() {
-      return REJECTION_REASON;
     }
 
     private boolean isMessageValid(UftpMessage<FlexOffer> uftpMessage) {

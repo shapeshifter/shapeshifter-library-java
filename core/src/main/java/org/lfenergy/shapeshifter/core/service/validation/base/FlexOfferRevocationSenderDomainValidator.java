@@ -35,16 +35,6 @@ public class FlexOfferRevocationSenderDomainValidator implements UftpValidator<F
       return ValidationResult.of(isMessageValid(uftpMessage), REJECTION_REASON);
     }
 
-    @Override
-    public boolean isValid(UftpMessage<FlexOfferRevocation> uftpMessage) {
-      return isMessageValid(uftpMessage);
-    }
-
-    @Override
-    public String getReason() {
-      return REJECTION_REASON;
-    }
-
     private boolean isMessageValid(UftpMessage<FlexOfferRevocation> uftpMessage) {
         var msg = uftpMessage.payloadMessage();
         var originalFlexOffer = uftpMessageSupport.findReferencedMessage(uftpMessage.referenceToPreviousMessage(msg.getConversationID(),
